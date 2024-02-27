@@ -86,6 +86,21 @@ class HydrofiaExportFileDiscrete:
     def columns(self) -> list[str]:
         return list(self.data.columns)
 
+    def get_info(self) -> dict:
+        sorted_sernos = sorted(set(self._data['serno']))
+        years = sorted(set(self._data['year']))
+        if not sorted_sernos:
+            return {}
+        from_serno = sorted_sernos[0]
+        to_serno = sorted_sernos[-1]
+        info = dict(
+            years=years,
+            year_string='-'.join([str(y) for y in years]),
+            from_serno=from_serno,
+            to_serno=to_serno,
+        )
+        return info
+
     def get_data(self) -> pd.DataFrame:
         return self.data
 
@@ -341,14 +356,5 @@ class _HyrdofiaExcelTemplateLoad:
         return self.data
 
 
-if __name__ == '__main__':
-    path = pathlib.Path(r"C:\mw\utv\HydroFIA\data\BAS 23-0147.txt")
 
-    hf = HydrofiaExportFileDiscrete(path)
-
-    template = HyrdofiaExcelTemplate(r'C:\mw\utv\HydroFIA/mall.xlsx')
-    template.create_template(hf)
-    # template.open_template()
-
-    df = template.get_data()
 

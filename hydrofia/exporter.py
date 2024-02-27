@@ -1,5 +1,7 @@
 import datetime
 import pathlib
+
+import numpy as np
 import pandas as pd
 import inspect
 import sys
@@ -32,7 +34,8 @@ class ExporterXlsxTemplate:
     ref_depth_col = 7
     salt_col = 8
     temp_col = 9
-    ph_col = 10
+    ph_calc_col = 10
+    ph_col = 11
 
     def __str__(self):
         return self.__class__.__name__
@@ -79,13 +82,18 @@ class ExporterXlsxTemplate:
     def _write_data(self):
         r = self.data_start_row
         for index, df in self.data.groupby(['date', 'serno', 'depth']):
+            df = df[~np.isnan(df['calc_pH'])]
+            if df.empty:
+                continue
             s = df.iloc[-1]
+            print(f'{s=}')
             self._set_value(r, self.series_col, s['serno'])
             self._set_value(r, self.depth_col, s['depth'])
             self._set_value(r, self.ref_depth_col, str(float(s['ref_depth'])))
             self._set_value(r, self.salt_col, s['salt'])
             self._set_value(r, self.temp_col, s['temp'])
-            self._set_value(r, self.ph_col, s['calc_pH'])
+            self._set_value(r, self.ph_calc_col, s['calc_pH'])
+            self._set_value(r, self.ph_col, s['pH'])
             r += 1
 
     def _save_file(self):

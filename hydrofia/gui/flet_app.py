@@ -5,11 +5,12 @@ import re
 import sys
 
 import hydrofia
-from hydrofia.gui.tooltip_texts import TooltipTexts, get_tooltip_widget
+from hydrofia.gui.tooltip import TooltipTexts, get_tooltip_widget, get_tooltip_icon
 from hydrofia.gui.texts import Texts
 from hydrofia.gui.colors import Colors
 from hydrofia.gui import saves
 from hydrofia import utils
+from hydrofia import reference_batch
 
 import flet as ft
 from flet_core.constrained_control import ConstrainedControl
@@ -26,6 +27,9 @@ TOOLTIP_TEXT = TooltipTexts()
 TEXTS = Texts()
 COLORS = Colors()
 
+TEMPLATE_STEM_ENDING = '_rättningsfil'
+RESULT_STEM_ENDING = '_resultat'
+
 
 class FletApp:
     def __init__(self, log_in_console=False):
@@ -38,6 +42,8 @@ class FletApp:
         self._progress_texts = {}
         self._instrument_items = {}
         self._current_source_instrument = None
+
+        # self._batches = 
 
         self._month_all_option = 'ALLA'
 
@@ -77,8 +83,14 @@ class FletApp:
 
         saves.load(self)
 
-        self._on_blur_template_export_file_name()
-        self._on_blur_result_file_name()
+        self._update_create_template_path()
+        self._update_create_result_path()
+
+        # self._check_create_template_path_exists()
+        # self._check_create_result_path_exists()
+
+        # self._on_blur_template_export_file_name()
+        # self._on_blur_result_file_name()
 
         # self.use_template_path = self.use_template_path
         # self.template_directory = self.template_directory
@@ -207,7 +219,7 @@ class FletApp:
         )
 
         self.page.controls.append(self._get_hydrofia_container())
-        self.page.controls.append(self._get_template_container())
+        self.page.controls.append(self._get_result_container())
 
         # container = ft.Container(content=col,
         #                          # bgcolor=COLORS.hydrofia_file_path,
@@ -218,9 +230,9 @@ class FletApp:
         # self.page.controls.append(container)
 
         # self.page.controls.append(self._get_hydrofia_container())
-        # self.page.controls.append(self._get_template_container())
+        # self.page.controls.append(self._get_result_container())
 
-        self._open_template_dir_btn.visible = False
+        # self._open_template_dir_btn.visible = False
         self._open_template_file_btn.visible = False
         self._open_result_file_btn.visible = False
 
@@ -228,126 +240,327 @@ class FletApp:
 
     def _get_hydrofia_container(self):
 
-        export_row = ft.Row(
-            # alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            spacing=20
+        # btn = ft.ElevatedButton(TEXTS.get_hydrofia_export_button, on_click=lambda _:
+        #                         self._hydrofia_file_picker.pick_files(
+        #                             dialog_title=TEXTS.dialog_title_hydrofia_file_path,
+        #                             allowed_extensions=['txt'],
+        #                             allow_multiple=False
+        #                         ))
+        #
+        # self._hydrofia_file_path = ft.Text(TEXTS.missing_hydrofia_file_path)
+        #
+        # # Filter on year
+        # year_options = []
+        # for y in range(2022, datetime.datetime.now().year+1):
+        #     year_options.append(ft.dropdown.Option(str(y)))
+        # self._year = ft.Dropdown(
+        #     label='År',
+        #     hint_text='Filtrera på år',
+        #     options=year_options,
+        #     on_change=self._update_create_template_path,
+        #     dense=True
+        # )
+        # self._year.value = str(datetime.datetime.now().year)
+        #
+        # # Filter on month
+        # month_options = [ft.dropdown.Option(self._month_all_option)]
+        # for m in range(1, 13):
+        #     month_options.append(ft.dropdown.Option(str(m)))
+        # self._month = ft.Dropdown(
+        #     label='Månad',
+        #     hint_text='Filtrera på månad',
+        #     options=month_options,
+        #     on_change=self._update_create_template_path,
+        #     autofocus=True,
+        #     dense=True,
+        # )
+        # self._month.value = self._month_all_option
+        #
+        # dir_btn = ft.ElevatedButton(TEXTS.get_template_directory_button, on_click=lambda _:
+        # self._template_directory_picker.get_directory_path(
+        #     dialog_title=TEXTS.dialog_title_template_directory
+        # ))
+        #
+        # self._open_template_dir_btn = ft.ElevatedButton(TEXTS.open_directory, on_click=self._open_template_directory)
+        #
+        # self._template_directory = ft.Text(TEXTS.missing_template_directory)
+        # # self.template_directory = str(hydrofia.get_default_template_path().parent)
+        #
+        # create_path_label = ft.Text(TEXTS.create_file_label)
+        # self._create_template_path = ft.Text()
+        #
+        # self._overwrite_template = ft.Checkbox(label=TEXTS.overwrite, value=False, active_color='red')
+        # # self._overwrite_template = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
+        #
+        # self._toggle_buttons.append(btn)
+        # self._toggle_buttons.append(dir_btn)
+        # self._toggle_buttons.append(self._open_template_dir_btn)
+        # self._toggle_buttons.append(self._overwrite_template)
+        #
+        # path_row = ft.Row()
+        # filter_row = ft.Row()
+        # folder_row = ft.Row()
+        # create_path_row = ft.Row()
+        #
+        # path_row.controls.append(btn)
+        # path_row.controls.append(self._hydrofia_file_path)
+        #
+        # filter_row.controls.append(self._year)
+        # filter_row.controls.append(self._month)
+        #
+        # folder_row.controls.append(dir_btn)
+        # folder_row.controls.append(self._template_directory)
+        # folder_row.controls.append(self._open_template_dir_btn)
+        #
+        # create_path_row.controls.append(create_path_label)
+        # create_path_row.controls.append(self._create_template_path)
+        #
+        # overwrite_row = ft.Row()
+        # overwrite_row.controls.append(self._overwrite_template)
+        #
+        # create_template_btn = ft.ElevatedButton(TEXTS.create_template, on_click=self._create_template)
+        #
+        # option_container = ft.Column()
+        # option_container.controls.append(path_row)
+        # option_container.controls.append(filter_row)
+        # option_container.controls.append(folder_row)
+        # option_container.controls.append(create_path_row)
+        # option_container.controls.append(overwrite_row)
+        # option_container.controls.append(create_template_btn)
+
+        meta_container = self._get_hydrofia_metadata_container()
+        option_container = self._get_hydrofia_option_container()
+
+        main_row = ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            spacing=30,
+            run_spacing=30,
         )
 
-        btn = ft.ElevatedButton(TEXTS.get_hydrofia_export_button, on_click=lambda _:
-                                self._hydrofia_file_picker.pick_files(
-                                    dialog_title=TEXTS.dialog_title_hydrofia_file_path,
-                                    allowed_extensions=['txt'],
-                                    allow_multiple=False
-                                ))
-
-        self._hydrofia_file_path = ft.Text(TEXTS.missing_hydrofia_file_path)
-
-        # Filter on year
-        year_options = []
-        for y in range(2022, datetime.datetime.now().year+1):
-            year_options.append(ft.dropdown.Option(str(y)))
-        self._year = ft.Dropdown(
-            label='År',
-            hint_text='Filtrera på år',
-            options=year_options,
-            dense=True
-        )
-        self._year.value = str(datetime.datetime.now().year)
-
-        # Filter on month
-        month_options = [ft.dropdown.Option(self._month_all_option)]
-        for m in range(1, 13):
-            month_options.append(ft.dropdown.Option(str(m)))
-        self._month = ft.Dropdown(
-            label='Månad',
-            hint_text='Filtrera på månad',
-            options=month_options,
-            autofocus=True,
-            dense=True,
-        )
-        self._month.value = self._month_all_option
-
-        dir_btn = ft.ElevatedButton(TEXTS.get_template_directory_button, on_click=lambda _:
-        self._template_directory_picker.get_directory_path(
-            dialog_title=TEXTS.dialog_title_template_directory
-        ))
-
-        self._open_template_dir_btn = ft.ElevatedButton(TEXTS.open_directory, on_click=self._open_template_directory)
-
-        self._template_directory = ft.Text(TEXTS.missing_template_directory)
-        # self.template_directory = str(hydrofia.get_default_template_path().parent)
-
-        create_path_label = ft.Text(TEXTS.create_file_label)
-        self._create_template_path = ft.Text()
-
-        self._overwrite_template = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
-
-        self._toggle_buttons.append(btn)
-        self._toggle_buttons.append(dir_btn)
-        self._toggle_buttons.append(self._open_template_dir_btn)
-        self._toggle_buttons.append(self._overwrite_template)
-
-        path_row = ft.Row()
-        filter_row = ft.Row()
-        folder_row = ft.Row()
-        create_path_row = ft.Row()
-
-        path_row.controls.append(btn)
-        path_row.controls.append(self._hydrofia_file_path)
-
-        filter_row.controls.append(self._year)
-        filter_row.controls.append(self._month)
-
-        folder_row.controls.append(dir_btn)
-        folder_row.controls.append(self._template_directory)
-        folder_row.controls.append(self._open_template_dir_btn)
-
-        create_path_row.controls.append(create_path_label)
-        create_path_row.controls.append(self._create_template_path)
-
-        overwrite_row = ft.Row()
-        overwrite_row.controls.append(self._overwrite_template)
-
-        col = ft.Column()
-        col.controls.append(path_row)
-        col.controls.append(filter_row)
-        col.controls.append(folder_row)
-        col.controls.append(create_path_row)
-        col.controls.append(overwrite_row)
-
-        tt = get_tooltip_widget(TOOLTIP_TEXT.hydrofia_file)
-        tt.content = col
-
-        export_row.controls.append(tt)
-        export_row.controls.append(self._get_create_template_container())
+        main_row.controls.append(meta_container)
+        main_row.controls.append(option_container)
 
         main_column = ft.Column()
         main_column.controls.append(ft.Text(TEXTS.title_create_excel,
                                             size=30,
                                             weight=ft.FontWeight.W_400))
-        main_column.controls.append(export_row)
+        main_column.controls.append(main_row)
 
-        #container = ft.Container(content=export_row,
         container = ft.Container(content=main_column,
-                                 bgcolor=COLORS.hydrofia_file_path,
+                                 bgcolor=COLORS.hydrofia_container,
                                  border_radius=10,
                                  padding=10,
                                  expand=1)
 
         return container
 
-    def _get_template_container(self):
+    def _get_result_container(self):
 
-        template_col = ft.Column(
+        # template_col = ft.Column(
+        #     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        #     expand=2)
+        #
+        # file_btn = ft.ElevatedButton(TEXTS.get_template_path_button, on_click=lambda _:
+        #                             self._template_file_picker.pick_files(
+        #                                 dialog_title=TEXTS.dialog_title_template_file,
+        #                                 allowed_extensions=['xlsx'],
+        #                                 allow_multiple=False
+        #                             ))
+        #
+        # self._use_template_path = ft.Text(TEXTS.missing_template_path)
+        #
+        # self._open_template_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_template_file)
+        #
+        # dir_btn = ft.ElevatedButton(TEXTS.get_ctd_directory_button, on_click=lambda _:
+        # self._ctd_directory_picker.get_directory_path(
+        #     dialog_title=TEXTS.dialog_title_ctd_directory
+        # ))
+        #
+        # self._ctd_directory = ft.Text(TEXTS.missing_ctd_directory)
+        #
+        # create_path_label = ft.Text(TEXTS.create_file_label)
+        # self._create_result_path = ft.Text()
+        #
+        # # self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
+        # self._overwrite_result = ft.Checkbox(label=TEXTS.overwrite, value=False, active_color='red')
+        #
+        # self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_result_file)
+        #
+        # self._create_result_btn = ft.ElevatedButton(TEXTS.create_result, on_click=self._create_result)
+        #
+        # self._toggle_buttons.append(self._open_template_file_btn)
+        # self._toggle_buttons.append(self._open_result_file_btn)
+        # self._toggle_buttons.append(file_btn)
+        # self._toggle_buttons.append(dir_btn)
+        #
+        # file_row = ft.Row()
+        # ctd_row = ft.Row()
+        # create_path_row = ft.Row()
+        #
+        # file_row.controls.append(file_btn)
+        # file_row.controls.append(self._use_template_path)
+        # file_row.controls.append(self._open_template_file_btn)
+        #
+        # ctd_row.controls.append(dir_btn)
+        # ctd_row.controls.append(self._ctd_directory)
+        #
+        # create_path_row.controls.append(create_path_label)
+        # create_path_row.controls.append(self._create_result_path)
+        #
+        # overwrite_row = ft.Row()
+        # overwrite_row.controls.append(self._overwrite_result)
+        # overwrite_row.controls.append(self._open_result_file_btn)
+        #
+        # col = ft.Column()
+        # col.controls.append(file_row)
+        # col.controls.append(ctd_row)
+        # col.controls.append(create_path_row)
+        # col.controls.append(overwrite_row)
+        # col.controls.append(self._create_result_btn)
+
+        # tt = get_tooltip_widget(TOOLTIP_TEXT.template_file)
+        # tt.expand = 1
+        # tt.content = col
+        # template_col.controls.append(tt)
+
+
+
+
+        # template_col.controls.append(col)
+        #
+        # template_lower_row = ft.Row(
+        #     #alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        #     spacing=10,
+        #     expand=2
+        # )
+        #
+        # template_lower_row.controls.append(self._get_result_metadata_container())
+        # template_lower_row.controls.append(self._get_create_result_container())
+        #
+        # template_col.controls.append(template_lower_row)
+        #
+        # main_column = ft.Column()
+        # title_row = ft.Row()
+        # title_row.controls.append(ft.Text(TEXTS.title_merge_ctd_with_hydrofia,
+        #                                     size=30,
+        #                                     weight=ft.FontWeight.W_400))
+        # title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.template_file))
+        #
+        # main_column.controls.append(title_row)
+        # main_column.controls.append(template_col)
+        #
+        # #container = ft.Container(content=template_col,
+        # container = ft.Container(content=main_column,
+        #                          bgcolor=COLORS.template_path,
+        #                          border_radius=10,
+        #                          padding=10,
+        #                          expand=2)
+
+        # return container
+
+        meta_container = self._get_result_metadata_container()
+        option_container = self._get_result_option_container()
+
+        main_row = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            expand=2)
+            spacing=30,
+            run_spacing=30,
+        )
+
+        main_row.controls.append(meta_container)
+        main_row.controls.append(option_container)
+
+        title_row = ft.Row()
+        title_row.controls.append(ft.Text(TEXTS.title_merge_ctd_with_hydrofia,
+                                            size=30,
+                                            weight=ft.FontWeight.W_400))
+        title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.hydrofia_file))
+
+        main_column = ft.Column()
+        main_column.controls.append(title_row)
+        main_column.controls.append(main_row)
+
+        container = ft.Container(content=main_column,
+                                 bgcolor=COLORS.result_container,
+                                 border_radius=10,
+                                 padding=10,
+                                 expand=1)
+
+        return container
+
+    # def _get_create_template_container(self):
+    #
+    #     export_row = ft.Row(
+    #         expand=True
+    #     )
+    #
+    #     self._template_export_file_name = ft.TextField(label=TEXTS.template_export_file_name,
+    #                                                    dense=True,
+    #                                                    on_change=self._on_change_template_export_file_name,
+    #                                                    # on_blur=self._on_blur_template_export_file_name,
+    #                                                    )
+    #
+    #     btn = ft.ElevatedButton(TEXTS.create_template, on_click=self._create_template)
+    #     self._toggle_buttons.append(btn)
+    #
+    #     col = ft.Column()
+    #     col.controls.append(self._template_export_file_name)
+    #     col.controls.append(btn)
+    #
+    #     tt = get_tooltip_widget(TOOLTIP_TEXT.create_template)
+    #     tt.content = col
+    #
+    #     export_row.controls.append(tt)
+    #
+    #     container = ft.Container(content=export_row,
+    #                              bgcolor=COLORS.export_template,
+    #                              border_radius=10,
+    #                              padding=30,
+    #                              expand=True)
+    #
+    #     return container
+
+    # def _get_create_result_container(self):
+    #
+    #     export_row = ft.Row(
+    #         expand=True
+    #     )
+    #
+    #     self._result_file_name = ft.TextField(label=TEXTS.result_file_name,
+    #                                           dense=True,
+    #                                           on_change=self._on_change_result_file_name,
+    #                                           on_blur=self._on_blur_result_file_name
+    #                                           )
+    #
+    #
+    #     col = ft.Column(
+    #         #expand=True
+    #     )
+    #     col.controls.append(self._result_file_name)
+    #
+    #     tt = get_tooltip_widget(TOOLTIP_TEXT.create_result)
+    #     tt.content = col
+    #
+    #     export_row.controls.append(tt)
+    #
+    #     container = ft.Container(content=export_row,
+    #                              # bgcolor=COLORS.export_result,
+    #                              bgcolor='red',
+    #                              border_radius=10,
+    #                              padding=10,
+    #                              # expand=True
+    #                              )
+    #
+    #     return container
+
+    def _get_result_option_container(self):
 
         file_btn = ft.ElevatedButton(TEXTS.get_template_path_button, on_click=lambda _:
-                                    self._template_file_picker.pick_files(
-                                        dialog_title=TEXTS.dialog_title_template_file,
-                                        allowed_extensions=['xlsx'],
-                                        allow_multiple=False
-                                    ))
+        self._template_file_picker.pick_files(
+            dialog_title=TEXTS.dialog_title_template_file,
+            allowed_extensions=['xlsx'],
+            allow_multiple=False
+        ))
 
         self._use_template_path = ft.Text(TEXTS.missing_template_path)
 
@@ -363,9 +576,12 @@ class FletApp:
         create_path_label = ft.Text(TEXTS.create_file_label)
         self._create_result_path = ft.Text()
 
-        self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
+        # self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
+        self._overwrite_result = ft.Checkbox(label=TEXTS.overwrite, value=False, active_color='red')
 
         self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_result_file)
+
+        self._create_result_btn = ft.ElevatedButton(TEXTS.create_result, on_click=self._create_result)
 
         self._toggle_buttons.append(self._open_template_file_btn)
         self._toggle_buttons.append(self._open_result_file_btn)
@@ -390,103 +606,15 @@ class FletApp:
         overwrite_row.controls.append(self._overwrite_result)
         overwrite_row.controls.append(self._open_result_file_btn)
 
-        col = ft.Column()
-        col.controls.append(file_row)
-        col.controls.append(ctd_row)
-        col.controls.append(create_path_row)
-        col.controls.append(overwrite_row)
+        option_column = ft.Column()
+        option_column.controls.append(file_row)
+        option_column.controls.append(ctd_row)
+        option_column.controls.append(create_path_row)
+        option_column.controls.append(overwrite_row)
+        option_column.controls.append(self._create_result_btn)
 
-        tt = get_tooltip_widget(TOOLTIP_TEXT.template_file)
-        tt.expand = 1
-        tt.content = col
-
-        template_col.controls.append(tt)
-
-        template_lower_row = ft.Row(
-            #alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            spacing=10,
-            expand=2
-        )
-
-        template_lower_row.controls.append(self._get_metadata_container())
-        template_lower_row.controls.append(self._get_create_result_container())
-
-        template_col.controls.append(template_lower_row)
-
-        main_column = ft.Column()
-        main_column.controls.append(ft.Text(TEXTS.title_merge_ctd_with_hydrofia,
-                                            size=30,
-                                            weight=ft.FontWeight.W_400))
-        main_column.controls.append(template_col)
-
-        #container = ft.Container(content=template_col,
-        container = ft.Container(content=main_column,
-                                 bgcolor=COLORS.template_path,
-                                 border_radius=10,
-                                 padding=10,
-                                 expand=2)
-
-        return container
-
-    def _get_create_template_container(self):
-
-        export_row = ft.Row(
-            expand=True
-        )
-
-        self._template_export_file_name = ft.TextField(label=TEXTS.template_export_file_name,
-                                                       dense=True,
-                                                       on_change=self._on_change_template_export_file_name,
-                                                       on_blur=self._on_blur_template_export_file_name)
-
-        btn = ft.ElevatedButton(TEXTS.create_template, on_click=self._create_template)
-        self._toggle_buttons.append(btn)
-
-        col = ft.Column()
-        col.controls.append(self._template_export_file_name)
-        col.controls.append(btn)
-
-        tt = get_tooltip_widget(TOOLTIP_TEXT.create_template)
-        tt.content = col
-
-        export_row.controls.append(tt)
-
-        container = ft.Container(content=export_row,
-                                 bgcolor=COLORS.export_template,
-                                 border_radius=10,
-                                 padding=30,
-                                 expand=True)
-
-        return container
-
-    def _get_create_result_container(self):
-
-        export_row = ft.Row(
-            expand=True
-        )
-
-        self._result_file_name = ft.TextField(label=TEXTS.result_file_name,
-                                              dense=True,
-                                              on_change=self._on_change_result_file_name,
-                                              on_blur=self._on_blur_result_file_name
-                                              )
-
-        btn = ft.ElevatedButton(TEXTS.create_result, on_click=self._create_result)
-        self._toggle_buttons.append(btn)
-
-        col = ft.Column(
-            #expand=True
-        )
-        col.controls.append(self._result_file_name)
-        col.controls.append(btn)
-
-        tt = get_tooltip_widget(TOOLTIP_TEXT.create_result)
-        tt.content = col
-
-        export_row.controls.append(tt)
-
-        container = ft.Container(content=export_row,
-                                 bgcolor=COLORS.export_result,
+        container = ft.Container(content=option_column,
+                                 bgcolor=COLORS.option_container,
                                  border_radius=10,
                                  padding=10,
                                  # expand=True
@@ -494,66 +622,226 @@ class FletApp:
 
         return container
 
-    def _get_metadata_container(self):
+    def _get_hydrofia_option_container(self):
+        btn = ft.ElevatedButton(TEXTS.get_hydrofia_export_button, on_click=lambda _:
+        self._hydrofia_file_picker.pick_files(
+            dialog_title=TEXTS.dialog_title_hydrofia_file_path,
+            allowed_extensions=['txt'],
+            allow_multiple=False
+        ))
 
-        export_row = ft.Row(
-            # scroll=ft.ScrollMode.AUTO,
-            expand=True
+        self._hydrofia_file_path = ft.Text(TEXTS.missing_hydrofia_file_path)
+
+        # Filter on year
+        year_options = []
+        for y in range(2022, datetime.datetime.now().year + 1):
+            year_options.append(ft.dropdown.Option(str(y)))
+        self._year = ft.Dropdown(
+            label='År',
+            hint_text='Filtrera på år',
+            options=year_options,
+            on_change=self._update_create_template_path,
+            dense=True
         )
-        dence = True
+        self._year.value = str(datetime.datetime.now().year)
 
+        # Filter on month
+        month_options = [ft.dropdown.Option(self._month_all_option)]
+        for m in range(1, 13):
+            month_options.append(ft.dropdown.Option(str(m)))
+        self._month = ft.Dropdown(
+            label='Månad',
+            hint_text='Filtrera på månad',
+            options=month_options,
+            on_change=self._update_create_template_path,
+            autofocus=True,
+            dense=True,
+        )
+        self._month.value = self._month_all_option
+
+        dir_btn = ft.ElevatedButton(TEXTS.get_template_directory_button, on_click=lambda _:
+        self._template_directory_picker.get_directory_path(
+            dialog_title=TEXTS.dialog_title_template_directory
+        ))
+
+        # self._open_template_dir_btn = ft.ElevatedButton(TEXTS.open_directory, on_click=self._open_template_directory)
+
+        self._template_directory = ft.Text(TEXTS.missing_template_directory)
+        # self.template_directory = str(hydrofia.get_default_template_path().parent)
+
+        create_path_label = ft.Text(TEXTS.create_file_label)
+        self._create_template_path = ft.Text()
+
+        self._overwrite_template = ft.Checkbox(label=TEXTS.overwrite, value=False, active_color='red')
+
+        create_template_btn = ft.ElevatedButton(TEXTS.create_template, on_click=self._create_template)
+
+        self._toggle_buttons.append(btn)
+        self._toggle_buttons.append(dir_btn)
+        # self._toggle_buttons.append(self._open_template_dir_btn)
+        self._toggle_buttons.append(self._overwrite_template)
+
+        path_row = ft.Row()
+        filter_row = ft.Row()
+        folder_row = ft.Row()
+        create_path_row = ft.Row()
+
+        path_row.controls.append(btn)
+        path_row.controls.append(self._hydrofia_file_path)
+
+        filter_row.controls.append(self._year)
+        filter_row.controls.append(self._month)
+
+        folder_row.controls.append(dir_btn)
+        folder_row.controls.append(self._template_directory)
+        # folder_row.controls.append(self._open_template_dir_btn)
+
+        create_path_row.controls.append(create_path_label)
+        create_path_row.controls.append(self._create_template_path)
+
+        overwrite_row = ft.Row()
+        overwrite_row.controls.append(self._overwrite_template)
+
+        option_column = ft.Column()
+        option_column.controls.append(path_row)
+        option_column.controls.append(filter_row)
+        option_column.controls.append(folder_row)
+        option_column.controls.append(create_path_row)
+        option_column.controls.append(overwrite_row)
+        option_column.controls.append(create_template_btn)
+
+        container = ft.Container(content=option_column,
+                                 bgcolor=COLORS.option_container,
+                                 border_radius=10,
+                                 padding=10,
+                                 expand=False
+                                 )
+
+        return container
+
+    def _get_hydrofia_metadata_container(self):
+
+        # export_row = ft.Row(
+        #     # scroll=ft.ScrollMode.AUTO,
+        #     expand=True
+        # )
+        dence = True
+        width = 200
         self._metadata_signature = ft.TextField(label=TEXTS.signature,
                                                 dense=dence,
+                                                width=width
                                                 )
 
         self._metadata_project = ft.TextField(label=TEXTS.project,
                                               dense=dence,
+                                              width=width
                                               )
+
+        col = ft.Column(
+            alignment=ft.MainAxisAlignment.START,
+            scroll=ft.ScrollMode.AUTO,
+            expand=False,
+            spacing=20
+        )
+
+        col.controls.append(self._metadata_signature)
+        col.controls.append(self._metadata_project)
+
+        # tt = get_tooltip_widget(TOOLTIP_TEXT.metadata)
+        # tt.content = row
+        #
+        # export_row.controls.append(tt)
+
+        container = ft.Container(content=col,
+                                 bgcolor=COLORS.metadata,
+                                 border_radius=10,
+                                 padding=10,
+                                 expand=False
+                                 )
+
+        return container
+
+    def _get_result_metadata_container(self):
+
+        # export_row = ft.Row(
+        #     # scroll=ft.ScrollMode.AUTO,
+        #     expand=True
+        # )
+        dence = True
+
+        width = 200
 
         self._metadata_surface_layer = ft.TextField(label=TEXTS.surface_layer,
                                               dense=dence,
+                                              width=width
                                               )
 
         self._metadata_bottom_layer = ft.TextField(label=TEXTS.bottom_layer,
                                                     dense=dence,
+                                                    width=width
                                                     )
 
         self._metadata_max_depth_diff_allowed = ft.TextField(label=TEXTS.max_depth_diff_allowed,
                                               dense=dence,
+                                              width=width
                                               )
 
-        row = ft.Row()
-        col1 = ft.Column(
+        col = ft.Column(
             alignment=ft.MainAxisAlignment.START,
             scroll=ft.ScrollMode.AUTO,
-            # expand=True,
+            expand=False,
             spacing=20
         )
+        col.controls.append(self._metadata_surface_layer)
+        col.controls.append(self._metadata_bottom_layer)
+        col.controls.append(self._metadata_max_depth_diff_allowed)
 
-        col2 = ft.Column(
-            alignment=ft.MainAxisAlignment.START,
-            scroll=ft.ScrollMode.AUTO,
-            # expand=True,
-            spacing=20
-        )
-        row.controls.append(col1)
-        row.controls.append(col2)
-        col1.controls.append(self._metadata_signature)
-        col1.controls.append(self._metadata_project)
-        col1.controls.append(self._metadata_surface_layer)
-        col2.controls.append(self._metadata_bottom_layer)
-        col2.controls.append(self._metadata_max_depth_diff_allowed)
+        # tt = get_tooltip_widget(TOOLTIP_TEXT.metadata)
+        # tt.content = row
+        #
+        # export_row.controls.append(tt)
 
-        tt = get_tooltip_widget(TOOLTIP_TEXT.metadata)
-        tt.content = row
-
-        export_row.controls.append(tt)
-
-        container = ft.Container(content=export_row,
+        container = ft.Container(content=col,
                                  bgcolor=COLORS.metadata,
                                  border_radius=10,
                                  padding=10,
-                                 expand=True
+                                 expand=False
+                                 )
+
+        return container
+
+    def _get_batch_container(self):
+
+        batch_nr_options = []
+        self._batch_nr = ft.Dropdown(
+            label='Batch nummer',
+            hint_text='Använd data från batch nummer...',
+            options=batch_nr_options,
+            on_change=self._update_create_template_path,
+            dense=True
+        )
+        self._batch_nr.value = str(datetime.datetime.now().year)
+
+        col = ft.Column(
+            alignment=ft.MainAxisAlignment.START,
+            scroll=ft.ScrollMode.AUTO,
+            expand=False,
+            spacing=20
+        )
+        col.controls.append(self._metadata_surface_layer)
+        col.controls.append(self._metadata_bottom_layer)
+        col.controls.append(self._metadata_max_depth_diff_allowed)
+
+        # tt = get_tooltip_widget(TOOLTIP_TEXT.metadata)
+        # tt.content = row
+        #
+        # export_row.controls.append(tt)
+
+        container = ft.Container(content=col,
+                                 bgcolor=COLORS.metadata,
+                                 border_radius=10,
+                                 padding=10,
+                                 expand=False
                                  )
 
         return container
@@ -570,6 +858,7 @@ class FletApp:
             return
         # TODO: Validate file
         self._hydrofia_file_path.value = text
+        self._update_create_template_path()
         self.update_page()
 
     def _on_pick_ctd_dir(self, e: ft.FilePickerResultEvent):
@@ -577,6 +866,7 @@ class FletApp:
         if not e.path:
             return
         self.ctd_directory = e.path
+        saves.save()
 
     def _on_pick_template_dir(self, e: ft.FilePickerResultEvent):
         """Related to the creation of the TEMPLATE"""
@@ -593,27 +883,26 @@ class FletApp:
         if not e.files:
             return
         self.use_template_path = e.files[0].path
-        self._set_default_result_file_name()
         self._update_create_result_path()
 
-    def _set_default_result_file_name(self):
-        """Sets default name if no name is given"""
-        if self.result_file_name:
-            return
-        if not self.use_template_path:
-            return
-        name = self.use_template_path.stem + '_result'
-        self.result_file_name = name
-        self.create_result_path = None
+    # def _set_default_result_file_name(self):
+    #     """Sets default name if no name is given"""
+    #     if self.result_file_name:
+    #         return
+    #     if not self.use_template_path:
+    #         return
+    #     name = self.use_template_path.stem + '_result'
+    #     self.result_file_name = name
+    #     self.create_result_path = None
 
-    def _check_create_template_path_exists(self):
+    def _check_create_template_path_exists(self, *args):
         if self.create_template_path and self.create_template_path.exists():
             disabled = False
             label = TEXTS.get_file_exists(True)
         else:
             disabled = True
             label = TEXTS.get_file_exists(False)
-        logger.info(f'{disabled=}')
+        logger.info(f'TEMPLATE: {disabled=}')
         logger.info(f'{label=}')
 
         self._overwrite_template.disabled = disabled
@@ -666,10 +955,10 @@ class FletApp:
                                             overwrite=self._overwrite_template.value,
                                             year=year,
                                             month=month)
-            self._check_create_template_path_exists()
+            self._update_create_result_path()
+            # self._check_create_template_path_exists()
             self._show_info(TEXTS.info_creating_template_done(path), status='good')
             self.use_template_path = str(path)
-            self._set_default_result_file_name()
             self.template_directory = self.template_directory
             saves.save()
         except Exception as e:
@@ -698,7 +987,9 @@ class FletApp:
             hydrofia.create_xlsx_result_file_from_calc_object(
                 calc_object=calc_object,
                 path=self.create_result_path,
-                overwrite=self._overwrite_result.value
+                overwrite=self._overwrite_result.value,
+                project=self._metadata_project.value.strip(),
+                signature=self._metadata_signature.value.strip()
             )
 
             hydrofia.create_txt_archive_file_from_calc_object(
@@ -760,6 +1051,12 @@ class FletApp:
         if self.create_result_path.exists() and not self._overwrite_result.value:
             self._show_info(TEXTS.select_overwrite(self.create_result_path))
             return False
+        if not self._metadata_project.value.strip():
+            self._show_info(TEXTS.missing_metadata('projekt'))
+            return False
+        if not self._metadata_signature.value.strip():
+            self._show_info(TEXTS.missing_metadata('signatur'))
+            return False
         return True
 
     @staticmethod
@@ -768,52 +1065,68 @@ class FletApp:
         # return str.strip(',.-\!"#¤%&/()=')
         return re.sub('[^A-Za-z0-9åäö_\-]+', '', str)
 
-    def _on_change_template_export_file_name(self, *args):
-        name = self.filter_path(self.template_export_file_name)
-        self.template_export_file_name = name
-        self._update_create_template_path()
+    # def _on_change_template_export_file_name(self, *args):
+    #     name = self.filter_path(self.template_export_file_name)
+    #     self.template_export_file_name = name
+    #     self._update_create_template_path()
 
-    def _on_blur_template_export_file_name(self, *args):
-        name = self.filter_path(self.template_export_file_name)
-        if not name:
-            name = hydrofia.get_default_template_path().stem
-        self.template_export_file_name = name
-        self._update_create_template_path()
+    # def _on_blur_template_export_file_name(self, *args):
+    #     name = self.filter_path(self.template_export_file_name)
+    #     if not name:
+    #         name = hydrofia.get_default_template_path().stem
+    #     self.template_export_file_name = name
+    #     self._update_create_template_path()
 
-    def _update_create_template_path(self):
+    def _update_create_template_path(self, *args):
         """Updates the template path related to the creation of template"""
         path = ''
-        if self.template_export_file_name and self.template_directory:
-            path = pathlib.Path(self.template_directory, self.template_export_file_name + '.xlsx')
-        self.create_template_path = str(path)
+        if self.template_directory and self.hydrofia_file_path:
+            proj = self._metadata_project.value.strip()
+            if not proj:
+                self.create_template_path = None
+                return
+            year = int(self._year.value)
+            month = self._month.value
+            if month == 'ALLA':
+                month = None
+            else:
+                month = int(month)
+            id_string = hydrofia.get_id_string_for_hydrofia_export_file(self.hydrofia_file_path, year=year, month=month)
+            print(f'{id_string=}')
+            if not id_string:
+                self.create_template_path = None
+                return
+            name = f'{proj}_{id_string}{TEMPLATE_STEM_ENDING}.xlsx'
+            path = pathlib.Path(self.template_directory, name)
+        self.create_template_path = path
         self._check_create_template_path_exists()
 
-    def _on_change_result_file_name(self, *args):
-        name = self.filter_path(self.result_file_name)
-        self.result_file_name = name
-        self._update_create_result_path()
+    # def _on_change_result_file_name(self, *args):
+    #     name = self.filter_path(self.result_file_name)
+    #     self.result_file_name = name
+    #     self._update_create_result_path()
 
-    def _on_blur_result_file_name(self, *args):
-        name = self.filter_path(self.result_file_name)
-        if not name:
-            if self.use_template_path:
-                name = self.use_template_path.stem + '_result'
-            else:
-                name = ''
-        self.result_file_name = name
-        self._update_create_result_path()
+    # def _on_blur_result_file_name(self, *args):
+    #     name = self.filter_path(self.result_file_name)
+    #     if not name:
+    #         if self.use_template_path:
+    #             name = self.use_template_path.stem + '_result'
+    #         else:
+    #             name = ''
+    #     self.result_file_name = name
+    #     self._update_create_result_path()
 
     def _update_create_result_path(self):
         """Updates the template path related to the creation of template"""
-        name = self.result_file_name
         template_path = self.use_template_path
         if not template_path:
             return
         directory = template_path.parent
-        if not name:
-            path = ''
-        else:
-            path = pathlib.Path(directory, name + '.xlsx')
+        stem = template_path.stem
+        if stem.endswith(TEMPLATE_STEM_ENDING):
+            stem = stem[:-len(TEMPLATE_STEM_ENDING)]
+        stem = stem + RESULT_STEM_ENDING
+        path = pathlib.Path(directory, stem + '.xlsx')
         self.create_result_path = path
         self._check_create_result_path_exists()
 
@@ -840,11 +1153,11 @@ class FletApp:
 
     @template_directory.setter
     def template_directory(self, path=None):
-        self._open_template_dir_btn.visible = True
+        # self._open_template_dir_btn.visible = True
         if not path:
             path = TEXTS.missing_template_directory
-            self._open_template_dir_btn.visible = False
-        self._open_template_dir_btn.update()
+            # self._open_template_dir_btn.visible = False
+        # self._open_template_dir_btn.update()
         self._template_directory.value = str(path)
         self._template_directory.update()
 
@@ -859,19 +1172,20 @@ class FletApp:
     def create_template_path(self, path=None):
         if not path:
             path = TEXTS.missing_template_path
-            if self.template_export_file_name and self.template_directory:
-                path = pathlib.Path(self.template_directory, self.template_export_file_name + '.xlsx')
+            # if self.template_export_file_name and self.template_directory:
+            #     path = pathlib.Path(self.template_directory, self.template_export_file_name + '.xlsx')
         self._create_template_path.value = str(path)
         self._create_template_path.update()
+        self._check_create_template_path_exists()
 
-    @property
-    def template_export_file_name(self) -> str:
-        return self._template_export_file_name.value
-
-    @template_export_file_name.setter
-    def template_export_file_name(self, name=None):
-        self._template_export_file_name.value = name
-        self._template_export_file_name.update()
+    # @property
+    # def template_export_file_name(self) -> str:
+    #     return self._template_export_file_name.value
+    #
+    # @template_export_file_name.setter
+    # def template_export_file_name(self, name=None):
+    #     self._template_export_file_name.value = name
+    #     self._template_export_file_name.update()
 
     @property
     def use_template_path(self) -> pathlib.Path | None:
@@ -906,14 +1220,14 @@ class FletApp:
         self._create_result_path.value = str(path)
         self._create_result_path.update()
 
-    @property
-    def result_file_name(self) -> str:
-        return self._result_file_name.value
-
-    @result_file_name.setter
-    def result_file_name(self, path=None):
-        self._result_file_name.value = path
-        self._result_file_name.update()
+    # @property
+    # def result_file_name(self) -> str:
+    #     return self._result_file_name.value
+    #
+    # @result_file_name.setter
+    # def result_file_name(self, path=None):
+    #     self._result_file_name.value = path
+    #     self._result_file_name.update()
 
     @property
     def ctd_directory(self) -> pathlib.Path | None:

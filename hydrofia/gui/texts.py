@@ -7,19 +7,19 @@ class Texts:
 
     @property
     def get_hydrofia_export_button(self):
-        return 'Välj exportfil (.txt) från HydroFIA'
+        return 'Välj .txt-fil från HydroFIA'
 
     @property
     def get_template_path_button(self):
-        return 'Välj din Hydro FIA excelfil'
+        return 'Välj rättningsfil'
 
     @property
     def get_ctd_directory_button(self):
-        return 'Välj mapp för ctd-filer'
+        return 'Välj mapp för ctd-filer (standardformat)'
 
     @property
     def get_template_directory_button(self):
-        return 'Välj din arbetsmapp'
+        return 'Välj exportmapp'
 
     @property
     def non_existing_hydrofia_path(self):
@@ -47,7 +47,7 @@ class Texts:
 
     @property
     def missing_template_path(self):
-        return 'Ingen mall vald...'
+        return 'Ingen data tillgänglig...'
 
     @property
     def missing_result_path(self):
@@ -79,7 +79,7 @@ class Texts:
 
     @property
     def create_template(self):
-        return 'Skapa din Hydro FIA excelfil'
+        return 'Skapa rättningsfil'
 
     @property
     def create_result(self):
@@ -145,9 +145,12 @@ class Texts:
 
     @property
     def title_merge_ctd_with_hydrofia(self):
-        return 'Sammanfoga CTD med Hydro FIA excel'
+        return 'Steg 2: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
 
     @property
     def title_create_excel(self):
-        return 'Skapa excel från txt'
+        return 'Steg 1: Skapa rättningsfil'
+
+    def missing_metadata(self, meta: str) -> str:
+        return f'Metadata saknas: {meta}'
 

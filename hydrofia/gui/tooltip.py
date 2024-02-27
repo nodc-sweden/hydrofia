@@ -2,6 +2,10 @@ import math
 import flet as ft
 
 
+def get_tooltip_icon(text: str) -> ft.Icon:
+    return ft.Icon(name=ft.icons.INFO, color=ft.colors.PINK, tooltip=text)
+
+
 class TooltipTexts:
 
     @property
@@ -25,9 +29,9 @@ class TooltipTexts:
     def metadata(self):
         return 'Dessa fält behövs för beräkning samt för att fylla i metadata i resultatifilen'
 
-    @property
-    def create_template(self):
-        return 'Ange det namn du vill att excelfilen ska ha (HydroFIA-BAS ÅÅ-första serienr'
+    # @property
+    # def create_template(self):
+    #     return 'Ange det namn du vill att excelfilen ska ha (HydroFIA-BAS ÅÅ-första serienr'
 
     @property
     def create_result(self):

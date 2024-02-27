@@ -3,24 +3,16 @@
 class Colors:
 
     @property
-    def template_path(self):
+    def hydrofia_container(self):
         return '#DFE8CC'
 
     @property
-    def hydrofia_file_path(self):
-        return self.template_path
+    def result_container(self):
+        return '#DFE8CC'
 
     @property
-    def ctd_directory(self):
-        return self.template_path
-
-    @property
-    def export_template(self):
-        return '#6ec3d4'
-
-    @property
-    def export_result(self):
-        return '#6ed490'
+    def option_container(self):
+        return '#DFF8C9'
 
     @property
     def metadata(self):

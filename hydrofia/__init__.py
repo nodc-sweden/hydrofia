@@ -26,6 +26,20 @@ def create_template(template_path: pathlib.Path | str = None,
     return template.create_template(hf, overwrite=overwrite)
 
 
+def get_id_string_for_hydrofia_export_file(path: pathlib.Path | str = None,
+                                           year: int = None,
+                                           month: int = None):
+    start_date, end_date = utils.get_date_limits_from_year_and_month(year=year, month=month)
+    hf = HydrofiaExportFileDiscrete(path)
+    hf.filter_data_by_date(start_date=start_date, end_date=end_date)
+    info = hf.get_info()
+    if not info:
+        return
+    print(f'{info=}')
+    stem = f'{info['year_string']}_{info['from_serno']}_{info['to_serno']}'
+    return stem
+
+
 def get_calculated_object(
         template_path: pathlib.Path | str = None,
         ctd_directory: pathlib.Path | str = None,
