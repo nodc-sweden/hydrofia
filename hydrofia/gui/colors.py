@@ -18,6 +18,10 @@ class Colors:
     def metadata(self):
         return '#f0e962'
 
+    @property
+    def batch(self):
+        return '#f01962'
+
     @staticmethod
     def banner(status='bad'):
         if status == 'good':

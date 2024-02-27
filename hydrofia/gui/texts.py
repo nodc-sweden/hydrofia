@@ -145,12 +145,40 @@ class Texts:
 
     @property
     def title_merge_ctd_with_hydrofia(self):
-        return 'Steg 2: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
+        return 'Steg 3: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
 
     @property
     def title_create_excel(self):
-        return 'Steg 1: Skapa rättningsfil'
+        return 'Steg 2: Skapa rättningsfil'
+
+    @property
+    def title_batch(self):
+        return 'Steg 1: Beräkna pH från batch'
 
     def missing_metadata(self, meta: str) -> str:
         return f'Metadata saknas: {meta}'
+
+    @property
+    def batch_salinity(self) -> str:
+        return 'Salinitet'
+
+    @property
+    def batch_temperature(self) -> str:
+        return 'Temperatur'
+
+    @property
+    def batch_alk_label(self) -> str:
+        return 'ALK i batch:'
+
+    @property
+    def batch_dic_label(self) -> str:
+        return 'DIC i batch:'
+
+    @property
+    def batch_ph_label(self) -> str:
+        return 'Beräknat pH:'
+
+    @property
+    def calculate_ph(self) -> str:
+        return 'Beräkna pH'
 
