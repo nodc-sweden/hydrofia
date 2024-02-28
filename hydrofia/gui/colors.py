@@ -8,7 +8,7 @@ class Colors:
 
     @property
     def result_container(self):
-        return '#DFE8CC'
+        return '#6ab080'
 
     @property
     def option_container(self):
@@ -20,7 +20,7 @@ class Colors:
 
     @property
     def batch(self):
-        return '#f01962'
+        return '#03b1fc'
 
     @staticmethod
     def banner(status='bad'):

@@ -11,18 +11,17 @@ class TooltipTexts:
     @property
     def hydrofia_file(self):
         return '\n'.join([
-            'Här väljer du vilken exportfil (.txt) från HydroFIA som du vill skapa en excelfil av. ',
-            'Excelfilen skapar du för att enkelt kunna granska och rätta din HydroFIA rapport. ',
+            'Här väljer du vilken txt-fil från HydroFIA som du vill skapa en rättningsmall i excel av.\n '
+            'Excelfilen skapar du för att enkelt kunna granska och rätta din HydroFIA rapport.\n '
             'Välj vilken mapp du vill att filen ska sparas i. filtrera på rätt månad och år vid behov'
         ])
 
     @property
     def template_file(self):
         return '\n'.join([
-            'Här sammanfogar du HydroFIA-excel med CTD för att beräkna pH vid Insitu S och T.',
-            'Fyll i din signatur, namnge projekt (HydroFIA-BAS ÅÅ-första serie nr).',
-            'Ändra vid behov tjocklek på ytlagret, bottenlagret och maximal diff mellan djup,',
-            'detta för att rätt värde ska hämtas från CTD profil',
+            'Här sammanfogar du HydroFIA- med CTD-data för att beräkna pH vid Insitu S och T. Fyll i din signatur,\n '
+            'namnge projekt (BAS). Ändra vid behov tjocklek på ytlagret, bottenlagret och maximal diff mellan djup,\n '
+            'detta för att rätt värde ska hämtas från CTD profil'
         ])
 
     @property

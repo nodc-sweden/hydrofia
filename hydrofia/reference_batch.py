@@ -25,11 +25,13 @@ class ReferenceBatch:
     def __init__(self,
                  alk: float | str = None,
                  dic: float | str = None,
+                 salinity: float | str = None,
                  bottling_date: str | datetime.date | datetime.datetime = None,
                  **kwargs
                  ) -> None:
         self._alk = float(alk)
         self._dic = float(dic)
+        self._salinity = float(salinity)
         self._bottling_date = bottling_date
 
     @property
@@ -41,6 +43,10 @@ class ReferenceBatch:
         return self._dic
 
     @property
+    def salinity(self) -> float:
+        return self._salinity
+
+    @property
     def bottling_date(self) -> datetime.date:
         if type(self._bottling_date) == datetime.date:
             return self._bottling_date
@@ -49,20 +55,19 @@ class ReferenceBatch:
         return datetime.datetime.strptime(self._bottling_date, '%B %d, %Y').date()
 
     def get_all(self,
-                salinity: float = None,
                 temperature: float = None) -> dict:
-        return seacarb.carb(float(salinity), float(temperature), self.alk, self.dic, 15)
+        return seacarb.carb(self.salinity, float(temperature), self.alk, self.dic, 15)
 
     def get_ph(self,
-               salinity: float = None,
                temperature: float = None) -> float:
-        return self.get_all(salinity=salinity, temperature=temperature)['pH']
+        return self.get_all(temperature=temperature)['pH']
 
 
 class ReferenceBatches:
 
     def __init__(self, data: dict):
         self._data = data
+        self.save_as_yaml()
 
     @property
     def latest_batch_nr(self):
@@ -84,14 +89,14 @@ class ReferenceBatches:
 
     def save_as_yaml(self, path: pathlib.Path | str = None) -> None:
         path = path or DEFAULT_BATCH_YAML
-        if not path.suffix == 'yaml':
+        if not path.suffix == '.yaml':
             raise Exception(f'Invalid yaml file to save batches: {path}')
         with open(path, 'w') as fid:
             yaml.safe_dump(self._data, fid)
 
     def save_as_json(self, path: pathlib.Path | str = None) -> None:
         path = path or DEFAULT_BATCH_JSON
-        if not path.suffix == 'json':
+        if not path.suffix == '.json':
             raise Exception(f'Invalid json file to save batches: {path}')
         with open(path, 'w') as fid:
             json.dump(self._data, fid)
@@ -126,6 +131,7 @@ class ReferenceBatches:
 def get_latest_batches():
     try:
         batches = ReferenceBatches.from_noaa_url()
+        print(f'{batches=}')
         return batches
     except Exception:
         yaml_batches = None

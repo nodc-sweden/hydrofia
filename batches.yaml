@@ -1,0 +1,1449 @@
+'1':
+  NB: '-'
+  alk: '-'
+  batch_nr: Batch 01
+  bottling_date: Jan 29, 1990
+  dic: '2020.15'
+  salinity: '33.508'
+'10':
+  NB: A
+  alk: '2257.50'
+  batch_nr: Batch 10
+  bottling_date: Nov 15, 1991
+  dic: '1960.61'
+  salinity: '34.572'
+'100':
+  NB: G
+  alk: '2232.36'
+  batch_nr: Batch  100
+  bottling_date: November 13, 2009
+  dic: '2021.65'
+  salinity: '33.351'
+'101':
+  NB: G
+  alk: '2241.44'
+  batch_nr: Batch  101
+  bottling_date: January 15, 2010
+  dic: '2027.80'
+  salinity: '33.590'
+'102':
+  NB: G
+  alk: '2227.46'
+  batch_nr: Batch  102
+  bottling_date: February 19, 2010
+  dic: '2012.24'
+  salinity: '33.310'
+'103':
+  NB: G
+  alk: '2232.94'
+  batch_nr: Batch  103
+  bottling_date: April 9, 2010
+  dic: '2023.23'
+  salinity: '33.498'
+'104':
+  NB: G
+  alk: '2222.61'
+  batch_nr: Batch  104
+  bottling_date: June 11, 2010
+  dic: '2020.10'
+  salinity: '33.300'
+'105':
+  NB: G
+  alk: '2235.16'
+  batch_nr: Batch  105
+  bottling_date: July 23, 2010
+  dic: '2036.72'
+  salinity: '33.504'
+'106':
+  NB: G
+  alk: '2219.68'
+  batch_nr: Batch  106
+  bottling_date: September 10, 2010
+  dic: '2004.90'
+  salinity: '33.274'
+'107':
+  NB: G
+  alk: '2205.17'
+  batch_nr: Batch  107
+  bottling_date: October 8, 2010
+  dic: '1995.12'
+  salinity: '32.985'
+'108':
+  NB: G
+  alk: '2218.00'
+  batch_nr: Batch  108
+  bottling_date: November 10, 2010
+  dic: '2022.70'
+  salinity: '33.224'
+'109':
+  NB: G
+  alk: '2224.26'
+  batch_nr: Batch  109
+  bottling_date: December 9, 2010
+  dic: '2026.33'
+  salinity: '33.328'
+'11':
+  NB: C,D
+  alk: '-'
+  batch_nr: Batch 11
+  bottling_date: Jan 07, 1992
+  dic: '2188.89'
+  salinity: '38.50'
+'110':
+  NB: G
+  alk: '2229.04'
+  batch_nr: Batch  110
+  bottling_date: January 14, 2011
+  dic: '2018.28'
+  salinity: '33.418'
+'111':
+  NB: G
+  alk: '2222.80'
+  batch_nr: Batch  111
+  bottling_date: February 18, 2011
+  dic: '2045.66'
+  salinity: '33.264'
+'112':
+  NB: G
+  alk: '2223.26'
+  batch_nr: Batch  112
+  bottling_date: June 3, 2011
+  dic: '2011.09'
+  salinity: '33.305'
+'113':
+  NB: G
+  alk: '2224.65'
+  batch_nr: Batch  113
+  bottling_date: July 8, 2011
+  dic: '2016.68'
+  salinity: '33.357'
+'114':
+  NB: G
+  alk: '2217.91'
+  batch_nr: Batch  114
+  bottling_date: August 19, 2011
+  dic: '2000.93'
+  salinity: '33.208'
+'115':
+  NB: G
+  alk: '2242.84'
+  batch_nr: Batch  115
+  bottling_date: September 16, 2011
+  dic: '2007.45'
+  salinity: '33.572'
+'116':
+  NB: G
+  alk: '2232.76'
+  batch_nr: Batch  116
+  bottling_date: October 14, 2011
+  dic: '2014.18'
+  salinity: '33.451'
+'117':
+  NB: G
+  alk: '2239.18'
+  batch_nr: Batch  117
+  bottling_date: November 10, 2011
+  dic: '2009.99'
+  salinity: '33.503'
+'118':
+  NB: G
+  alk: '2229.75'
+  batch_nr: Batch  118
+  bottling_date: December 16, 2011
+  dic: '2013.33'
+  salinity: '33.377'
+'119':
+  NB: G
+  alk: '2221.24'
+  batch_nr: Batch  119
+  bottling_date: January 20, 2012
+  dic: '2014.78'
+  salinity: '33.263'
+'12':
+  NB: A
+  alk: '2226.56'
+  batch_nr: Batch 12
+  bottling_date: Feb 27, 1992
+  dic: '1984.26'
+  salinity: '33.494'
+'120':
+  NB: G
+  alk: '2208.43'
+  batch_nr: Batch  120
+  bottling_date: February 24, 2012
+  dic: '2002.61'
+  salinity: '33.072'
+'122':
+  NB: G
+  alk: '2233.32'
+  batch_nr: Batch  122
+  bottling_date: May 11, 2012
+  dic: '2042.29'
+  salinity: '33.435'
+'123':
+  NB: G
+  alk: '2225.21'
+  batch_nr: Batch  123
+  bottling_date: August 16, 2012
+  dic: '2022.04'
+  salinity: '33.384'
+'124':
+  NB: G
+  alk: '2215.08'
+  batch_nr: Batch 124
+  bottling_date: October 12, 2012
+  dic: '2015.72'
+  salinity: '33.190'
+'125':
+  NB: G
+  alk: '2216.26'
+  batch_nr: Batch 125
+  bottling_date: November 6, 2012
+  dic: '2141.94'
+  salinity: '33.186'
+'126':
+  NB: G
+  alk: '2232.55'
+  batch_nr: Batch  126
+  bottling_date: December 7, 2012
+  dic: '2007.64'
+  salinity: '33.460'
+'127':
+  NB: G
+  alk: '2228.64'
+  batch_nr: Batch  127
+  bottling_date: January 18, 2013
+  dic: '2023.30'
+  salinity: '33.424'
+'128':
+  NB: G
+  alk: '2240.28'
+  batch_nr: Batch  128
+  bottling_date: February 15, 2013
+  dic: '2013.54'
+  salinity: '33.442'
+'129':
+  NB: G
+  alk: '2237.32'
+  batch_nr: Batch  129
+  bottling_date: April 26, 2013
+  dic: '2016.65'
+  salinity: '33.361'
+'13':
+  NB: A
+  alk: '2203.79'
+  batch_nr: Batch 13
+  bottling_date: Jun 25, 1992
+  dic: '2015.13'
+  salinity: '32.864'
+'130':
+  NB: G
+  alk: '2238.04'
+  batch_nr: Batch  130
+  bottling_date: May 24, 2013
+  dic: '2072.58'
+  salinity: '33.661'
+'131':
+  NB: G
+  alk: '2241.35'
+  batch_nr: Batch  131
+  bottling_date: June 28, 2013
+  dic: '2028.99'
+  salinity: '33.621'
+'132':
+  NB: G
+  alk: '2229.24'
+  batch_nr: Batch  132
+  bottling_date: July 26, 2013
+  dic: '2032.65'
+  salinity: '33.441'
+'133':
+  NB: G
+  alk: '2224.37'
+  batch_nr: Batch 133
+  bottling_date: August 30, 2013
+  dic: '2021.12'
+  salinity: '33.341'
+'134':
+  NB: G
+  alk: '2236.51'
+  batch_nr: Batch 134
+  bottling_date: September 27, 2013
+  dic: '2026.91'
+  salinity: '33.651'
+'135':
+  NB: G
+  alk: '2226.33'
+  batch_nr: Batch 135
+  bottling_date: November 1, 2013
+  dic: '2036.96'
+  salinity: '33.561'
+'136':
+  NB: G
+  alk: '2246.74'
+  batch_nr: Batch 136
+  bottling_date: December 6, 2013
+  dic: '2021.15'
+  salinity: '33.678'
+'137':
+  NB: G
+  alk: '2231.59'
+  batch_nr: Batch 137
+  bottling_date: January 17, 2014
+  dic: '2031.90'
+  salinity: '33.607'
+'138':
+  NB: G
+  alk: '2221.75'
+  batch_nr: Batch 138
+  bottling_date: February 21, 2014
+  dic: '2033.98'
+  salinity: '33.398'
+'139':
+  NB: G
+  alk: '2250.82'
+  batch_nr: Batch 139
+  bottling_date: March 27, 2014
+  dic: '2023.23'
+  salinity: '33.267'
+'14':
+  NB: E
+  alk: not distributed as RM
+  batch_nr: Batch 14
+  bottling_date: Jul 23, 1992
+  dic: not distributed as RM
+  salinity: not distributed as RM
+'140':
+  NB: G
+  alk: '2232.58'
+  batch_nr: Batch 140
+  bottling_date: May 2, 2014
+  dic: '2040.94'
+  salinity: '33.471'
+'141':
+  NB: G
+  alk: '2234.07'
+  batch_nr: Batch 141
+  bottling_date: June 13, 2014
+  dic: '2033.26'
+  salinity: '33.417'
+'142':
+  NB: G
+  alk: '2227.59'
+  batch_nr: Batch 142
+  bottling_date: July 25, 2014
+  dic: '2038.07'
+  salinity: '33.389'
+'143':
+  NB: G
+  alk: '2241.04'
+  batch_nr: Batch 143
+  bottling_date: August 29, 2014
+  dic: '2017.75'
+  salinity: '33.620'
+'144':
+  NB: G
+  alk: '2238.60'
+  batch_nr: Batch 144
+  bottling_date: October 10, 2014
+  dic: '2031.53'
+  salinity: '33.571'
+'145':
+  NB: G
+  alk: '2226.16'
+  batch_nr: Batch 145
+  bottling_date: December 4, 2014
+  dic: '2034.13'
+  salinity: '33.409'
+'146':
+  NB: G
+  alk: '2214.11'
+  batch_nr: Batch 146
+  bottling_date: January 30, 2015
+  dic: '2002.92'
+  salinity: '33.122'
+'147':
+  NB: G
+  alk: '2231.39'
+  batch_nr: Batch 147
+  bottling_date: March 13, 2015
+  dic: '2014.52'
+  salinity: '33.427'
+'148':
+  NB: G
+  alk: '2241.13'
+  batch_nr: Batch 148
+  bottling_date: May 1, 2015
+  dic: '2024.12'
+  salinity: '33.624'
+'149':
+  NB: G
+  alk: '2224.69'
+  batch_nr: Batch 149
+  bottling_date: June 12, 2015
+  dic: '2011.67'
+  salinity: '33.331'
+'15':
+  NB: A
+  alk: '2202.38'
+  batch_nr: Batch 15
+  bottling_date: Nov 30, 1992
+  dic: '2031.65'
+  salinity: '33.199'
+'151':
+  NB: G
+  alk: '2225.56'
+  batch_nr: Batch 151
+  bottling_date: September 4, 2015
+  dic: '2033.83'
+  salinity: '33.345'
+'152':
+  NB: G
+  alk: '2216.94'
+  batch_nr: Batch 152
+  bottling_date: October 23, 2015
+  dic: '2020.88'
+  salinity: '33.371'
+'153':
+  NB: G
+  alk: '2225.59'
+  batch_nr: Batch 153
+  bottling_date: December 4, 2015
+  dic: '2017.95'
+  salinity: '33.357'
+'154':
+  NB: G
+  alk: '2224.30'
+  batch_nr: Batch 154
+  bottling_date: January 22, 2016
+  dic: '2037.68'
+  salinity: '33.347'
+'155':
+  NB: G
+  alk: '2235.07'
+  batch_nr: Batch 155
+  bottling_date: March 4, 2016
+  dic: '2042.75'
+  salinity: '33.506'
+'156':
+  NB: G
+  alk: '2236.51'
+  batch_nr: Batch 156
+  bottling_date: April 8, 2016
+  dic: '2052.72'
+  salinity: '33.455'
+'157':
+  NB: G
+  alk: '2229.82'
+  batch_nr: Batch 157
+  bottling_date: May 20, 2016
+  dic: '2049.43'
+  salinity: '33.463'
+'158':
+  NB: G
+  alk: '2226.55'
+  batch_nr: Batch 158
+  bottling_date: June 17, 2016
+  dic: '2043.54'
+  salinity: '33.516'
+'159':
+  NB: G
+  alk: '2213.59'
+  batch_nr: Batch 159
+  bottling_date: July 22, 2016
+  dic: '2027.14'
+  salinity: '33.572'
+'16':
+  NB: A
+  alk: '2206.78'
+  batch_nr: Batch 16
+  bottling_date: Dec 04, 1992
+  dic: '2034.54'
+  salinity: '33.203'
+'160':
+  NB: G
+  alk: '2212.44'
+  batch_nr: Batch 160
+  bottling_date: September 9, 2016
+  dic: '2030.39'
+  salinity: '33.414'
+'161':
+  NB: G
+  alk: '2207.33'
+  batch_nr: Batch 161
+  bottling_date: October 14, 2016
+  dic: '2037.38'
+  salinity: '33.356'
+'162':
+  NB: G
+  alk: '2403.72'
+  batch_nr: Batch 162
+  bottling_date: November 18, 2016
+  dic: '2177.27'
+  salinity: '33.312'
+'163':
+  NB: G
+  alk: '2215.34'
+  batch_nr: Batch 163
+  bottling_date: January 13, 2017
+  dic: '2039.43'
+  salinity: '33.362'
+'164':
+  NB: G
+  alk: '2309.32'
+  batch_nr: Batch 164
+  bottling_date: February 17, 2017
+  dic: '2238.89'
+  salinity: '33.247'
+'165':
+  NB: G
+  alk: '2214.09'
+  batch_nr: Batch 165
+  bottling_date: April 14, 2017
+  dic: '2064.41'
+  salinity: '33.329'
+'166':
+  NB: G
+  alk: '2212.56'
+  batch_nr: Batch 166
+  bottling_date: May 12 , 2017
+  dic: '2053.48'
+  salinity: '33.477'
+'168':
+  NB: G
+  alk: '2207.62'
+  batch_nr: Batch 168
+  bottling_date: June 30, 2017
+  dic: '2071.47'
+  salinity: '33.481'
+'169':
+  NB: G
+  alk: '2207.03'
+  batch_nr: Batch 169
+  bottling_date: August 4, 2017
+  dic: '2063.31'
+  salinity: '33.518'
+'17':
+  NB: A
+  alk: '2219.15'
+  batch_nr: Batch 17
+  bottling_date: Apr 08, 1993
+  dic: '2044.54'
+  salinity: '33.226'
+'170':
+  NB: G
+  alk: '2198.77'
+  batch_nr: Batch 170
+  bottling_date: September 8, 2017
+  dic: '1982.42'
+  salinity: '33.573'
+'171':
+  NB: G
+  alk: '2217.40'
+  batch_nr: Batch 171
+  bottling_date: October 13, 2017
+  dic: '2029.19'
+  salinity: '33.434'
+'172':
+  NB: G
+  alk: '2217.40'
+  batch_nr: Batch 172
+  bottling_date: November 17, 2017
+  dic: '2038.99'
+  salinity: '33.450'
+'173':
+  NB: G
+  alk: '2210.77'
+  batch_nr: Batch 173
+  bottling_date: December 8, 2017
+  dic: '2042.41'
+  salinity: '33.414'
+'174':
+  NB: G
+  alk: '2212.23'
+  batch_nr: Batch 174
+  bottling_date: January 26, 2018
+  dic: '2050.56'
+  salinity: '33.408'
+'175':
+  NB: G
+  alk: '2224.53'
+  batch_nr: Batch 175
+  bottling_date: March 16, 2018
+  dic: '2067.06'
+  salinity: '33.458'
+'176':
+  NB: G
+  alk: '2226.38'
+  batch_nr: Batch 176
+  bottling_date: May 4, 2018
+  dic: '2024.22'
+  salinity: '33.532'
+'177':
+  NB: G
+  alk: '2223.89'
+  batch_nr: Batch 177
+  bottling_date: June 15, 2018
+  dic: '2067.67'
+  salinity: '33.641'
+'178':
+  NB: G
+  alk: '2216.53'
+  batch_nr: Batch 178
+  bottling_date: July 20, 2018
+  dic: '1952.65'
+  salinity: '33.782'
+'18':
+  NB: A
+  alk: '2297.77'
+  batch_nr: Batch 18
+  bottling_date: Sep 10, 1993
+  dic: '2115.15'
+  salinity: '35.298'
+'180':
+  NB: G
+  alk: '2224.47'
+  batch_nr: Batch 180
+  bottling_date: October 19, 2018
+  dic: '2021.87'
+  salinity: '33.623'
+'181':
+  NB: G
+  alk: '2222.71'
+  batch_nr: Batch 181
+  bottling_date: December 14, 2018
+  dic: '2030.77'
+  salinity: '33.582'
+'183':
+  NB: G
+  alk: '2230.52'
+  batch_nr: Batch 183
+  bottling_date: March 1, 2019
+  dic: '2040.25'
+  salinity: '33.420'
+'184':
+  NB: G
+  alk: '2226.44'
+  batch_nr: Batch 184
+  bottling_date: April 12, 2019
+  dic: '2052.75'
+  salinity: '33.290'
+'185':
+  NB: G
+  alk: '2220.67'
+  batch_nr: Batch 185
+  bottling_date: May 24, 2019
+  dic: '2029.88'
+  salinity: '33.418'
+'186':
+  NB: G
+  alk: '2212.00'
+  batch_nr: Batch 186
+  bottling_date: June 28, 2019
+  dic: '2012.59'
+  salinity: '33.525'
+'187':
+  NB: G
+  alk: '2204.98'
+  batch_nr: Batch 187
+  bottling_date: August 2, 2019
+  dic: '2002.85'
+  salinity: '33.602'
+'188':
+  NB: G
+  alk: '2264.96'
+  batch_nr: Batch 188
+  bottling_date: September 27, 2019
+  dic: '2099.26'
+  salinity: '33.595'
+'189':
+  NB: G
+  alk: '2205.26'
+  batch_nr: Batch 189
+  bottling_date: November 1, 2019
+  dic: '2009.48'
+  salinity: '33.494'
+'19':
+  NB: D
+  alk: '-'
+  batch_nr: Batch 19
+  bottling_date: Sep 15, 1993
+  dic: '2004.08'
+  salinity: '33.705'
+'190':
+  NB: G
+  alk: '2218.31'
+  batch_nr: Batch 190
+  bottling_date: December 20, 2019
+  dic: '2033.86'
+  salinity: '33.459'
+'191':
+  NB: G
+  alk: '2225.50'
+  batch_nr: Batch 191
+  bottling_date: February 14, 2020
+  dic: '2051.40'
+  salinity: '33.316'
+'192':
+  NB: G
+  alk: '2213.68'
+  batch_nr: Batch 192
+  bottling_date: January 14, 2021
+  dic: '2070.83'
+  salinity: '33.518'
+'193':
+  NB: G
+  alk: '2193.07'
+  batch_nr: Batch 193
+  bottling_date: February 24, 2021
+  dic: '2048.36'
+  salinity: '33.425'
+'194':
+  NB: G
+  alk: '2169.83'
+  batch_nr: Batch 194
+  bottling_date: March 24, 2021
+  dic: '2025.17'
+  salinity: '33.361'
+'195':
+  NB: G
+  alk: '2213.51'
+  batch_nr: Batch 195
+  bottling_date: April 22, 2021
+  dic: '2024.96'
+  salinity: '33.485'
+'196':
+  NB: G
+  alk: '2215.32'
+  batch_nr: Batch 196
+  bottling_date: May 20, 2021
+  dic: '2018.83'
+  salinity: '33.519'
+'197':
+  NB: G
+  alk: '2256.77'
+  batch_nr: Batch 197
+  bottling_date: June 18, 2021
+  dic: '2115.23'
+  salinity: '33.529'
+'198':
+  NB: G
+  alk: '2200.67'
+  batch_nr: Batch 198
+  bottling_date: July 5, 2021
+  dic: '2033.64'
+  salinity: '33.504'
+'199':
+  NB: G
+  alk: '2202.75'
+  batch_nr: Batch 199
+  bottling_date: October 24, 2021
+  dic: '2021.66'
+  salinity: '33.473'
+'2':
+  NB: A
+  alk: '2248.27'
+  batch_nr: Batch 02
+  bottling_date: Oct 01, 1990
+  dic: '1978.70'
+  salinity: '33.363'
+'20':
+  NB: A
+  alk: '2211.53'
+  batch_nr: Batch 20
+  bottling_date: Nov 23, 1993
+  dic: '1983.40'
+  salinity: '33.145'
+'200':
+  NB: G
+  alk: '2186.43'
+  batch_nr: Batch 200
+  bottling_date: December 2, 2021
+  dic: '2022.46'
+  salinity: '33.464'
+'201':
+  NB: G
+  alk: '2207.56'
+  batch_nr: Batch 201
+  bottling_date: January 28, 2022
+  dic: '2048.19'
+  salinity: '33.302'
+'202':
+  NB: G
+  alk: '2215.13'
+  batch_nr: Batch 202
+  bottling_date: March 18, 2022
+  dic: '2043.33'
+  salinity: '33.356'
+'203':
+  NB: G
+  alk: '2214.54'
+  batch_nr: Batch 203
+  bottling_date: May 20, 2022
+  dic: '2029.92'
+  salinity: '33.464'
+'204':
+  NB: G
+  alk: '2202.12'
+  batch_nr: Batch 204
+  bottling_date: July 22, 2022
+  dic: '2028.23'
+  salinity: '33.494'
+'205':
+  NB: G
+  alk: '2202.05'
+  batch_nr: Batch 205
+  bottling_date: September 9, 2022
+  dic: '2011.85'
+  salinity: '33.443'
+'206':
+  NB: G
+  alk: '2193.88'
+  batch_nr: Batch 206
+  bottling_date: November 22, 2022
+  dic: '2021.55'
+  salinity: '33.423'
+'207':
+  NB: G
+  alk: '2199.32'
+  batch_nr: Batch 207
+  bottling_date: January 13, 2023
+  dic: '2040.33'
+  salinity: '33.237'
+'208':
+  NB: G
+  alk: '2215.76'
+  batch_nr: Batch 208
+  bottling_date: February 24, 2023
+  dic: '2059.66'
+  salinity: '33.140'
+'209':
+  NB: G
+  alk: '2210.40'
+  batch_nr: Batch 209
+  bottling_date: April 7, 2023
+  dic: '2060.05'
+  salinity: '33.147'
+'21':
+  NB: A
+  alk: '2258.36'
+  batch_nr: Batch 21
+  bottling_date: Jan 28, 1994
+  dic: '1991.98'
+  salinity: '34.534'
+'210':
+  NB: G
+  alk: '2220.62'
+  batch_nr: Batch 210
+  bottling_date: May 19, 2023
+  dic: '2046.37'
+  salinity: '33.231'
+'211':
+  NB: G
+  alk: '2218.40'
+  batch_nr: Batch 211
+  bottling_date: June 6, 2023
+  dic: '2057.02'
+  salinity: '33.272'
+'212':
+  NB: G
+  alk: '2193.54'
+  batch_nr: Batch 212
+  bottling_date: August 10, 2023
+  dic: '2023.82'
+  salinity: '33.341'
+'22':
+  NB: A
+  alk: '2217.16'
+  batch_nr: Batch 22
+  bottling_date: Apr 01, 1994
+  dic: '1995.19'
+  salinity: '33.561'
+'23':
+  NB: A
+  alk: '2212.71'
+  batch_nr: Batch 23
+  bottling_date: May 04, 1994
+  dic: '1993.10'
+  salinity: '33.483'
+'24':
+  NB: A
+  alk: '2215.51'
+  batch_nr: Batch 24
+  bottling_date: Aug 26, 1994
+  dic: '1987.53'
+  salinity: '33.264'
+'25':
+  NB: A,F
+  alk: '2299.79'
+  batch_nr: Batch 25
+  bottling_date: Nov 10, 1994
+  dic: '2127.21'
+  salinity: '34.910'
+'26':
+  NB: A
+  alk: '2176.59'
+  batch_nr: Batch 26
+  bottling_date: Dec 13, 1994
+  dic: '1978.34'
+  salinity: '33.258'
+'27':
+  NB: A
+  alk: '2214.89'
+  batch_nr: Batch 27
+  bottling_date: Dec 21, 1994
+  dic: '1988.10'
+  salinity: '33.209'
+'28':
+  NB: A
+  alk: '2223.47'
+  batch_nr: Batch 28
+  bottling_date: Feb 27, 1995
+  dic: '1994.64'
+  salinity: '33.407'
+'29':
+  NB: A
+  alk: '2184.76'
+  batch_nr: Batch 29
+  bottling_date: Apr 19, 1995
+  dic: '1902.33'
+  salinity: '33.701'
+'3':
+  NB: B
+  alk: batch not stable
+  batch_nr: Batch 03
+  bottling_date: Jan 08, 1991
+  dic: batch not stable
+  salinity: batch not stable
+'30':
+  NB: A
+  alk: '2201.88'
+  batch_nr: Batch 30
+  bottling_date: Jun 14, 1995
+  dic: '1988.78'
+  salinity: '33.420'
+'31':
+  NB: A
+  alk: '2130.33'
+  batch_nr: Batch 31
+  bottling_date: Aug 16, 1995
+  dic: '1876.57'
+  salinity: '32.899'
+'32':
+  NB: A
+  alk: '2221.48'
+  batch_nr: Batch 32
+  bottling_date: Oct 17, 1995
+  dic: '1997.57'
+  salinity: '33.745'
+'33':
+  NB: '-'
+  alk: '2234.92'
+  batch_nr: Batch 33
+  bottling_date: Feb 27, 1996
+  dic: '2009.85'
+  salinity: '33.781'
+'34':
+  NB: '-'
+  alk: '2284.35'
+  batch_nr: Batch 34
+  bottling_date: Apr 23, 1996
+  dic: '2061.52'
+  salinity: '34.514'
+'35':
+  NB: '-'
+  alk: '2354.05'
+  batch_nr: Batch 35
+  bottling_date: Aug 06, 1996
+  dic: '2111.62'
+  salinity: '35.661'
+'36':
+  NB: '-'
+  alk: '2283.83'
+  batch_nr: Batch 36
+  bottling_date: Nov 07, 1996
+  dic: '2050.21'
+  salinity: '35.368'
+'37':
+  NB: '-'
+  alk: '2314.11'
+  batch_nr: Batch 37
+  bottling_date: Apr 02, 1997
+  dic: '2044.15'
+  salinity: '34.983'
+'38':
+  NB: '-'
+  alk: '2300.89'
+  batch_nr: Batch 38
+  bottling_date: May 08, 1997
+  dic: '2089.99'
+  salinity: '34.932'
+'39':
+  NB: B
+  alk: batch not stable
+  batch_nr: Batch 39
+  bottling_date: Jul 24, 1997
+  dic: batch not stable
+  salinity: batch not stable
+'4':
+  NB: B
+  alk: batch not stable
+  batch_nr: Batch 04
+  bottling_date: Mar 20, 1991
+  dic: batch not stable
+  salinity: batch not stable
+'40':
+  NB: '-'
+  alk: '2196.41'
+  batch_nr: Batch 40
+  bottling_date: Sep 16, 1997
+  dic: '1985.76'
+  salinity: '33.383'
+'41':
+  NB: '-'
+  alk: '2195.78'
+  batch_nr: Batch 41
+  bottling_date: Oct 31, 1997
+  dic: '1977.71'
+  salinity: '33.368'
+'42':
+  NB: '-'
+  alk: '2210.54'
+  batch_nr: Batch 42
+  bottling_date: Dec 16, 1997
+  dic: '1985.10'
+  salinity: '33.364'
+'43':
+  NB: '-'
+  alk: '2202.86'
+  batch_nr: Batch 43
+  bottling_date: Mar 25, 1998
+  dic: '1988.64'
+  salinity: '33.598'
+'44':
+  NB: '-'
+  alk: '2258.24'
+  batch_nr: Batch 44
+  bottling_date: May 18, 1998
+  dic: '2030.66'
+  salinity: '34.271'
+'45':
+  NB: '-'
+  alk: '2204.38'
+  batch_nr: Batch 45
+  bottling_date: Aug 19, 1998
+  dic: '1994.17'
+  salinity: '33.487'
+'46':
+  NB: '-'
+  alk: '2191.27'
+  batch_nr: Batch 46
+  bottling_date: Oct 27, 1998
+  dic: '1992.92'
+  salinity: '33.769'
+'47':
+  NB: '-'
+  alk: '2227.93'
+  batch_nr: Batch 47
+  bottling_date: Jan 26, 1999
+  dic: '2006.61'
+  salinity: '33.716'
+'48':
+  NB: G
+  alk: '2189.62'
+  batch_nr: Batch 48
+  bottling_date: May 14, 1999
+  dic: '1999.91'
+  salinity: '33.442'
+'49':
+  NB: G
+  alk: '2172.06'
+  batch_nr: Batch 49
+  bottling_date: Oct 07, 1999
+  dic: '1991.14'
+  salinity: '33.935'
+'5':
+  NB: B
+  alk: batch not stable
+  batch_nr: Batch 05
+  bottling_date: May 07, 1991
+  dic: batch not stable
+  salinity: batch not stable
+'50':
+  NB: G
+  alk: '2211.11'
+  batch_nr: Batch 50
+  bottling_date: Jan 21, 2000
+  dic: '2006.21'
+  salinity: '33.411'
+'51':
+  NB: G
+  alk: '2269.86'
+  batch_nr: Batch 51
+  bottling_date: Jun 08, 2000
+  dic: '2050.28'
+  salinity: '34.217'
+'52':
+  NB: G
+  alk: '2224.72'
+  batch_nr: Batch 52
+  bottling_date: Aug 23, 2000
+  dic: '2005.57'
+  salinity: '33.608'
+'53':
+  NB: G
+  alk: '2222.68'
+  batch_nr: Batch 53
+  bottling_date: Dec 13, 2000
+  dic: '2012.03'
+  salinity: '33.453'
+'54':
+  NB: G
+  alk: '2342.09'
+  batch_nr: Batch 54
+  bottling_date: Apr 20, 2001
+  dic: '2107.35'
+  salinity: '35.228'
+'55':
+  NB: G
+  alk: '2227.85'
+  batch_nr: Batch 55
+  bottling_date: May 15, 2001
+  dic: '2012.06'
+  salinity: '33.506'
+'56':
+  NB: G,H
+  alk: '2219.69'
+  batch_nr: Batch 56
+  bottling_date: Sep 14, 2001
+  dic: '2014.16'
+  salinity: '33.408'
+'57':
+  NB: G
+  alk: '2230.33'
+  batch_nr: Batch 57
+  bottling_date: Nov 29, 2001
+  dic: '2005.98'
+  salinity: '33.485'
+'58':
+  NB: G
+  alk: '2223.66'
+  batch_nr: Batch 58
+  bottling_date: Feb 20, 2002
+  dic: '2010.94'
+  salinity: '33.487'
+'59':
+  NB: G
+  alk: '2220.98'
+  batch_nr: Batch 59
+  bottling_date: May 3, 2002
+  dic: '2007.10'
+  salinity: '33.316'
+'6':
+  NB: A,C
+  alk: '2375.61'
+  batch_nr: Batch 06
+  bottling_date: May 22, 1991
+  dic: '2304.64'
+  salinity: '38.43'
+'60':
+  NB: G
+  alk: '2199.55'
+  batch_nr: Batch 60
+  bottling_date: Aug 30, 2002
+  dic: '1991.24'
+  salinity: '33.012'
+'61':
+  NB: G
+  alk: '2202.04'
+  batch_nr: Batch 61
+  bottling_date: Jun 23, 2003
+  dic: '1998.17'
+  salinity: '33.076'
+'62':
+  NB: G
+  alk: '2338.20'
+  batch_nr: Batch 62
+  bottling_date: Aug 21, 2003
+  dic: '2126.46'
+  salinity: '35.224'
+'63':
+  NB: G
+  alk: '2222.27'
+  batch_nr: Batch 63
+  bottling_date: Dec 12, 2003
+  dic: '2016.02'
+  salinity: '33.369'
+'64':
+  NB: G
+  alk: '2427.60'
+  batch_nr: Batch 64
+  bottling_date: Jan 15, 2004
+  dic: '2090.89'
+  salinity: '37.339'
+'65':
+  NB: G
+  alk: '2206.00'
+  batch_nr: Batch 65
+  bottling_date: Feb 20, 2004
+  dic: '1993.68'
+  salinity: '33.049'
+'66':
+  NB: G
+  alk: '2193.27'
+  batch_nr: Batch 66
+  bottling_date: Jul 23, 2004
+  dic: '1969.57'
+  salinity: '32.962'
+'67':
+  NB: G
+  alk: '2258.27'
+  batch_nr: Batch 67
+  bottling_date: Oct 15, 2004
+  dic: '1983.75'
+  salinity: '34.411'
+'68':
+  NB: G
+  alk: '2233.71'
+  batch_nr: Batch  68
+  bottling_date: Dec 10, 2004
+  dic: '2003.78'
+  salinity: '33.758'
+'69':
+  NB: G
+  alk: '2114.42'
+  batch_nr: Batch  69
+  bottling_date: Jan 4, 2005
+  dic: '1907.63'
+  salinity: '31.569'
+'7':
+  NB: C,D
+  alk: '-'
+  batch_nr: Batch 07
+  bottling_date: Aug 08, 1991
+  dic: '1926.63'
+  salinity: '37.12'
+'70':
+  NB: G
+  alk: '2160.46'
+  batch_nr: Batch  70
+  bottling_date: Apr 27, 2005
+  dic: '1989.53'
+  salinity: '33.016'
+'71':
+  NB: G
+  alk: '2254.50'
+  batch_nr: Batch  71
+  bottling_date: May 19, 2005
+  dic: '2032.84'
+  salinity: '33.923'
+'72':
+  NB: G
+  alk: '2312.79'
+  batch_nr: Batch  72
+  bottling_date: Jul 27, 2005
+  dic: '2091.61'
+  salinity: '35.015'
+'73':
+  NB: G
+  alk: '2253.50'
+  batch_nr: Batch  73
+  bottling_date: Nov 17, 2005
+  dic: '2057.30'
+  salinity: '34.523'
+'74':
+  NB: G
+  alk: '2305.34'
+  batch_nr: Batch  74
+  bottling_date: Dec 15, 2005
+  dic: '2085.53'
+  salinity: '34.739'
+'75':
+  NB: G
+  alk: '2210.09'
+  batch_nr: Batch  75
+  bottling_date: Mar 2, 2006
+  dic: '2005.98'
+  salinity: '33.222'
+'76':
+  NB: G
+  alk: '2314.49'
+  batch_nr: Batch  76
+  bottling_date: May 18, 2006
+  dic: '2101.69'
+  salinity: '34.835'
+'77':
+  NB: G
+  alk: '2199.33'
+  batch_nr: Batch  77
+  bottling_date: July 13, 2006
+  dic: '1998.44'
+  salinity: '33.129'
+'78':
+  NB: G
+  alk: '2185.57'
+  batch_nr: Batch  78
+  bottling_date: September 21, 2006
+  dic: '1991.93'
+  salinity: '33.285'
+'79':
+  NB: G
+  alk: '2262.31'
+  batch_nr: Batch  79
+  bottling_date: November 21, 2006
+  dic: '2038.63'
+  salinity: '34.236'
+'8':
+  NB: B
+  alk: batch not stable
+  batch_nr: Batch 08
+  bottling_date: Aug 26, 1991
+  dic: batch not stable
+  salinity: batch not stable
+'80':
+  NB: G
+  alk: '2214.49'
+  batch_nr: Batch  80
+  bottling_date: January 9, 2007
+  dic: '2006.50'
+  salinity: '33.357'
+'81':
+  NB: G
+  alk: '2201.20'
+  batch_nr: Batch  81
+  bottling_date: April 26, 2007
+  dic: '2011.49'
+  salinity: '33.378'
+'82':
+  NB: G
+  alk: '2335.02'
+  batch_nr: Batch  82
+  bottling_date: June 28, 2007
+  dic: '2118.25'
+  salinity: '35.356'
+'83':
+  NB: G
+  alk: '2286.34'
+  batch_nr: Batch  83
+  bottling_date: July 26, 2007
+  dic: '2055.57'
+  salinity: '34.611'
+'84':
+  NB: G
+  alk: '2201.01'
+  batch_nr: Batch  84
+  bottling_date: September 6, 2007
+  dic: '2001.23'
+  salinity: '33.391'
+'85':
+  NB: G
+  alk: '2184.03'
+  batch_nr: Batch  85
+  bottling_date: October 12, 2007
+  dic: '2000.44'
+  salinity: '33.326'
+'86':
+  NB: G
+  alk: '2175.56'
+  batch_nr: Batch  86
+  bottling_date: December 20, 2007
+  dic: '1998.37'
+  salinity: '33.097'
+'87':
+  NB: G
+  alk: '2201.16'
+  batch_nr: Batch  87
+  bottling_date: April 15, 2008
+  dic: '2012.01'
+  salinity: '33.191'
+'88':
+  NB: G
+  alk: '2205.41'
+  batch_nr: Batch  88
+  bottling_date: June 5, 2008
+  dic: '2013.42'
+  salinity: '33.328'
+'89':
+  NB: G
+  alk: '2214.06'
+  batch_nr: Batch  89
+  bottling_date: July 17, 2008
+  dic: '2025.71'
+  salinity: '33.494'
+'9':
+  NB: B
+  alk: batch not stable
+  batch_nr: Batch 09
+  bottling_date: Sep 20, 1991
+  dic: batch not stable
+  salinity: batch not stable
+'90':
+  NB: G
+  alk: '2216.00'
+  batch_nr: Batch  90
+  bottling_date: September 5, 2008
+  dic: '1985.61'
+  salinity: '33.390'
+'91':
+  NB: G
+  alk: '2182.90'
+  batch_nr: Batch  91
+  bottling_date: October 10, 2008
+  dic: '2011.61'
+  salinity: '33.397'
+'92':
+  NB: G
+  alk: '2201.91'
+  batch_nr: Batch  92
+  bottling_date: November 7, 2008
+  dic: '1996.35'
+  salinity: '33.321'
+'93':
+  NB: G
+  alk: '2230.06'
+  batch_nr: Batch  93
+  bottling_date: December 18, 2008
+  dic: '2020.34'
+  salinity: '33.615'
+'94':
+  NB: G
+  alk: '2222.39'
+  batch_nr: Batch  94
+  bottling_date: January 30, 2009
+  dic: '2015.92'
+  salinity: '33.424'
+'95':
+  NB: G
+  alk: '2217.51'
+  batch_nr: Batch  95
+  bottling_date: March 2, 2009
+  dic: '2016.38'
+  salinity: '33.300'
+'96':
+  NB: G
+  alk: '2212.40'
+  batch_nr: Batch  96
+  bottling_date: May 8, 2009
+  dic: '2005.36'
+  salinity: '33.081'
+'97':
+  NB: G
+  alk: '2211.21'
+  batch_nr: Batch  97
+  bottling_date: June 26, 2009
+  dic: '2003.03'
+  salinity: '33.142'
+'98':
+  NB: G
+  alk: '2231.11'
+  batch_nr: Batch  98
+  bottling_date: August 31, 2009
+  dic: '2013.85'
+  salinity: '33.366'
+'99':
+  NB: G
+  alk: '2356.78'
+  batch_nr: Batch  99
+  bottling_date: October 9, 2009
+  dic: '2115.04'
+  salinity: '35.185'

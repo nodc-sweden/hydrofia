@@ -80,11 +80,14 @@ class FletApp:
         saves.add_control('_metadata_surface_layer', self._metadata_surface_layer)
         saves.add_control('_metadata_bottom_layer', self._metadata_bottom_layer)
         saves.add_control('_metadata_max_depth_diff_allowed', self._metadata_max_depth_diff_allowed)
+        saves.add_control('_batch_temp', self._batch_temp)
 
         saves.load(self)
 
         self._update_create_template_path()
         self._update_create_result_path()
+
+        self._update_batch_info()
 
         # self._check_create_template_path_exists()
         # self._check_create_result_path_exists()
@@ -235,46 +238,48 @@ class FletApp:
             label='Batchnummer',
             hint_text='Använd data från batch nummer...',
             options=batch_nr_options,
-            # on_change=self._update_batch_info,
+            on_change=self._update_batch_info,
             dense=True
         )
         self._batch_nr.value = str(self._batches.latest_batch_nr)
 
         col = ft.Column()
 
-        # col = ft.Column(
-        #     alignment=ft.MainAxisAlignment.START,
-        #     scroll=ft.ScrollMode.AUTO,
-        #     expand=False,
-        #     spacing=20
-        # )
         width = 200
         dence = False
 
         alk_row = ft.Row()
         alk_row.controls.append(ft.Text(TEXTS.batch_alk_label))
-        self._batch_alk = ft.Text()
+        self._batch_alk = ft.Text(weight=ft.FontWeight.W_600)
         alk_row.controls.append(self._batch_alk)
 
         dic_row = ft.Row()
         dic_row.controls.append(ft.Text(TEXTS.batch_dic_label))
-        self._batch_dic = ft.Text()
+        self._batch_dic = ft.Text(weight=ft.FontWeight.W_600)
         dic_row.controls.append(self._batch_dic)
 
-        self._batch_salt = ft.TextField(label=TEXTS.batch_salinity,
-                                            dense=dence,
-                                            width=width
-                                            )
+        salt_row = ft.Row()
+        salt_row.controls.append(ft.Text(TEXTS.batch_salt_label))
+        self._batch_salt = ft.Text(weight=ft.FontWeight.W_600)
+        salt_row.controls.append(self._batch_salt)
+
         self._batch_temp = ft.TextField(label=TEXTS.batch_temperature,
-                                            dense=dence,
-                                            width=width
-                                            )
+                                        dense=dence,
+                                        width=width,
+                                        input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.]", replacement_string="", ),
+                                        on_submit=self._calculate_ph
+                                        )
 
         create_calc_ph_btn = ft.ElevatedButton(TEXTS.calculate_ph, on_click=self._calculate_ph)
 
+        # self._batch_salt.on_blur = lambda x: self._batch_temp.focus
+        # self._batch_salt.on_submit = lambda x: self._batch_temp.focus
+        # self._batch_temp.on_blur = lambda x: create_calc_ph_btn.focus
+        # self._batch_temp.on_submit = lambda x: create_calc_ph_btn.focus
+
         ph_row = ft.Row()
         ph_row.controls.append(ft.Text(TEXTS.batch_ph_label))
-        self._batch_ph = ft.Text()
+        self._batch_ph = ft.Text(size=30, weight=ft.FontWeight.W_400)
         ph_row.controls.append(self._batch_ph)
 
         col.controls.append(ft.Text(TEXTS.title_batch,
@@ -284,7 +289,7 @@ class FletApp:
         col.controls.append(self._batch_nr)
         col.controls.append(alk_row)
         col.controls.append(dic_row)
-        col.controls.append(self._batch_salt)
+        col.controls.append(salt_row)
         col.controls.append(self._batch_temp)
         col.controls.append(create_calc_ph_btn)
         col.controls.append(ph_row)
@@ -303,19 +308,30 @@ class FletApp:
         option_container = self._get_hydrofia_option_container()
 
         main_row = ft.Row(
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            alignment=ft.MainAxisAlignment.CENTER,
             spacing=30,
             run_spacing=30,
+            expand=True
         )
 
         main_row.controls.append(meta_container)
         main_row.controls.append(option_container)
 
+        title_row = ft.Row()
+        title_row.controls.append(ft.Text(TEXTS.title_create_excel,
+                                          size=30,
+                                          weight=ft.FontWeight.W_400))
+        title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.template_file))
+
         main_column = ft.Column()
-        main_column.controls.append(ft.Text(TEXTS.title_create_excel,
-                                            size=30,
-                                            weight=ft.FontWeight.W_400))
+        main_column.controls.append(title_row)
         main_column.controls.append(main_row)
+
+        # main_column = ft.Column()
+        # main_column.controls.append(ft.Text(TEXTS.title_create_excel,
+        #                                     size=30,
+        #                                     weight=ft.FontWeight.W_400))
+        # main_column.controls.append(main_row)
 
         container = ft.Container(content=main_column,
                                  bgcolor=COLORS.hydrofia_container,
@@ -342,7 +358,7 @@ class FletApp:
         title_row.controls.append(ft.Text(TEXTS.title_merge_ctd_with_hydrofia,
                                             size=30,
                                             weight=ft.FontWeight.W_400))
-        title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.hydrofia_file))
+        title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.template_file))
 
         main_column = ft.Column()
         main_column.controls.append(title_row)
@@ -529,7 +545,7 @@ class FletApp:
         #     # scroll=ft.ScrollMode.AUTO,
         #     expand=True
         # )
-        dence = True
+        dence = False
         width = 200
         self._metadata_signature = ft.TextField(label=TEXTS.signature,
                                                 dense=dence,
@@ -571,24 +587,33 @@ class FletApp:
         #     # scroll=ft.ScrollMode.AUTO,
         #     expand=True
         # )
-        dence = True
+        dence = False
 
         width = 200
 
         self._metadata_surface_layer = ft.TextField(label=TEXTS.surface_layer,
                                               dense=dence,
-                                              width=width
+                                              width=width,
+                                              input_filter=ft.InputFilter(allow=True,
+                                                                          regex_string=r"[0-9.]",
+                                                                          replacement_string="")
                                               )
 
         self._metadata_bottom_layer = ft.TextField(label=TEXTS.bottom_layer,
-                                                    dense=dence,
-                                                    width=width
-                                                    )
+                                                   dense=dence,
+                                                   width=width,
+                                                   input_filter=ft.InputFilter(allow=True,
+                                                                               regex_string=r"[0-9.]",
+                                                                               replacement_string="")
+                                                   )
 
         self._metadata_max_depth_diff_allowed = ft.TextField(label=TEXTS.max_depth_diff_allowed,
-                                              dense=dence,
-                                              width=width
-                                              )
+                                                             dense=dence,
+                                                             width=width,
+                                                             input_filter=ft.InputFilter(allow=True,
+                                                                                         regex_string=r"[0-9.]",
+                                                                                         replacement_string="")
+                                                            )
 
         col = ft.Column(
             alignment=ft.MainAxisAlignment.START,
@@ -614,24 +639,29 @@ class FletApp:
 
         return container
 
-    def _update_batch_info(self):
+    def _update_batch_info(self, *args):
         batch = self._batches.get_batch(self._batch_nr.value)
         self._batch_alk.value = str(batch.alk)
         self._batch_dic.value = str(batch.dic)
+        self._batch_salt.value = str(batch.salinity)
         self.update_page()
+        if self._batch_temp.value.strip():
+            self._calculate_ph()
+        self._batch_temp.focus()
 
     def _calculate_ph(self, *args):
-        salt = self._batch_salt.value.strip()
-        if not salt:
-            self._show_info('Ingen salinitet angiven för beräkning av pH')
-            return
+        self._batch_ph.value = ''
         temp = self._batch_temp.value.strip()
         if not temp:
             self._show_info('Ingen temperatur angiven för beräkning av pH')
             return
         batch = self._batches.get_batch(self._batch_nr.value)
-        ph = batch.get_ph(salinity=float(salt), temperature=float(temp))
-
+        ph = batch.get_ph(temperature=float(temp))
+        ph = round(ph, 3)
+        self._batch_ph.value = str(ph)
+        self._batch_temp.focus()
+        self._batch_ph.update()
+        saves.save()
 
     def _on_pick_hydrofia_file_path(self, e: ft.FilePickerResultEvent):
         self._close_banner()

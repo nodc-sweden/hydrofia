@@ -82,9 +82,9 @@ class ExporterXlsxTemplate:
     def _write_data(self):
         r = self.data_start_row
         for index, df in self.data.groupby(['date', 'serno', 'depth']):
-            df = df[~np.isnan(df['calc_pH'])]
-            if df.empty:
-                continue
+            # df = df[~np.isnan(df['calc_pH'])]
+            # if df.empty:
+            #     continue
             s = df.iloc[-1]
             print(f'{s=}')
             self._set_value(r, self.series_col, s['serno'])

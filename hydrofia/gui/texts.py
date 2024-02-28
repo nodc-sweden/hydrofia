@@ -175,6 +175,10 @@ class Texts:
         return 'DIC i batch:'
 
     @property
+    def batch_salt_label(self) -> str:
+        return 'Salthalt i batch:'
+
+    @property
     def batch_ph_label(self) -> str:
         return 'Beräknat pH:'
 
