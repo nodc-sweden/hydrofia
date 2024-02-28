@@ -81,6 +81,7 @@ class FletApp:
         saves.add_control('_metadata_bottom_layer', self._metadata_bottom_layer)
         saves.add_control('_metadata_max_depth_diff_allowed', self._metadata_max_depth_diff_allowed)
         saves.add_control('_batch_temp', self._batch_temp)
+        saves.add_control('_batch_nr', self._batch_nr)
 
         saves.load(self)
 
