@@ -80,7 +80,7 @@ class FletApp:
         saves.add_control('_metadata_surface_layer', self._metadata_surface_layer)
         saves.add_control('_metadata_bottom_layer', self._metadata_bottom_layer)
         saves.add_control('_metadata_max_depth_diff_allowed', self._metadata_max_depth_diff_allowed)
-        saves.add_control('_batch_temp', self._batch_temp)
+        # saves.add_control('_batch_temp', self._batch_temp)
         saves.add_control('_batch_nr', self._batch_nr)
 
         saves.load(self)
@@ -264,24 +264,44 @@ class FletApp:
         self._batch_salt = ft.Text(weight=ft.FontWeight.W_600)
         salt_row.controls.append(self._batch_salt)
 
-        self._batch_temp = ft.TextField(label=TEXTS.batch_temperature,
+        temp_row = ft.Row()
+        temp_row.controls.append(ft.Text(TEXTS.batch_temp_label))
+        self._batch_temp = ft.Text(weight=ft.FontWeight.W_600)
+        self._batch_temp.value = str(25.0)
+        temp_row.controls.append(self._batch_temp)
+
+        # self._batch_temp = ft.TextField(label=TEXTS.batch_temperature,
+        #                                 dense=dence,
+        #                                 width=width,
+        #                                 read_only=True,
+        #                                 input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.]", replacement_string="", ),
+        #                                 on_submit=self._calculate_ph
+        #                                 )
+        # self._batch_temp.value = str(25.0)
+
+        self._batch_measured_ph = ft.TextField(label=TEXTS.batch_measured_ph,
                                         dense=dence,
                                         width=width,
                                         input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.]", replacement_string="", ),
                                         on_submit=self._calculate_ph
                                         )
 
-        create_calc_ph_btn = ft.ElevatedButton(TEXTS.calculate_ph, on_click=self._calculate_ph)
+        calc_ph_btn = ft.ElevatedButton(TEXTS.calculate_ph, on_click=self._calculate_ph)
 
         # self._batch_salt.on_blur = lambda x: self._batch_temp.focus
         # self._batch_salt.on_submit = lambda x: self._batch_temp.focus
-        # self._batch_temp.on_blur = lambda x: create_calc_ph_btn.focus
-        # self._batch_temp.on_submit = lambda x: create_calc_ph_btn.focus
+        # self._batch_temp.on_blur = lambda x: calc_ph_btn.focus
+        # self._batch_temp.on_submit = lambda x: calc_ph_btn.focus
 
         ph_row = ft.Row()
         ph_row.controls.append(ft.Text(TEXTS.batch_ph_label))
-        self._batch_ph = ft.Text(size=30, weight=ft.FontWeight.W_400)
+        self._batch_ph = ft.Text(weight=ft.FontWeight.W_600)
         ph_row.controls.append(self._batch_ph)
+
+        plot_val_row = ft.Row()
+        plot_val_row.controls.append(ft.Text(TEXTS.batch_plot_value_label))
+        self._batch_plot_value = ft.Text(weight=ft.FontWeight.W_600, size=30)
+        plot_val_row.controls.append(self._batch_plot_value)
 
         col.controls.append(ft.Text(TEXTS.title_batch,
                                             size=30,
@@ -291,9 +311,12 @@ class FletApp:
         col.controls.append(alk_row)
         col.controls.append(dic_row)
         col.controls.append(salt_row)
-        col.controls.append(self._batch_temp)
-        col.controls.append(create_calc_ph_btn)
+        col.controls.append(temp_row)
+        # col.controls.append(self._batch_temp)
         col.controls.append(ph_row)
+        col.controls.append(self._batch_measured_ph)
+        col.controls.append(calc_ph_btn)
+        col.controls.append(plot_val_row)
 
         container = ft.Container(content=col,
                                  bgcolor=COLORS.batch,
@@ -648,10 +671,11 @@ class FletApp:
         self.update_page()
         if self._batch_temp.value.strip():
             self._calculate_ph()
-        self._batch_temp.focus()
+        # self._batch_temp.focus()
 
     def _calculate_ph(self, *args):
         self._batch_ph.value = ''
+        self._batch_plot_value.value = ''
         temp = self._batch_temp.value.strip()
         if not temp:
             self._show_info('Ingen temperatur angiven för beräkning av pH')
@@ -660,8 +684,13 @@ class FletApp:
         ph = batch.get_ph(temperature=float(temp))
         ph = round(ph, 3)
         self._batch_ph.value = str(ph)
-        self._batch_temp.focus()
         self._batch_ph.update()
+        ph = self._batch_measured_ph.value.strip()
+        if not ph:
+            return
+        plot_value = float(self._batch_ph.value) - float(ph)
+        self._batch_plot_value.value = str(round(plot_value, 3))
+        self._batch_plot_value.update()
         saves.save()
 
     def _on_pick_hydrofia_file_path(self, e: ft.FilePickerResultEvent):

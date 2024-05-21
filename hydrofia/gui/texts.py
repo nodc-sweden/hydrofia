@@ -167,6 +167,14 @@ class Texts:
         return 'Temperatur'
 
     @property
+    def batch_temp_label(self) -> str:
+        return 'Temperatur:'
+
+    @property
+    def batch_measured_ph(self) -> str:
+        return 'Uppmätt pH'
+
+    @property
     def batch_alk_label(self) -> str:
         return 'ALK i batch:'
 
@@ -179,8 +187,12 @@ class Texts:
         return 'Salthalt i batch:'
 
     @property
+    def batch_plot_value_label(self) -> str:
+        return 'Värde som ska plottas på kontrollkort:'
+
+    @property
     def batch_ph_label(self) -> str:
-        return 'Beräknat pH:'
+        return 'Beräknat pH i batch:'
 
     @property
     def calculate_ph(self) -> str:
