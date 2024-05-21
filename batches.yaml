@@ -852,6 +852,20 @@
   bottling_date: August 10, 2023
   dic: '2023.82'
   salinity: '33.341'
+'213':
+  NB: G
+  alk: '2203.56'
+  batch_nr: Batch 213
+  bottling_date: September 22, 2023
+  dic: '2024.67'
+  salinity: '33.232'
+'214':
+  NB: G
+  alk: '2200.67'
+  batch_nr: Batch 214
+  bottling_date: December 01, 2023
+  dic: '2014.53'
+  salinity: '33.075'
 '22':
   NB: A
   alk: '2217.16'

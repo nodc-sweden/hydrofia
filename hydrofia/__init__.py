@@ -36,7 +36,7 @@ def get_id_string_for_hydrofia_export_file(path: pathlib.Path | str = None,
     if not info:
         return
     print(f'{info=}')
-    stem = f'{info['year_string']}_{info['from_serno']}_{info['to_serno']}'
+    stem = f"{info['year_string']}_{info['from_serno']}_{info['to_serno']}"
     return stem
 
 
