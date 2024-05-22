@@ -138,7 +138,7 @@ def get_latest_batches():
         json_batches = None
         if DEFAULT_BATCH_YAML.exists():
             yaml_batches = ReferenceBatches.from_yaml()
-        if DEFAULT_BATCH_YAML.exists():
+        if DEFAULT_BATCH_JSON.exists():
             json_batches = ReferenceBatches.from_json()
         if yaml_batches and json_batches:
             if yaml_batches.latest_batch_nr > json_batches.latest_batch_nr:
