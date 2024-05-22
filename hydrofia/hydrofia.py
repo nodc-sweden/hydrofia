@@ -53,7 +53,14 @@ class HydrofiaExportFileDiscrete:
             r'(?P<sep>[-_])',
             r'(?P<depth>[xX])'
         )),
-        re.compile('^.*CRM.*$')
+        re.compile('^.*CRM.*$'),
+        re.compile('^{}{}-{}{}{}$'.format(
+            r'(?P<year>\d{2})',
+            r'(?P<ship>\d{4})',
+            r'(?P<serno>\d{4})',
+            r'(?P<sep>[-_])',
+            r'(?P<depth>DIB)'
+        )),
     ]
 
     def __init__(self, path: str | pathlib.Path) -> None:
@@ -168,8 +175,9 @@ class HydrofiaExportFileDiscrete:
 
     def _filter_data(self):
         def match_pattern(sampname):
+            sampname_upper = sampname.upper()
             for pat in self.SAMPLE_NAME_PATTERNS:
-                if pat.match(sampname):
+                if pat.match(sampname_upper):
                     return True
             return False
         boolean = self._data['action'] == 'Measure discrete'
