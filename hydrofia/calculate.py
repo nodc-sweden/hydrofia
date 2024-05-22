@@ -59,7 +59,12 @@ class Calculate:
         temp_data = []
         ref_depth_data = []
         for index, row in self.data.iterrows():
-            salt, temp, ref_depth = self.data_salt_temp.get_salinity_and_temperature(year=row['year'],
+            if 'CRM' in row['serno']:
+                salt = float(row['salinity'])
+                temp = float(row['temperatureSample'])
+                ref_depth = ''
+            else:
+                salt, temp, ref_depth = self.data_salt_temp.get_salinity_and_temperature(year=row['year'],
                                                                                      ship=row['ship'],
                                                                                      serno=row['serno'],
                                                                                      depth=row['depth'])
