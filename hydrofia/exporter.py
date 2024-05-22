@@ -63,7 +63,17 @@ class ExporterXlsxTemplate:
 
         self._save_file()
 
-    def _set_value(self, r: int, c: int, value: str):
+    @staticmethod
+    def _get_float_value(value):
+        try:
+            value = str(round(float(value), 3)).replace(',', '.')
+        except ValueError:
+            pass
+        if value == 'nan':
+            value = ''
+        return value
+
+    def _set_value(self, r: int, c: int, value: str | float):
         self._ws.cell(r, c).value = value
 
     def _write_header(self):
@@ -82,18 +92,14 @@ class ExporterXlsxTemplate:
     def _write_data(self):
         r = self.data_start_row
         for index, df in self.data.groupby(['date', 'serno', 'depth']):
-            # df = df[~np.isnan(df['calc_pH'])]
-            # if df.empty:
-            #     continue
-            s = df.iloc[-1]
-            print(f'{s=}')
+            s = df.iloc[-1]  # Use last replicate
             self._set_value(r, self.series_col, s['serno'])
             self._set_value(r, self.depth_col, s['depth'])
-            self._set_value(r, self.ref_depth_col, str(float(s['ref_depth'])))
-            self._set_value(r, self.salt_col, s['salt'])
-            self._set_value(r, self.temp_col, s['temp'])
-            self._set_value(r, self.ph_calc_col, s['calc_pH'])
-            self._set_value(r, self.ph_col, s['pH'])
+            self._set_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
+            self._set_value(r, self.salt_col, self._get_float_value(s['salt']))
+            self._set_value(r, self.temp_col, self._get_float_value(s['temp']))
+            self._set_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']))
+            self._set_value(r, self.ph_col, self._get_float_value(s['pH']))
             r += 1
 
     def _save_file(self):

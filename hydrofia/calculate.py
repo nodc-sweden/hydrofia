@@ -46,7 +46,7 @@ class Calculate:
         # print('BBB', self._data['salt'])
 
     def _extract_data(self):
-        all_data = self.data_hydrofia.get_data()
+        # all_data = self.data_hydrofia.get_data()
         self._data = self.data_hydrofia.get_data().copy(deep=True)
         # self._data = all_data[['timestamp', 'year', 'date', 'ship', 'serno', 'depth', 'Rspec']].copy(deep=True)
 
