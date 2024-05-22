@@ -1,10 +1,10 @@
 _batch_nr: '185'
 _ctd_directory: C:\mw\data\hydrofia\standard_format
-_hydrofia_file_path: C:\mw\data\hydrofia\BAS 23-0147.txt
+_hydrofia_file_path: C:\mw\data\hydrofia\BAS 24-0422.txt
 _metadata_bottom_layer: '4'
 _metadata_max_depth_diff_allowed: '.2'
 _metadata_project: BAS
 _metadata_signature: MWen
 _metadata_surface_layer: '4'
 _template_directory: C:\mw\data\hydrofia\export
-_use_template_path: "C:\\mw\\data\\hydrofia\\export\\BAS_2023_0015_0175_r\xE4ttningsfil.xlsx"
+_use_template_path: "C:\\mw\\data\\hydrofia\\export\\BAS_2024_0007_0491_r\xE4ttningsfil.xlsx"

@@ -8,9 +8,17 @@ from functools import cached_property, cache
 
 EXCLUDE_QUALITY_FLAGS = ['B']
 
+SHIP_MAPPER = {
+    '7710': '77SE'
+}
+
+
+def get_mapped_ship(ship):
+    return SHIP_MAPPER.get(ship, ship)
+
 
 def get_key(**kwargs):
-    return f'{kwargs.get("year")}_{kwargs.get("ship")}_{kwargs.get("serno")}'
+    return f'{kwargs.get("year")}_{get_mapped_ship(kwargs.get("ship"))}_{kwargs.get("serno")}'
 
 
 class CtdStandardFormat:
@@ -35,7 +43,7 @@ class CtdStandardFormat:
 
     @cached_property
     def ship(self):
-        return self.path.name.split('_')[4]
+        return get_mapped_ship(self.path.name.split('_')[4])
 
     @cached_property
     def serno(self):

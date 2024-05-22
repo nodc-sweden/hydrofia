@@ -54,7 +54,7 @@ class ExporterXlsxTemplate:
              project: str = '',
              **kwargs
              ):
-        self._data = data
+        self._data = data.fillna('')
         self._write_header()
         self._write_data()
 
@@ -82,11 +82,13 @@ class ExporterXlsxTemplate:
         self._write_serno_span()
 
     def _write_ship_code(self):
+        print(f"{set(self.data['ship'])=}")
         self.ship_code = ', '.join(sorted(set(self.data['ship'])))
 
     def _write_serno_span(self):
         # TODO: Use sorted set and see if its faster
-        int_serno = self.data['serno'].apply(int)
+        int_serno = [int(serno) for serno in self.data['serno'] if 'CRM' not in serno]
+        # int_serno = self.data['serno'].apply(int)
         self.serno_span = f'{str(min(int_serno)).zfill(4)}-{str(max(int_serno)).zfill(4)}'
 
     def _write_data(self):

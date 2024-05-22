@@ -52,7 +52,8 @@ class HydrofiaExportFileDiscrete:
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
             r'(?P<depth>[xX])'
-        ))
+        )),
+        re.compile('^.*CRM.*$')
     ]
 
     def __init__(self, path: str | pathlib.Path) -> None:
@@ -88,6 +89,8 @@ class HydrofiaExportFileDiscrete:
 
     def get_info(self) -> dict:
         sorted_sernos = sorted(set(self._data['serno']))
+        crms = [serno for serno in sorted_sernos if 'CRM' in serno]
+        sorted_sernos = [serno for serno in sorted_sernos if 'CRM' not in serno]
         years = sorted(set(self._data['year']))
         if not sorted_sernos:
             return {}
@@ -98,6 +101,7 @@ class HydrofiaExportFileDiscrete:
             year_string='-'.join([str(y) for y in years]),
             from_serno=from_serno,
             to_serno=to_serno,
+            crms=crms
         )
         return info
 
@@ -129,16 +133,22 @@ class HydrofiaExportFileDiscrete:
 
     def _add_columns(self):
         def extract_ship(sampname: str):
+            if 'CRM' in sampname:
+                return ''
             parts = sampname.split('-')
             return utils.map_ship(parts[0][-4:])
 
         def extract_serno(sampname) -> str:
+            if 'CRM' in sampname:
+                return sampname
             parts = sampname.split('-')
             if len(parts) == 3:
                 return parts[1]
             return parts[1].split('_')[0]
 
         def extract_depth(sampname):
+            if 'CRM' in sampname:
+                return ''
             if not sampname:
                 return ''
             if '_' in sampname:
@@ -183,7 +193,9 @@ class HyrdofiaExcelTemplate:
         'ship': 'SHIP (correct)',
         'date': 'DATE (correct)',
         'serno': 'SERNO (correct)',
-        'depth': 'DEPTH (correct)'
+        'depth': 'DEPTH (correct)',
+        'salinity': 'SALINITY (CRM)',
+        # 'temperatureSampleC': 'temperatureSampleC (correct)',
     }
     FILL_USER_ACTION = PatternFill(start_color='faeda2',
                                    end_color='faeda2',
@@ -299,13 +311,18 @@ class _HyrdofiaExcelTemplateCreate:
         for index, series in self.data.iterrows():
             for c, key in enumerate(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING, 1):
                 cell = self.ws.cell(r, c)
-                cell.value = series[key]
+                value = series[key]
+                if key == 'salinity' and 'CRM' not in series['serno']:
+                    value = ''
+                elif 'temperature' in key and 'CRM' not in series['serno']:
+                    value = ''
+                cell.value = value
                 cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION
                 cell.border = HyrdofiaExcelTemplate.BORDER_USER_ACTION
             r += 1
 
     def _merge_cells(self):
-        self.ws.merge_cells(start_row=1, end_row=1, start_column=1, end_column=4)
+        self.ws.merge_cells(start_row=1, end_row=1, start_column=1, end_column=5)
 
     def _save_file(self):
         self.wb.save(self.path)

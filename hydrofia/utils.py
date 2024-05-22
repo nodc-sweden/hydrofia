@@ -5,7 +5,7 @@ import platform
 import subprocess
 
 SHIP_MAPPER = {
-    '7710': '77SE'
+    # '7710': '77SE'
 }
 
 
