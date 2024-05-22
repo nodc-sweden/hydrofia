@@ -14,7 +14,7 @@ class HydrofiaTemplateData(Protocol):
 class SalinityAndTemperatureData(Protocol):
 
     def get_salinity_and_temperature(self, year: str | int = None, ship: str | int = None, serno: str | int = None,
-                              depth: str | int = None) -> tuple[float, float, float]:
+                              depth: str | int | str = None) -> tuple[float, float, float]:
         ...
 
 
@@ -51,7 +51,12 @@ class Calculate:
         # self._data = all_data[['timestamp', 'year', 'date', 'ship', 'serno', 'depth', 'Rspec']].copy(deep=True)
 
     def _make_float(self):
-        self._data['depth'] = self._data['depth'].apply(float)
+        def get_float(val):
+            try:
+                return float(val)
+            except ValueError:
+                return val
+        self._data['depth'] = self._data['depth'].apply(get_float)
         self._data['Rspec'] = self._data['Rspec'].apply(float)
 
     def _add_salt_and_temp(self):
@@ -59,15 +64,20 @@ class Calculate:
         temp_data = []
         ref_depth_data = []
         for index, row in self.data.iterrows():
-            if 'CRM' in row['serno']:
+            if 'CRM' in row['serno'].upper():
                 salt = float(row['salinity'])
                 temp = float(row['temperatureSample'])
                 ref_depth = ''
             else:
+                depth = row['depth']
+                if type(depth) == str and depth.upper() == 'DIB':
+                    print(f'1: {depth=}')
+                    depth = 'deepest'
+                    print(f'2: {depth=}')
                 salt, temp, ref_depth = self.data_salt_temp.get_salinity_and_temperature(year=row['year'],
                                                                                      ship=row['ship'],
                                                                                      serno=row['serno'],
-                                                                                     depth=row['depth'])
+                                                                                     depth=depth)
             # raise
             salt_data.append(salt)
             temp_data.append(temp)

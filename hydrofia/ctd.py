@@ -101,16 +101,25 @@ class CtdStandardFormat:
             return pd.DataFrame()
         return df[diff == min_diff]
 
+    @cache
+    def get_data_at_deepest_depth(self):
+        max_depth = max(self.data['depth'])
+        return self.data[self.data['depth'] == max_depth]
+
     def get_salt_and_temp_data_at_depth(self,
-                                        depth: int,
+                                        depth: int | float | str,
                                         max_depth_diff_allowed: float = None,
                                         surface_layer_depth: float = None,
                                         bottom_layer_depth: float = None) -> (float, float, float):
-        df = self.get_data_at_depth(depth,
-                                    max_depth_diff_allowed=max_depth_diff_allowed,
-                                    surface_layer_depth=surface_layer_depth,
-                                    bottom_layer_depth=bottom_layer_depth,
-                                    )
+        # depth an also be "deepest"
+        if depth == 'deepest':
+            df = self.get_data_at_deepest_depth()
+        else:
+            df = self.get_data_at_depth(depth,
+                                        max_depth_diff_allowed=max_depth_diff_allowed,
+                                        surface_layer_depth=surface_layer_depth,
+                                        bottom_layer_depth=bottom_layer_depth,
+                                        )
         if df.empty:
             return np.nan, np.nan, np.nan
         salt = float(df[self.SALT_PAR].iloc[0])
@@ -171,7 +180,8 @@ class CtdStandardFormatCollection:
                                      year: str | int = None,
                                      ship: str | int = None,
                                      serno: str | int = None,
-                                     depth: str | int = None) -> tuple[float, float, float]:
+                                     depth: str | int | str= None) -> tuple[float, float, float]:
+        # depth can be "deepest"
         file = self._get_file(year=year, ship=ship, serno=serno)
         if not file:
             return np.nan, np.nan, np.nan
