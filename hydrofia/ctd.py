@@ -61,7 +61,12 @@ class CtdStandardFormat:
         df = pd.DataFrame(data_lines, columns=header)
         df['depth'] = df[self.DEPTH_PAR].astype(float)
         # df['press'] = df[self.PRESS_PAR].astype(float)
-        return df
+
+        # Filter data
+        salt_boolean = ~df[self.SALT_QF_PAR].isin(EXCLUDE_QUALITY_FLAGS)
+        temp_boolean = ~df[self.TEMP_QF_PAR].isin(EXCLUDE_QUALITY_FLAGS)
+        boolean = salt_boolean & temp_boolean
+        return df[boolean]
 
     @cache
     def get_data_at_depth(self,
@@ -70,28 +75,20 @@ class CtdStandardFormat:
                           surface_layer_depth: float = None,
                           bottom_layer_depth: float = None,
                           ) -> pd.DataFrame:
-        # print()
-        # print('=' * 50)
-        # print(f'{self.path=}')
-        # print(f'{max_depth_diff_allowed=}')
-        # print(f'{surface_layer_depth=}')
-        # print(f'{bottom_layer_depth=}')
-        # print(f'{depth=}')
         df = self.data.copy(deep=True)
+        bottom_layer_top = None
+        if bottom_layer_depth:
+            bottom_layer_top = df['depth'].values[-1] - bottom_layer_depth
         if surface_layer_depth and depth <= surface_layer_depth:
             df = self.data[self.data['depth'] <= surface_layer_depth].reset_index()
             max_depth_diff_allowed = None
-        elif bottom_layer_depth and depth >= bottom_layer_depth:
+        elif bottom_layer_top and depth >= bottom_layer_top:
             df = self.data[self.data['depth'] >= bottom_layer_depth].reset_index()
             max_depth_diff_allowed = None
         if df.empty:
             return pd.DataFrame()
         diff = abs(df['depth'] - depth)
-        # print(f'{diff=}')
         min_diff = min(diff)
-        # print(f'{min_diff=}')
-        # print('-' * 50)
-        # print()
         if max_depth_diff_allowed and min_diff > max_depth_diff_allowed:
             return pd.DataFrame()
         return df[diff == min_diff]
@@ -109,14 +106,15 @@ class CtdStandardFormat:
         if df.empty:
             return np.nan, np.nan, np.nan
         salt = float(df[self.SALT_PAR].iloc[0])
-        if df[self.SALT_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
-            salt = np.nan
+        # if df[self.SALT_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
+        #     salt = np.nan
         temp = float(df[self.TEMP_PAR].iloc[0])
-        if df[self.TEMP_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
-            temp = np.nan
+        # if df[self.TEMP_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
+        #     temp = np.nan
         depth = float(df[self.DEPTH_PAR].iloc[0])
-        if df[self.DEPTH_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
-            depth = np.nan
+        # if df[self.DEPTH_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
+        #     depth = np.nan
+        # print('salt, temp, depth', salt, temp, depth)
         return salt, temp, depth
         # return float(df[self.SALT_PAR].iloc[0]), float(df[self.TEMP_PAR].iloc[0]), float(df[self.DEPTH_PAR].iloc[0])
 
