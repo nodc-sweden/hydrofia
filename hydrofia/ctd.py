@@ -54,6 +54,13 @@ class CtdStandardFormat:
         return get_key(year=self.year, ship=self.ship, serno=self.serno)
 
     @cached_property
+    def station(self):
+        with open(self.path, encoding='cp1252') as fid:
+            for line in fid:
+                if 'STATN' in line:
+                    return line.split(';')[-1].strip()
+
+    @cached_property
     def data(self):
         header = []
         data_lines = []
