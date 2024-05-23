@@ -54,6 +54,13 @@ class CtdStandardFormat:
         return get_key(year=self.year, ship=self.ship, serno=self.serno)
 
     @cached_property
+    def station(self):
+        with open(self.path, encoding='cp1252') as fid:
+            for line in fid:
+                if 'STATN' in line:
+                    return line.split(';')[-1].strip()
+
+    @cached_property
     def data(self):
         header = []
         data_lines = []
@@ -77,7 +84,7 @@ class CtdStandardFormat:
         return df[boolean]
 
     @cache
-    def get_data_at_depth(self,
+    def _get_data_at_depth(self,
                           depth: float,
                           max_depth_diff_allowed: float = None,
                           surface_layer_depth: float = None,
@@ -102,37 +109,40 @@ class CtdStandardFormat:
         return df[diff == min_diff]
 
     @cache
-    def get_data_at_deepest_depth(self):
+    def _get_data_at_deepest_depth(self):
         max_depth = max(self.data['depth'])
         return self.data[self.data['depth'] == max_depth]
 
-    def get_salt_and_temp_data_at_depth(self,
+    def get_last_data_at_depth(self,
                                         depth: int | float | str,
                                         max_depth_diff_allowed: float = None,
                                         surface_layer_depth: float = None,
                                         bottom_layer_depth: float = None) -> (float, float, float):
-        # depth an also be "deepest"
+        # depth can also be "deepest"
         if depth == 'deepest':
-            df = self.get_data_at_deepest_depth()
+            df = self._get_data_at_deepest_depth()
         else:
-            df = self.get_data_at_depth(depth,
+            df = self._get_data_at_depth(depth,
                                         max_depth_diff_allowed=max_depth_diff_allowed,
                                         surface_layer_depth=surface_layer_depth,
                                         bottom_layer_depth=bottom_layer_depth,
                                         )
         if df.empty:
-            return np.nan, np.nan, np.nan
-        salt = float(df[self.SALT_PAR].iloc[0])
+            return {}
+        data = {}
+        data['salt'] = float(df[self.SALT_PAR].iloc[0])
         # if df[self.SALT_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
         #     salt = np.nan
-        temp = float(df[self.TEMP_PAR].iloc[0])
+        data['temp'] = float(df[self.TEMP_PAR].iloc[0])
         # if df[self.TEMP_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
         #     temp = np.nan
-        depth = float(df[self.DEPTH_PAR].iloc[0])
+        data['depth'] = float(df[self.DEPTH_PAR].iloc[0])
+        
+        data['station'] = self.station
         # if df[self.DEPTH_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
         #     depth = np.nan
         # print('salt, temp, depth', salt, temp, depth)
-        return salt, temp, depth
+        return data
         # return float(df[self.SALT_PAR].iloc[0]), float(df[self.TEMP_PAR].iloc[0]), float(df[self.DEPTH_PAR].iloc[0])
 
 
@@ -176,20 +186,20 @@ class CtdStandardFormatCollection:
             files.append(file)
         self._files = files
 
-    def get_salinity_and_temperature(self,
-                                     year: str | int = None,
-                                     ship: str | int = None,
-                                     serno: str | int = None,
-                                     depth: str | int | str= None) -> tuple[float, float, float]:
+    def get_ctd_data(self,
+                     year: str | int = None,
+                     ship: str | int = None,
+                     serno: str | int = None,
+                     depth: str | int | str= None) -> dict:
         # depth can be "deepest"
         file = self._get_file(year=year, ship=ship, serno=serno)
         if not file:
-            return np.nan, np.nan, np.nan
-        return file.get_salt_and_temp_data_at_depth(depth,
-                                                    max_depth_diff_allowed=self._max_depth_diff_allowed,
-                                                    surface_layer_depth=self._surface_layer_depth,
-                                                    bottom_layer_depth=self._bottom_layer_depth,
-                                                    )
+            return {}
+        return file.get_last_data_at_depth(depth,
+                                            max_depth_diff_allowed=self._max_depth_diff_allowed,
+                                            surface_layer_depth=self._surface_layer_depth,
+                                            bottom_layer_depth=self._bottom_layer_depth,
+                                            )
 
 
 if __name__ == '__main__':
