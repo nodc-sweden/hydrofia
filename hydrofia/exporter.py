@@ -19,6 +19,7 @@ else:
 class ExporterXlsxTemplate:
     name = 'xlsx-template-export'
     template_sheet_name = 'Rapport för utskrift'
+    raw_data_sheet_name = 'Rådata'
 
     date_cell = [1, 12]
     signature_cell = [2, 12]
@@ -46,7 +47,8 @@ class ExporterXlsxTemplate:
         self._overwrite = overwrite
         self._template_path = pathlib.Path(ROOT_DIR, 'hydrofia_ph_template.xlsx')
         self._wb = load_workbook(self._template_path)
-        self._ws = self._wb[self.template_sheet_name]
+        self._report_ws = self._wb[self.template_sheet_name]
+        self._raw_data_ws = self._wb[self.raw_data_sheet_name]
         self._data = pd.DataFrame()
 
     def save(self,
@@ -58,6 +60,7 @@ class ExporterXlsxTemplate:
         self._data = data.fillna('')
         self._write_header()
         self._write_data()
+        self._write_raw_data()
 
         self.project = project
         self.signature = signature
@@ -74,8 +77,11 @@ class ExporterXlsxTemplate:
             value = ''
         return value
 
-    def _set_value(self, r: int, c: int, value: str | float):
-        self._ws.cell(r, c).value = value
+    def _set_report_value(self, r: int, c: int, value: str | float):
+        self._report_ws.cell(r, c).value = value
+
+    def _set_raw_data_value(self, r: int, c: int, value: str | float):
+        self._raw_data_ws.cell(r, c).value = value
 
     def _write_header(self):
         self.date = 'today'
@@ -103,15 +109,33 @@ class ExporterXlsxTemplate:
         r = self.data_start_row
         for index, df in self.data.groupby(['date', 'serno', 'depth']):
             s = df.iloc[-1]  # Use last replicate
-            self._set_value(r, self.series_col, s['serno'])
-            self._set_value(r, self.station_col, s['station'])
-            self._set_value(r, self.depth_col, s['depth'])
-            self._set_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
-            self._set_value(r, self.salt_col, self._get_float_value(s['salt']))
-            self._set_value(r, self.temp_col, self._get_float_value(s['temp']))
-            self._set_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']))
-            self._set_value(r, self.ph_col, self._get_float_value(s['pH']))
+            self._set_report_value(r, self.series_col, s['serno'])
+            self._set_report_value(r, self.station_col, s['station'])
+            self._set_report_value(r, self.depth_col, s['depth'])
+            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
+            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']))
+            self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']))
+            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']))
+            self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
             r += 1
+
+    def old_write_raw_data(self):
+        book = load_workbook(self._export_path)
+        writer = pd.ExcelWriter(self._export_path, engine='openpyxl', mode='a')
+        writer.workbook = book
+        self.data.to_excel(writer, sheet_name=self.raw_data_sheet_name, index=False)
+        writer.close()
+
+    def _write_raw_data(self):
+        data = self.data.copy()
+        data.pop('index')
+        for c, name in enumerate(data, 1):
+            self._set_raw_data_value(1, c, name)
+        for r, row in enumerate(data.iterrows(), 2):
+            for c, val in enumerate(row[1].values, 1):
+                self._set_raw_data_value(r, c, val)
+
+
 
     def _save_file(self):
         if self._export_path.exists() and not self._overwrite:
@@ -124,53 +148,53 @@ class ExporterXlsxTemplate:
 
     @property
     def signature(self):
-        return self._ws.cell(*self.signature_cell).value
+        return self._report_ws.cell(*self.signature_cell).value
 
     @signature.setter
     def signature(self, value):
-        self._ws.cell(*self.signature_cell).value = value
+        self._report_ws.cell(*self.signature_cell).value = value
 
     @property
     def date(self):
-        return self._ws.cell(*self.date_cell).value
+        return self._report_ws.cell(*self.date_cell).value
 
     @date.setter
     def date(self, value):
         if value.lower() == 'today':
             value = str(datetime.datetime.now().date())
-        self._ws.cell(*self.date_cell).value = value
+        self._report_ws.cell(*self.date_cell).value = value
 
     @property
     def project(self):
-        return self._ws.cell(*self.project_cell).value
+        return self._report_ws.cell(*self.project_cell).value
 
     @project.setter
     def project(self, value):
-        self._ws.cell(*self.project_cell).value = value
+        self._report_ws.cell(*self.project_cell).value = value
 
     @property
     def country_code(self):
-        return self._ws.cell(*self.country_code_cell).value
+        return self._report_ws.cell(*self.country_code_cell).value
 
     @country_code.setter
     def country_code(self, value):
-        self._ws.cell(*self.country_code_cell).value = value
+        self._report_ws.cell(*self.country_code_cell).value = value
 
     @property
     def ship_code(self):
-        return self._ws.cell(*self.ship_code_cell).value
+        return self._report_ws.cell(*self.ship_code_cell).value
 
     @ship_code.setter
     def ship_code(self, value):
-        self._ws.cell(*self.ship_code_cell).value = value
+        self._report_ws.cell(*self.ship_code_cell).value = value
 
     @property
     def serno_span(self):
-        return self._ws.cell(*self.serno_span_cell).value
+        return self._report_ws.cell(*self.serno_span_cell).value
 
     @serno_span.setter
     def serno_span(self, value):
-        self._ws.cell(*self.serno_span_cell).value = value
+        self._report_ws.cell(*self.serno_span_cell).value = value
 
 
 class ExporterTxt:
