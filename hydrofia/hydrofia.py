@@ -8,7 +8,7 @@ from typing import Protocol
 import numpy as np
 import pandas as pd
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Side
+from openpyxl.styles import PatternFill, Border, Side, numbers, Alignment
 from openpyxl.utils import get_column_letter
 
 from hydrofia import utils
@@ -31,7 +31,8 @@ class HydrofiaExportFileDiscrete:
             r'(?P<ship>\d{2})',
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
-            r'(?P<depth>\d*)'
+            # r'(?P<depth>\d*)'
+            r'(?P<depth>[0-9/]*)'
         )),
         re.compile('^{}{}{}-{}{}{}$'.format(
             r'(?P<year>\d{2})',
@@ -39,7 +40,8 @@ class HydrofiaExportFileDiscrete:
             r'(?P<ship>\d{2})',
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
-            r'(?P<depth>\d*)'
+            # r'(?P<depth>\d*)'
+            r'(?P<depth>[0-9/]*)'
         )),
         re.compile('^{}{}{}-{}{}{}$'.format(
             r'(?P<year>\d{4})',
@@ -325,7 +327,9 @@ class _HyrdofiaExcelTemplateCreate:
         r = 3
         for index, series in self.data.iterrows():
             for c, value in enumerate(series, add_c):
-                self.ws.cell(r, c).value = value
+                cell = self.ws.cell(r, c)
+                cell.value = str(value)
+                cell.number_format = numbers.FORMAT_TEXT
             r += 1
 
     def _add_correct_data(self):
@@ -338,9 +342,10 @@ class _HyrdofiaExcelTemplateCreate:
                     value = ''
                 elif 'temperature' in key and 'CRM' not in series['serno']:
                     value = ''
-                cell.value = value
+                cell.value = str(value)
                 cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION
                 cell.border = HyrdofiaExcelTemplate.BORDER_USER_ACTION
+                cell.number_format = numbers.FORMAT_TEXT
             r += 1
 
     def _merge_cells(self):

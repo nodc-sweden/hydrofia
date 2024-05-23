@@ -72,10 +72,10 @@ class Calculate:
                 )
             else:
                 depth = row['depth']
+                if type(depth) == str:
+                    depth = depth.split('/')[0]  # If replicate
                 if type(depth) == str and depth.upper() == 'DIB':
-                    print(f'1: {depth=}')
                     depth = 'deepest'
-                    print(f'2: {depth=}')
                 data = self.data_salt_temp.get_ctd_data(year=row['year'],
                                                                                      ship=row['ship'],
                                                                                      serno=row['serno'],
