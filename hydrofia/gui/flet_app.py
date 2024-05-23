@@ -92,30 +92,35 @@ class FletApp:
         saves.add_control('_ctd_directory', self._ctd_directory)
         saves.add_control('_metadata_signature', self._metadata_signature)
         saves.add_control('_metadata_project', self._metadata_project)
-        # saves.add_control('_metadata_surface_layer', self._metadata_surface_layer)
-        # saves.add_control('_metadata_bottom_layer', self._metadata_bottom_layer)
-        # saves.add_control('_metadata_max_depth_diff_allowed', self._metadata_max_depth_diff_allowed)
-        # saves.add_control('_batch_temp', self._batch_temp)
         saves.add_control('_batch_nr', self._batch_nr)
 
         saves.load(self)
 
+        self._check_paths()
+
         self._update_create_template_path()
         self._update_create_result_path()
+
+        self._check_use_template_path()
 
         self._update_batch_info()
 
         self._reset_depth_margins()
 
-        # self._check_create_template_path_exists()
-        # self._check_create_result_path_exists()
-
-        # self._on_blur_template_export_file_name()
-        # self._on_blur_result_file_name()
-
-        # self.use_template_path = self.use_template_path
-        # self.template_directory = self.template_directory
-        # self.create_result_path = self.create_result_path
+    def _check_paths(self):
+        """Checks all paths that should exist and reset if not exists"""
+        for widget in [
+            self._hydrofia_file_path,
+            self._template_directory,
+            self._use_template_path,
+            self._ctd_directory
+                ]:
+            if not widget.value.strip():
+                continue
+            if pathlib.Path(widget.value).exists():
+                continue
+            widget.value = ''
+            widget.update()
 
     def update_page(self):
         self.page.update()
@@ -437,7 +442,7 @@ class FletApp:
         self._create_result_path = ft.Text()
 
         # self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
-        self._overwrite_result = ft.Checkbox(label=TEXTS.overwrite, value=False, active_color='red')
+        self._overwrite_result = ft.Checkbox(label=TEXTS.get_file_exists(False), value=False, active_color='red')
 
         self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_result_file)
 
@@ -532,7 +537,7 @@ class FletApp:
         create_path_label = ft.Text(TEXTS.create_file_label)
         self._create_template_path = ft.Text()
 
-        self._overwrite_template = ft.Checkbox(label=TEXTS.overwrite, value=False, active_color='red')
+        self._overwrite_template = ft.Checkbox(label=TEXTS.get_file_exists(False), value=False, active_color='red')
 
         create_template_btn = ft.ElevatedButton(TEXTS.create_template, on_click=self._create_template)
 
@@ -594,7 +599,8 @@ class FletApp:
 
         self._metadata_project = ft.TextField(label=TEXTS.project,
                                               dense=dence,
-                                              width=width
+                                              width=width,
+                                              on_blur=self._update_create_template_path
                                               )
 
         col = ft.Column(
@@ -774,25 +780,30 @@ class FletApp:
     def _check_create_template_path_exists(self, *args):
         if self.create_template_path and self.create_template_path.exists():
             disabled = False
+            overwrite = False
             label = TEXTS.get_file_exists(True)
         else:
             disabled = True
+            overwrite = True
             label = TEXTS.get_file_exists(False)
         logger.info(f'TEMPLATE: {disabled=}')
         logger.info(f'{label=}')
 
         self._overwrite_template.disabled = disabled
         self._overwrite_template.label = label
+        self._overwrite_template.value = overwrite
         self._overwrite_template.update()
 
     def _check_create_result_path_exists(self):
         if self.create_result_path and self.create_result_path.exists():
             disabled = False
+            overwrite = False
             label = TEXTS.get_file_exists(True)
             self._open_result_file_btn.visible = True
             self._open_result_file_btn.update()
         else:
             disabled = True
+            overwrite = True
             label = TEXTS.get_file_exists(False)
             self._open_result_file_btn.visible = False
             self._open_result_file_btn.update()
@@ -801,6 +812,7 @@ class FletApp:
 
         self._overwrite_result.disabled = disabled
         self._overwrite_result.label = label
+        self._overwrite_result.value = overwrite
         self._overwrite_result.update()
 
     def _open_template_directory(self, *args):
@@ -968,14 +980,13 @@ class FletApp:
             else:
                 month = int(month)
             id_string = hydrofia.get_id_string_for_hydrofia_export_file(self.hydrofia_file_path, year=year, month=month)
-            print(f'{id_string=}')
             if not id_string:
                 self.create_template_path = None
                 return
             name = f'{proj}_{id_string}{TEMPLATE_STEM_ENDING}.xlsx'
             path = pathlib.Path(self.template_directory, name)
         self.create_template_path = path
-        self._check_create_template_path_exists()
+        # self._check_create_template_path_exists()
 
     # def _on_change_result_file_name(self, *args):
     #     name = self.filter_path(self.result_file_name)
@@ -996,6 +1007,7 @@ class FletApp:
         """Updates the template path related to the creation of template"""
         template_path = self.use_template_path
         if not template_path:
+            self._check_create_result_path_exists()
             return
         directory = template_path.parent
         stem = template_path.stem
@@ -1079,6 +1091,15 @@ class FletApp:
         self._open_template_file_btn.update()
         self._use_template_path.value = str(path)
         self._use_template_path.update()
+
+    def _check_use_template_path(self):
+        value = self._use_template_path.value
+        visible = False
+        if value and pathlib.Path(value).exists():
+            visible = True
+        self._open_template_file_btn.visible = visible
+        self._open_template_file_btn.update()
+
 
     @property
     def create_result_path(self) -> pathlib.Path | None:

@@ -85,9 +85,9 @@ class Texts:
     def create_result(self):
         return 'Skapa resultatfil'
 
-    @property
-    def overwrite(self):
-        return 'Vill du skriva över filen?'
+    # @property
+    # def overwrite(self):
+    #     return 'Vill du skriva över filen?'
 
     def select_overwrite(self, path):
         return f'Filen finns redan. Du måste välja att skriva över filen om du vill fortsätta: {path}'
