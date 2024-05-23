@@ -44,7 +44,6 @@ def save():
 
 def load(obj):
     data = _load()
-    print()
     for name, cont in controls.items():
         value = data.get(name)
         print(f'LOAD: {name=}, {value=}')
