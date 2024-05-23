@@ -13,8 +13,8 @@ class HydrofiaTemplateData(Protocol):
 
 class SalinityAndTemperatureData(Protocol):
 
-    def get_salinity_and_temperature(self, year: str | int = None, ship: str | int = None, serno: str | int = None,
-                              depth: str | int | str = None) -> tuple[float, float, float]:
+    def get_ctd_data(self, year: str | int = None, ship: str | int = None, serno: str | int = None,
+                              depth: str | int | str = None) -> dict:
         ...
 
 
@@ -63,28 +63,32 @@ class Calculate:
         salt_data = []
         temp_data = []
         ref_depth_data = []
+        station_data = []
         for index, row in self.data.iterrows():
             if 'CRM' in row['serno'].upper():
-                salt = float(row['salinity'])
-                temp = float(row['temperatureSample'])
-                ref_depth = ''
+                data = dict(
+                    salt=float(row['salinity']),
+                    temp=float(row['temperatureSample'])
+                )
             else:
                 depth = row['depth']
                 if type(depth) == str and depth.upper() == 'DIB':
                     print(f'1: {depth=}')
                     depth = 'deepest'
                     print(f'2: {depth=}')
-                salt, temp, ref_depth = self.data_salt_temp.get_salinity_and_temperature(year=row['year'],
+                data = self.data_salt_temp.get_ctd_data(year=row['year'],
                                                                                      ship=row['ship'],
                                                                                      serno=row['serno'],
                                                                                      depth=depth)
             # raise
-            salt_data.append(salt)
-            temp_data.append(temp)
-            ref_depth_data.append(ref_depth)
+            salt_data.append(data.get('salt', ''))
+            temp_data.append(data.get('temp', ''))
+            ref_depth_data.append(data.get('depth', ''))
+            station_data.append(data.get('station', ''))
         self._data['salt'] = salt_data
         self._data['temp'] = temp_data
         self._data['ref_depth'] = ref_depth_data
+        self._data['station'] = station_data
 
     def _calculate(self):
         def calc_pHTspec(row):

@@ -30,6 +30,7 @@ class ExporterXlsxTemplate:
     data_start_row = 12
 
     series_col = 3
+    station_col = 4
     depth_col = 6
     ref_depth_col = 7
     salt_col = 8
@@ -96,6 +97,7 @@ class ExporterXlsxTemplate:
         for index, df in self.data.groupby(['date', 'serno', 'depth']):
             s = df.iloc[-1]  # Use last replicate
             self._set_value(r, self.series_col, s['serno'])
+            self._set_value(r, self.station_col, s['station'])
             self._set_value(r, self.depth_col, s['depth'])
             self._set_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
             self._set_value(r, self.salt_col, self._get_float_value(s['salt']))
