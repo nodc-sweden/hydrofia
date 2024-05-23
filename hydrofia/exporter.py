@@ -23,7 +23,7 @@ class ExporterXlsxTemplate:
     date_cell = [1, 12]
     signature_cell = [2, 12]
     project_cell = [6, 1]
-    ctry_code_cell = [6, 6]
+    country_code_cell = [6, 6]
     ship_code_cell = [6, 8]
     serno_span_cell = [6, 10]
 
@@ -80,11 +80,18 @@ class ExporterXlsxTemplate:
     def _write_header(self):
         self.date = 'today'
         self._write_ship_code()
+        self._write_country_code()
         self._write_serno_span()
+
+    def _write_country_code(self):
+        print(f"{set(self.data['country'])=}")
+        values = [item for item in sorted(set(self.data['country'])) if item]
+        self.country_code = ', '.join(values)
 
     def _write_ship_code(self):
         print(f"{set(self.data['ship'])=}")
-        self.ship_code = ', '.join(sorted(set(self.data['ship'])))
+        values = [item for item in sorted(set(self.data['ship'])) if item]
+        self.ship_code = ', '.join(values)
 
     def _write_serno_span(self):
         # TODO: Use sorted set and see if its faster
@@ -142,12 +149,12 @@ class ExporterXlsxTemplate:
         self._ws.cell(*self.project_cell).value = value
 
     @property
-    def ctry_code(self):
-        return self._ws.cell(*self.ctry_code_cell).value
+    def country_code(self):
+        return self._ws.cell(*self.country_code_cell).value
 
-    @ctry_code.setter
-    def ctry_code(self, value):
-        self._ws.cell(*self.ctry_code_cell).value = value
+    @country_code.setter
+    def country_code(self, value):
+        self._ws.cell(*self.country_code_cell).value = value
 
     @property
     def ship_code(self):
@@ -231,7 +238,7 @@ if __name__ == '__main__':
     e = ExporterXlsxTemplate()
     e.signature = 'MWen'
     e.date = 'today'
-    e.ctry_code = 'SE'
+    e.country_code = 'SE'
     e.ship_code = '77'
 
     e.save(save_path)

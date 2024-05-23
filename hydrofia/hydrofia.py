@@ -25,38 +25,43 @@ else:
 class HydrofiaExportFileDiscrete:
 
     SAMPLE_NAME_PATTERNS = [
-        re.compile('^{}{}-{}{}{}$'.format(
+        re.compile('^{}{}{}-{}{}{}$'.format(
             r'(?P<year>\d{4})',
-            r'(?P<ship>\d{4})',
+            r'(?P<country>\d{2})',
+            r'(?P<ship>\d{2})',
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
             r'(?P<depth>\d*)'
         )),
-        re.compile('^{}{}-{}{}{}$'.format(
+        re.compile('^{}{}{}-{}{}{}$'.format(
             r'(?P<year>\d{2})',
-            r'(?P<ship>\d{4})',
+            r'(?P<country>\d{2})',
+            r'(?P<ship>\d{2})',
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
             r'(?P<depth>\d*)'
         )),
-        re.compile('^{}{}-{}{}{}$'.format(
+        re.compile('^{}{}{}-{}{}{}$'.format(
             r'(?P<year>\d{4})',
-            r'(?P<ship>\d{4})',
+            r'(?P<country>\d{2})',
+            r'(?P<ship>\d{2})',
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
             r'(?P<depth>[xX])'
         )),
-        re.compile('^{}{}-{}{}{}$'.format(
+        re.compile('^{}{}{}-{}{}{}$'.format(
             r'(?P<year>\d{2})',
-            r'(?P<ship>\d{4})',
+            r'(?P<country>\d{2})',
+            r'(?P<ship>\d{2})',
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
             r'(?P<depth>[xX])'
         )),
         re.compile('^.*CRM.*$'),
-        re.compile('^{}{}-{}{}{}$'.format(
+        re.compile('^{}{}{}-{}{}{}$'.format(
             r'(?P<year>\d{2})',
-            r'(?P<ship>\d{4})',
+            r'(?P<country>\d{2})',
+            r'(?P<ship>\d{2})',
             r'(?P<serno>\d{4})',
             r'(?P<sep>[-_])',
             r'(?P<depth>DIB)'
@@ -139,11 +144,18 @@ class HydrofiaExportFileDiscrete:
         self._data = pd.DataFrame(row_data, columns=self._header_original)
 
     def _add_columns(self):
+
+        def extract_country(sampname: str):
+            if 'CRM' in sampname:
+                return ''
+            parts = sampname.split('-')
+            return utils.map_ship(parts[0][-4:-2])
+
         def extract_ship(sampname: str):
             if 'CRM' in sampname:
                 return ''
             parts = sampname.split('-')
-            return utils.map_ship(parts[0][-4:])
+            return utils.map_ship(parts[0][-2:])
 
         def extract_serno(sampname) -> str:
             if 'CRM' in sampname:
@@ -168,6 +180,7 @@ class HydrofiaExportFileDiscrete:
         self._data['timestamp'] = self._data['timestamp'].apply(convert_timestamp)
         self._data['date'] = self._data['timestamp'].apply(lambda x: x.date())
         self._data['year'] = self._data['date'].apply(lambda x: x.year)
+        self._data['country'] = self._data['sampleName'].apply(extract_country)
         self._data['ship'] = self._data['sampleName'].apply(extract_ship)
         self._data['serno'] = self._data['sampleName'].apply(extract_serno)
         self._data['depth'] = self._data['sampleName'].apply(extract_depth)
@@ -185,7 +198,7 @@ class HydrofiaExportFileDiscrete:
         self._data = self._data[boolean]
 
     def _reorder_columns(self):
-        first_columns = ['ship', 'date', 'serno', 'depth']
+        first_columns = ['country', 'ship', 'date', 'serno', 'depth']
         new_columns = first_columns + [col for col in self.columns if col not in first_columns]
         self._data = self._data[new_columns]
 
@@ -198,6 +211,7 @@ class HydrofiaTemplateData(Protocol):
 
 class HyrdofiaExcelTemplate:
     ADDITIONAL_HEADER_MAPPING = {
+        'country': 'COUNTRY (correct)',
         'ship': 'SHIP (correct)',
         'date': 'DATE (correct)',
         'serno': 'SERNO (correct)',
@@ -302,7 +316,7 @@ class _HyrdofiaExcelTemplateCreate:
         for c, item in enumerate(header, 1):
             cell = self.ws.cell(2, c)
             cell.value = item
-            self.ws.column_dimensions[get_column_letter(c)].width = len(item)+10
+            self.ws.column_dimensions[get_column_letter(c)].width = len(item)+6
             if c <= len(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING):
                 cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION
 
@@ -330,7 +344,7 @@ class _HyrdofiaExcelTemplateCreate:
             r += 1
 
     def _merge_cells(self):
-        self.ws.merge_cells(start_row=1, end_row=1, start_column=1, end_column=5)
+        self.ws.merge_cells(start_row=1, end_row=1, start_column=1, end_column=6)
 
     def _save_file(self):
         self.wb.save(self.path)
