@@ -133,15 +133,19 @@ class Texts:
 
     @property
     def surface_layer(self):
-        return 'Tjocklek på ytlager [m] (för att matcha salt och temp)'
+        return 'Tillåtet avstånd vid ytan [m] (för att matcha salt och temp)'
 
     @property
     def bottom_layer(self):
-        return 'Tjocklek på bottenlager [m] (för att matcha salt och temp)'
+        return 'Tillåtet avstånd vid botten [m] (för att matcha salt och temp)'
 
     @property
     def max_depth_diff_allowed(self):
-        return 'Max tillåten diff mellan djup [m]'
+        return 'Max tillåtet avstånd för matching [m]'
+
+    @property
+    def reset_depth_margins(self):
+        return 'Återställ'
 
     @property
     def title_merge_ctd_with_hydrofia(self):

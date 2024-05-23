@@ -3,6 +3,7 @@ import logging.handlers
 import pathlib
 import re
 import sys
+import json
 
 import hydrofia
 from hydrofia.gui.tooltip import TooltipTexts, get_tooltip_widget, get_tooltip_icon
@@ -29,6 +30,20 @@ COLORS = Colors()
 
 TEMPLATE_STEM_ENDING = '_rättningsfil'
 RESULT_STEM_ENDING = '_resultat'
+
+DEFAULT_DEPTH_MARGINS = dict(
+    meta_surface=4.0,
+    meta_bottom=4.0,
+    meta_diff=0.2
+)
+
+
+def get_config():
+    path = DIRECTORY / 'config.json'
+    if not path.exists():
+        return {}
+    with open(path) as fid:
+        return json.load(fid)
 
 
 class FletApp:
@@ -77,9 +92,9 @@ class FletApp:
         saves.add_control('_ctd_directory', self._ctd_directory)
         saves.add_control('_metadata_signature', self._metadata_signature)
         saves.add_control('_metadata_project', self._metadata_project)
-        saves.add_control('_metadata_surface_layer', self._metadata_surface_layer)
-        saves.add_control('_metadata_bottom_layer', self._metadata_bottom_layer)
-        saves.add_control('_metadata_max_depth_diff_allowed', self._metadata_max_depth_diff_allowed)
+        # saves.add_control('_metadata_surface_layer', self._metadata_surface_layer)
+        # saves.add_control('_metadata_bottom_layer', self._metadata_bottom_layer)
+        # saves.add_control('_metadata_max_depth_diff_allowed', self._metadata_max_depth_diff_allowed)
         # saves.add_control('_batch_temp', self._batch_temp)
         saves.add_control('_batch_nr', self._batch_nr)
 
@@ -89,6 +104,8 @@ class FletApp:
         self._update_create_result_path()
 
         self._update_batch_info()
+
+        self._reset_depth_margins()
 
         # self._check_create_template_path_exists()
         # self._check_create_result_path_exists()
@@ -396,7 +413,6 @@ class FletApp:
 
         return container
 
-
     def _get_result_option_container(self):
 
         file_btn = ft.ElevatedButton(TEXTS.get_template_path_button, on_click=lambda _:
@@ -639,6 +655,8 @@ class FletApp:
                                                                                          replacement_string="")
                                                             )
 
+        reset_depth_margins_btn = ft.ElevatedButton(TEXTS.reset_depth_margins, on_click=self._reset_depth_margins)
+
         col = ft.Column(
             alignment=ft.MainAxisAlignment.START,
             scroll=ft.ScrollMode.AUTO,
@@ -648,6 +666,7 @@ class FletApp:
         col.controls.append(self._metadata_surface_layer)
         col.controls.append(self._metadata_bottom_layer)
         col.controls.append(self._metadata_max_depth_diff_allowed)
+        col.controls.append(reset_depth_margins_btn)
 
         # tt = get_tooltip_widget(TOOLTIP_TEXT.metadata)
         # tt.content = row
@@ -672,6 +691,16 @@ class FletApp:
         if self._batch_temp.value.strip():
             self._calculate_ph()
         # self._batch_temp.focus()
+
+    def _reset_depth_margins(self, *args):
+        config = DEFAULT_DEPTH_MARGINS.copy()
+        config.update(get_config())
+        self._metadata_max_depth_diff_allowed.value = str(config['meta_diff'])
+        self._metadata_max_depth_diff_allowed.update()
+        self._metadata_surface_layer.value = str(config['meta_surface'])
+        self._metadata_surface_layer.update()
+        self._metadata_bottom_layer.value = str(config['meta_bottom'])
+        self._metadata_bottom_layer.update()
 
     def _calculate_ph(self, *args):
         self._batch_ph.value = ''
