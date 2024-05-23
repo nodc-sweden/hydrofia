@@ -6,7 +6,7 @@ import pandas as pd
 import inspect
 import sys
 from openpyxl import load_workbook
-from openpyxl.styles import PatternFill, Border, Side
+from openpyxl.styles import PatternFill, Border, Side, Alignment
 from openpyxl.utils import get_column_letter
 
 
@@ -38,6 +38,7 @@ class ExporterXlsxTemplate:
     temp_col = 9
     ph_calc_col = 10
     ph_col = 11
+    comment_col = 13
 
     def __str__(self):
         return self.__class__.__name__
@@ -78,7 +79,9 @@ class ExporterXlsxTemplate:
         return value
 
     def _set_report_value(self, r: int, c: int, value: str | float):
-        self._report_ws.cell(r, c).value = value
+        cell = self._report_ws.cell(r, c)
+        cell.value = value
+        cell.alignment = Alignment(horizontal='left')
 
     def _set_raw_data_value(self, r: int, c: int, value: str | float):
         self._raw_data_ws.cell(r, c).value = value
@@ -117,6 +120,9 @@ class ExporterXlsxTemplate:
             self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']))
             self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']))
             self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
+            if type(s['depth']) == str and '/' in s['depth']:
+                nr = s['depth'].split('/')[-1]
+                self._set_report_value(r, self.comment_col, f'Replikat nr {nr}')
             r += 1
 
     def old_write_raw_data(self):
