@@ -16,17 +16,31 @@ else:
     ROOT_DIR = pathlib.Path(__file__).parent
 
 
+CRM_COLOR = PatternFill(start_color='8fb7f7',
+                        end_color='8fb7f7',
+                        fill_type='solid')
+
+PH_VALUE_COLOR = PatternFill(start_color='c0d6fa',
+                             end_color='c0d6fa',
+                             fill_type='solid')
+
+BORDER_USER_ACTION = Border(left=Side(style='thin'),
+                            right=Side(style='thin'),
+                            top=Side(style='thin'),
+                            bottom=Side(style='thin'))
+
+
 class ExporterXlsxResultFile:
     name = 'xlsx-template-export'
     template_sheet_name = 'Rapport för utskrift'
     raw_data_sheet_name = 'Rådata'
 
-    date_cell = [1, 11]
-    signature_cell = [2, 11]
+    date_cell = [1, 8]
+    signature_cell = [2, 8]
     project_cell = [6, 1]
-    country_code_cell = [6, 5]
-    ship_code_cell = [6, 7]
-    serno_span_cell = [6, 9]
+    country_code_cell = [6, 3]
+    ship_code_cell = [6, 5]
+    serno_span_cell = [6, 7]
 
     # date_cell = [1, 12]
     # signature_cell = [2, 12]
@@ -38,14 +52,14 @@ class ExporterXlsxResultFile:
     data_start_row = 12
 
     series_col = 1
-    station_col = 3
-    depth_col = 5
-    ref_depth_col = 6
-    salt_col = 7
-    temp_col = 8
-    ph_calc_col = 9
+    station_col = 2
+    depth_col = 3
+    ref_depth_col = 4
+    salt_col = 5
+    temp_col = 6
+    ph_calc_col = 7
     # ph_col = 11
-    comment_col = 10
+    comment_col = 8
 
     # series_col = 3
     # station_col = 4
@@ -95,10 +109,12 @@ class ExporterXlsxResultFile:
             value = ''
         return value
 
-    def _set_report_value(self, r: int, c: int, value: str | float):
+    def _set_report_value(self, r: int, c: int, value: str | float, fill_color=None):
         cell = self._report_ws.cell(r, c)
         cell.value = value
         cell.alignment = Alignment(horizontal='left')
+        if fill_color:
+            cell.fill = fill_color
 
     def _set_raw_data_value(self, r: int, c: int, value: str | float):
         self._raw_data_ws.cell(r, c).value = value
@@ -129,17 +145,26 @@ class ExporterXlsxResultFile:
         r = self.data_start_row
         for index, df in self.data.groupby(['date', 'serno', 'depth']):
             s = df.iloc[-1]  # Use last replicate
-            self._set_report_value(r, self.series_col, s['serno'])
-            self._set_report_value(r, self.station_col, s['station'])
-            self._set_report_value(r, self.depth_col, s['depth'])
-            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
-            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']))
-            self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']))
-            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']))
+            crm_color = None
+            ph_color = None
+            if s['calc_pH']:
+                ph_color = PH_VALUE_COLOR
+            if 'CRM' in s['serno']:
+                crm_color = CRM_COLOR
+                ph_color = CRM_COLOR
+            self._set_report_value(r, self.series_col, s['serno'], fill_color=crm_color)
+            self._set_report_value(r, self.station_col, s['station'], fill_color=crm_color)
+            self._set_report_value(r, self.depth_col, s['depth'], fill_color=crm_color)
+            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']), fill_color=crm_color)
+            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']), fill_color=crm_color)
+            self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']), fill_color=crm_color)
+            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']), fill_color=ph_color)
             # self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
+            comment = ''
             if type(s['depth']) == str and '/' in s['depth']:
                 nr = s['depth'].split('/')[-1]
-                self._set_report_value(r, self.comment_col, f'Replikat nr {nr}')
+                comment= f'Replikat nr {nr}'
+            self._set_report_value(r, self.comment_col, comment, fill_color=crm_color)
             r += 1
 
     def old_write_raw_data(self):
