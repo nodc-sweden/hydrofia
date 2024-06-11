@@ -4,7 +4,7 @@ from hydrofia.calculate import Calculate
 from hydrofia.ctd import CtdStandardFormatCollection
 from hydrofia import exporter
 from hydrofia.exporter import ExporterTxt
-from hydrofia.exporter import ExporterXlsxTemplate
+from hydrofia.exporter import ExporterXlsxResultFile
 from hydrofia.hydrofia import HydrofiaExportFileDiscrete
 from hydrofia.hydrofia import HyrdofiaExcelTemplate
 from hydrofia import utils
@@ -64,7 +64,7 @@ def create_xlsx_result_file_from_calc_object(
         **kwargs
         ):
 
-    xlsx_exporter = ExporterXlsxTemplate(path, overwrite=overwrite)
+    xlsx_exporter = ExporterXlsxResultFile(path, overwrite=overwrite)
     calc_object.save_data(xlsx_exporter, overwrite=overwrite, **kwargs)
 
 

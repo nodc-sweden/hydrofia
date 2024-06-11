@@ -76,13 +76,11 @@ class Calculate:
                     depth = depth.split('/')[0]  # If replicate
                 if type(depth) == str and depth.upper() == 'DIB':
                     depth = 'deepest'
-                print(f'{row=}')
                 data = self.data_salt_temp.get_ctd_data(year=row['year'],
                                                         ship=row['country'] + row['ship'],
                                                         serno=row['serno'],
                                                         depth=depth)
             # raise
-            print(f'{data=}')
             salt_data.append(data.get('salt', ''))
             temp_data.append(data.get('temp', ''))
             ref_depth_data.append(data.get('depth', ''))
@@ -97,7 +95,9 @@ class Calculate:
             if not all([row['salt'], row['temp'], row['Rspec']]):
                 return np.nan
             return seacarb.pHTspec(row['salt'], row['temp'], row['Rspec'], 'mosley')
+        # self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1).apply(lambda x: str(x).replace(',', '.'))
         self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1)
+        print(self._data['calc_pH'])
 
     def save_data(self, exporters: list[Exporter] | Exporter, **kwargs) -> None:
         if isinstance(exporters, Exporter):
