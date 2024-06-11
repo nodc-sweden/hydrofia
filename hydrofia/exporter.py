@@ -35,8 +35,8 @@ class ExporterXlsxResultFile:
     template_sheet_name = 'Rapport för utskrift'
     raw_data_sheet_name = 'Rådata'
 
-    date_cell = [1, 8]
-    signature_cell = [2, 8]
+    date_cell = [1, 9]
+    signature_cell = [2, 9]
     project_cell = [6, 1]
     country_code_cell = [6, 3]
     ship_code_cell = [6, 5]
