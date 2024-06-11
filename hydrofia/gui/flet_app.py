@@ -795,7 +795,8 @@ class FletApp:
         self._overwrite_template.update()
 
     def _check_create_result_path_exists(self):
-        if self.create_result_path and self.create_result_path.exists():
+        path = self.create_result_path
+        if path and path.exists():
             disabled = False
             overwrite = False
             label = TEXTS.get_file_exists(True)
@@ -843,10 +844,11 @@ class FletApp:
                                             overwrite=self._overwrite_template.value,
                                             year=year,
                                             month=month)
-            self._update_create_result_path()
+            self._check_create_template_path_exists()
             self._show_info(TEXTS.info_creating_template_done(path), status='good')
             self.use_template_path = str(path)
             self.template_directory = self.template_directory
+            self._update_create_result_path()
             saves.save()
         except Exception as e:
             logger.error(e)
@@ -1005,7 +1007,6 @@ class FletApp:
     def _update_create_result_path(self):
         """Updates the template path related to the creation of template"""
         template_path = self.use_template_path
-        print(f'{template_path=}')
         if not template_path:
             self._check_create_result_path_exists()
             return
