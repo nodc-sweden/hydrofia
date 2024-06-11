@@ -76,11 +76,13 @@ class Calculate:
                     depth = depth.split('/')[0]  # If replicate
                 if type(depth) == str and depth.upper() == 'DIB':
                     depth = 'deepest'
+                print(f'{row=}')
                 data = self.data_salt_temp.get_ctd_data(year=row['year'],
-                                                                                     ship=row['ship'],
-                                                                                     serno=row['serno'],
-                                                                                     depth=depth)
+                                                        ship=row['country'] + row['ship'],
+                                                        serno=row['serno'],
+                                                        depth=depth)
             # raise
+            print(f'{data=}')
             salt_data.append(data.get('salt', ''))
             temp_data.append(data.get('temp', ''))
             ref_depth_data.append(data.get('depth', ''))
