@@ -429,7 +429,7 @@ class FletApp:
 
         self._use_template_path = ft.Text(TEXTS.missing_template_path)
 
-        self._open_template_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_template_file)
+        self._open_template_file_btn = ft.ElevatedButton(TEXTS.open_file_template, on_click=self._open_template_file)
 
         dir_btn = ft.ElevatedButton(TEXTS.get_ctd_directory_button, on_click=lambda _:
         self._ctd_directory_picker.get_directory_path(
@@ -444,7 +444,7 @@ class FletApp:
         # self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
         self._overwrite_result = ft.Checkbox(label=TEXTS.get_file_exists(False), value=False, active_color='red')
 
-        self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_result_file)
+        self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file_result, on_click=self._open_result_file)
 
         self._create_result_btn = ft.ElevatedButton(TEXTS.create_result, on_click=self._create_result)
 
@@ -844,7 +844,6 @@ class FletApp:
                                             year=year,
                                             month=month)
             self._update_create_result_path()
-            # self._check_create_template_path_exists()
             self._show_info(TEXTS.info_creating_template_done(path), status='good')
             self.use_template_path = str(path)
             self.template_directory = self.template_directory
@@ -1006,6 +1005,7 @@ class FletApp:
     def _update_create_result_path(self):
         """Updates the template path related to the creation of template"""
         template_path = self.use_template_path
+        print(f'{template_path=}')
         if not template_path:
             self._check_create_result_path_exists()
             return
