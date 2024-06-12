@@ -4,7 +4,7 @@ from hydrofia.calculate import Calculate
 from hydrofia.ctd import CtdStandardFormatCollection
 from hydrofia import exporter
 from hydrofia.exporter import ExporterTxt
-from hydrofia.exporter import ExporterXlsxTemplate
+from hydrofia.exporter import ExporterXlsxResultFile
 from hydrofia.hydrofia import HydrofiaExportFileDiscrete
 from hydrofia.hydrofia import HyrdofiaExcelTemplate
 from hydrofia import utils
@@ -35,7 +35,6 @@ def get_id_string_for_hydrofia_export_file(path: pathlib.Path | str = None,
     info = hf.get_info()
     if not info:
         return
-    print(f'{info=}')
     stem = f"{info['year_string']}_{info['from_serno']}_{info['to_serno']}"
     return stem
 
@@ -64,7 +63,7 @@ def create_xlsx_result_file_from_calc_object(
         **kwargs
         ):
 
-    xlsx_exporter = ExporterXlsxTemplate(path, overwrite=overwrite)
+    xlsx_exporter = ExporterXlsxResultFile(path, overwrite=overwrite)
     calc_object.save_data(xlsx_exporter, overwrite=overwrite, **kwargs)
 
 

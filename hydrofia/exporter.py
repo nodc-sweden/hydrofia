@@ -1,13 +1,11 @@
 import datetime
 import pathlib
 
-import numpy as np
 import pandas as pd
 import inspect
 import sys
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment
-from openpyxl.utils import get_column_letter
 
 
 if getattr(sys, 'frozen', False):
@@ -16,29 +14,43 @@ else:
     ROOT_DIR = pathlib.Path(__file__).parent
 
 
-class ExporterXlsxTemplate:
+CRM_COLOR = PatternFill(start_color='8fb7f7',
+                        end_color='8fb7f7',
+                        fill_type='solid')
+
+PH_VALUE_COLOR = PatternFill(start_color='c0d6fa',
+                             end_color='c0d6fa',
+                             fill_type='solid')
+
+BORDER_USER_ACTION = Border(left=Side(style='thin'),
+                            right=Side(style='thin'),
+                            top=Side(style='thin'),
+                            bottom=Side(style='thin'))
+
+
+class ExporterXlsxResultFile:
     name = 'xlsx-template-export'
     template_sheet_name = 'Rapport för utskrift'
     raw_data_sheet_name = 'Rådata'
 
-    date_cell = [1, 12]
-    signature_cell = [2, 12]
+    date_cell = [1, 8]
+    signature_cell = [2, 8]
     project_cell = [6, 1]
-    country_code_cell = [6, 6]
-    ship_code_cell = [6, 8]
-    serno_span_cell = [6, 10]
+    country_code_cell = [6, 3]
+    ship_code_cell = [6, 5]
+    serno_span_cell = [6, 7]
 
     data_start_row = 12
 
-    series_col = 3
-    station_col = 4
-    depth_col = 6
-    ref_depth_col = 7
-    salt_col = 8
-    temp_col = 9
-    ph_calc_col = 10
-    ph_col = 11
-    comment_col = 13
+    series_col = 1
+    station_col = 2
+    depth_col = 3
+    ref_depth_col = 4
+    salt_col = 5
+    temp_col = 6
+    ph_calc_col = 7
+    # ph_col = 11
+    comment_col = 8
 
     def __str__(self):
         return self.__class__.__name__
@@ -78,10 +90,12 @@ class ExporterXlsxTemplate:
             value = ''
         return value
 
-    def _set_report_value(self, r: int, c: int, value: str | float):
+    def _set_report_value(self, r: int, c: int, value: str | float, fill_color=None):
         cell = self._report_ws.cell(r, c)
         cell.value = value
         cell.alignment = Alignment(horizontal='left')
+        if fill_color:
+            cell.fill = fill_color
 
     def _set_raw_data_value(self, r: int, c: int, value: str | float):
         self._raw_data_ws.cell(r, c).value = value
@@ -93,12 +107,10 @@ class ExporterXlsxTemplate:
         self._write_serno_span()
 
     def _write_country_code(self):
-        print(f"{set(self.data['country'])=}")
         values = [item for item in sorted(set(self.data['country'])) if item]
         self.country_code = ', '.join(values)
 
     def _write_ship_code(self):
-        print(f"{set(self.data['ship'])=}")
         values = [item for item in sorted(set(self.data['ship'])) if item]
         self.ship_code = ', '.join(values)
 
@@ -112,17 +124,26 @@ class ExporterXlsxTemplate:
         r = self.data_start_row
         for index, df in self.data.groupby(['date', 'serno', 'depth']):
             s = df.iloc[-1]  # Use last replicate
-            self._set_report_value(r, self.series_col, s['serno'])
-            self._set_report_value(r, self.station_col, s['station'])
-            self._set_report_value(r, self.depth_col, s['depth'])
-            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
-            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']))
-            self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']))
-            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']))
-            self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
+            crm_color = None
+            ph_color = None
+            if s['calc_pH']:
+                ph_color = PH_VALUE_COLOR
+            if 'CRM' in s['serno']:
+                crm_color = CRM_COLOR
+                ph_color = CRM_COLOR
+            self._set_report_value(r, self.series_col, s['serno'], fill_color=crm_color)
+            self._set_report_value(r, self.station_col, s['station'], fill_color=crm_color)
+            self._set_report_value(r, self.depth_col, s['depth'], fill_color=crm_color)
+            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']), fill_color=crm_color)
+            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']), fill_color=crm_color)
+            self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']), fill_color=crm_color)
+            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']), fill_color=ph_color)
+            # self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
+            comment = ''
             if type(s['depth']) == str and '/' in s['depth']:
                 nr = s['depth'].split('/')[-1]
-                self._set_report_value(r, self.comment_col, f'Replikat nr {nr}')
+                comment= f'Replikat nr {nr}'
+            self._set_report_value(r, self.comment_col, comment, fill_color=crm_color)
             r += 1
 
     def old_write_raw_data(self):
@@ -228,7 +249,7 @@ class ExporterTxt:
 class Exporters:
     exporters = [
         ExporterTxt,
-        ExporterXlsxTemplate
+        ExporterXlsxResultFile
     ]
 
     @staticmethod
@@ -265,7 +286,7 @@ if __name__ == '__main__':
     wb = load_workbook(path)
     ws = wb['Rapport för utskrift']
 
-    e = ExporterXlsxTemplate()
+    e = ExporterXlsxResultFile()
     e.signature = 'MWen'
     e.date = 'today'
     e.country_code = 'SE'

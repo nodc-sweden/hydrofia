@@ -304,7 +304,7 @@ class FletApp:
         self._batch_measured_ph = ft.TextField(label=TEXTS.batch_measured_ph,
                                         dense=dence,
                                         width=width,
-                                        input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.]", replacement_string="", ),
+                                        input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.,]", replacement_string="", ),
                                         on_submit=self._calculate_ph
                                         )
 
@@ -429,7 +429,7 @@ class FletApp:
 
         self._use_template_path = ft.Text(TEXTS.missing_template_path)
 
-        self._open_template_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_template_file)
+        self._open_template_file_btn = ft.ElevatedButton(TEXTS.open_file_template, on_click=self._open_template_file)
 
         dir_btn = ft.ElevatedButton(TEXTS.get_ctd_directory_button, on_click=lambda _:
         self._ctd_directory_picker.get_directory_path(
@@ -444,7 +444,7 @@ class FletApp:
         # self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
         self._overwrite_result = ft.Checkbox(label=TEXTS.get_file_exists(False), value=False, active_color='red')
 
-        self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file, on_click=self._open_result_file)
+        self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file_result, on_click=self._open_result_file)
 
         self._create_result_btn = ft.ElevatedButton(TEXTS.create_result, on_click=self._create_result)
 
@@ -720,8 +720,11 @@ class FletApp:
         ph = round(ph, 3)
         self._batch_ph.value = str(ph)
         self._batch_ph.update()
-        ph = self._batch_measured_ph.value.strip()
+        ph = self._batch_measured_ph.value.strip().replace(',', '.')
         if not ph:
+            return
+        if ph.count('.') > 1:
+            self._show_info(f'Fel format på {TEXTS.batch_measured_ph}', status='bad')
             return
         plot_value = float(self._batch_ph.value) - float(ph)
         self._batch_plot_value.value = str(round(plot_value, 3))
@@ -795,7 +798,8 @@ class FletApp:
         self._overwrite_template.update()
 
     def _check_create_result_path_exists(self):
-        if self.create_result_path and self.create_result_path.exists():
+        path = self.create_result_path
+        if path and path.exists():
             disabled = False
             overwrite = False
             label = TEXTS.get_file_exists(True)
@@ -843,11 +847,11 @@ class FletApp:
                                             overwrite=self._overwrite_template.value,
                                             year=year,
                                             month=month)
-            self._update_create_result_path()
-            # self._check_create_template_path_exists()
+            self._check_create_template_path_exists()
             self._show_info(TEXTS.info_creating_template_done(path), status='good')
             self.use_template_path = str(path)
             self.template_directory = self.template_directory
+            self._update_create_result_path()
             saves.save()
         except Exception as e:
             logger.error(e)

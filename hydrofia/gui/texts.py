@@ -74,8 +74,12 @@ class Texts:
         return 'Öppna mapp'
 
     @property
-    def open_file(self):
-        return 'Öppna fil'
+    def open_file_template(self):
+        return 'Öppna rättningsfil'
+
+    @property
+    def open_file_result(self):
+        return 'Öppna resultatfil'
 
     @property
     def create_template(self):
@@ -106,7 +110,7 @@ class Texts:
         return 'Resultatfil skapas! Vänta...'
 
     def info_creating_template_done(self, path):
-        return f'Mall har skapats: {path}'
+        return f'Rättningsfil har skapats: {path}'
 
     def get_info_creating_result_done(self, path):
         return f'Resultatfil har skapats: {path}'
@@ -149,7 +153,8 @@ class Texts:
 
     @property
     def title_merge_ctd_with_hydrofia(self):
-        return 'Steg 3: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
+        return 'Steg 3: Läs in CTD data för att beräkna pH vid rätt salthalt och temperatur'
+        # return 'Steg 3: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
 
     @property
     def title_create_excel(self):
@@ -157,7 +162,7 @@ class Texts:
 
     @property
     def title_batch(self):
-        return 'Steg 1: Beräkna pH från batch'
+        return 'Steg 1: Beräkna pH på CRM'
 
     def missing_metadata(self, meta: str) -> str:
         return f'Metadata saknas: {meta}'
@@ -192,7 +197,7 @@ class Texts:
 
     @property
     def batch_plot_value_label(self) -> str:
-        return 'Värde som ska plottas på kontrollkort:'
+        return 'Avvikelse, plottas i kontrollkort:'
 
     @property
     def batch_ph_label(self) -> str:
@@ -200,5 +205,5 @@ class Texts:
 
     @property
     def calculate_ph(self) -> str:
-        return 'Beräkna pH'
+        return 'Beräkna avvikelse'
 
