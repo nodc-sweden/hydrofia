@@ -97,7 +97,6 @@ class Calculate:
             return seacarb.pHTspec(row['salt'], row['temp'], row['Rspec'], 'mosley')
         # self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1).apply(lambda x: str(x).replace(',', '.'))
         self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1)
-        print(self._data['calc_pH'])
 
     def save_data(self, exporters: list[Exporter] | Exporter, **kwargs) -> None:
         if isinstance(exporters, Exporter):

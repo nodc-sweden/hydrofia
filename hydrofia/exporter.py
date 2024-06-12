@@ -1,13 +1,11 @@
 import datetime
 import pathlib
 
-import numpy as np
 import pandas as pd
 import inspect
 import sys
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment
-from openpyxl.utils import get_column_letter
 
 
 if getattr(sys, 'frozen', False):
@@ -35,19 +33,12 @@ class ExporterXlsxResultFile:
     template_sheet_name = 'Rapport för utskrift'
     raw_data_sheet_name = 'Rådata'
 
-    date_cell = [1, 9]
-    signature_cell = [2, 9]
+    date_cell = [1, 8]
+    signature_cell = [2, 8]
     project_cell = [6, 1]
     country_code_cell = [6, 3]
     ship_code_cell = [6, 5]
     serno_span_cell = [6, 7]
-
-    # date_cell = [1, 12]
-    # signature_cell = [2, 12]
-    # project_cell = [6, 1]
-    # country_code_cell = [6, 6]
-    # ship_code_cell = [6, 8]
-    # serno_span_cell = [6, 10]
 
     data_start_row = 12
 
@@ -60,16 +51,6 @@ class ExporterXlsxResultFile:
     ph_calc_col = 7
     # ph_col = 11
     comment_col = 8
-
-    # series_col = 3
-    # station_col = 4
-    # depth_col = 6
-    # ref_depth_col = 7
-    # salt_col = 8
-    # temp_col = 9
-    # ph_calc_col = 10
-    # ph_col = 11
-    # comment_col = 13
 
     def __str__(self):
         return self.__class__.__name__
@@ -126,12 +107,10 @@ class ExporterXlsxResultFile:
         self._write_serno_span()
 
     def _write_country_code(self):
-        print(f"{set(self.data['country'])=}")
         values = [item for item in sorted(set(self.data['country'])) if item]
         self.country_code = ', '.join(values)
 
     def _write_ship_code(self):
-        print(f"{set(self.data['ship'])=}")
         values = [item for item in sorted(set(self.data['ship'])) if item]
         self.ship_code = ', '.join(values)
 

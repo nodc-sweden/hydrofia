@@ -131,7 +131,6 @@ class ReferenceBatches:
 def get_latest_batches():
     try:
         batches = ReferenceBatches.from_noaa_url()
-        print(f'{batches=}')
         return batches
     except Exception:
         yaml_batches = None

@@ -38,7 +38,6 @@ def save():
     print()
     for name, cont in controls.items():
         data[name] = cont.value
-        print(f'SAVE: {name=}, {cont.value=}')
     _save(data)
 
 
@@ -46,7 +45,6 @@ def load(obj):
     data = _load()
     for name, cont in controls.items():
         value = data.get(name)
-        print(f'LOAD: {name=}, {value=}')
         if value is None:
             continue
         attr = getattr(obj, name)
