@@ -1,9 +1,11 @@
+VERSION = 'v0.2.0'
+
 
 class Texts:
 
     @property
     def title(self):
-        return 'HydroFIA'
+        return f'HydroFIA ({VERSION})'
 
     @property
     def get_hydrofia_export_button(self):
