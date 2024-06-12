@@ -304,7 +304,7 @@ class FletApp:
         self._batch_measured_ph = ft.TextField(label=TEXTS.batch_measured_ph,
                                         dense=dence,
                                         width=width,
-                                        input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.]", replacement_string="", ),
+                                        input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.,]", replacement_string="", ),
                                         on_submit=self._calculate_ph
                                         )
 
@@ -720,8 +720,11 @@ class FletApp:
         ph = round(ph, 3)
         self._batch_ph.value = str(ph)
         self._batch_ph.update()
-        ph = self._batch_measured_ph.value.strip()
+        ph = self._batch_measured_ph.value.strip().replace(',', '.')
         if not ph:
+            return
+        if ph.count('.') > 1:
+            self._show_info(f'Fel format på {TEXTS.batch_measured_ph}', status='bad')
             return
         plot_value = float(self._batch_ph.value) - float(ph)
         self._batch_plot_value.value = str(round(plot_value, 3))
