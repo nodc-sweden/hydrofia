@@ -2,7 +2,7 @@ from typing import Protocol, runtime_checkable
 import pandas as pd
 import numpy as np
 from typing import Type
-from .src import seacarb
+from hydrofia.ext_src import seacarb
 
 
 class HydrofiaTemplateData(Protocol):

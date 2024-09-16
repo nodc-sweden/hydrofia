@@ -5,7 +5,7 @@ import pathlib
 import pandas as pd
 import yaml
 
-from hydrofia.src import seacarb
+from hydrofia.ext_src import seacarb
 
 NAME_MAPPING = {
 'Batch Number': 'batch_nr',

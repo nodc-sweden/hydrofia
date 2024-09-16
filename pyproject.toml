@@ -1,0 +1,30 @@
+[project]
+name = "hydrofia"
+version = "1.0.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "a001985", email = "magnus.wenzer@smhi.se"},
+]
+dependencies = [
+    "pandas>=2.2.0",
+    "openpyxl>=3.1.5",
+    "flet>=0.24.1",
+    "pillow>=10.4.0",
+    "lxml>=5.3.0",
+]
+requires-python = "<3.12,>=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pyinstaller>=6.10.0",
+]
