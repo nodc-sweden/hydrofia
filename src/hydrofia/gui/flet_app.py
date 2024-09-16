@@ -34,7 +34,7 @@ RESULT_STEM_ENDING = '_resultat'
 DEFAULT_DEPTH_MARGINS = dict(
     meta_surface=4.0,
     meta_bottom=4.0,
-    meta_diff=0.2
+    meta_diff=1.0
 )
 
 
