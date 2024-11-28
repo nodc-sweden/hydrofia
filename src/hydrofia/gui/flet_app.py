@@ -183,7 +183,8 @@ class FletApp:
         self.page.overlay.append(self._template_file_picker)
 
     def _initiate_banner(self):
-        self.banner_content = ft.Column()
+        self.banner_text = ft.Text()
+        self.banner_content = ft.Column([self.banner_text])
 
         self.page.banner = ft.Banner(
             # bgcolor=ft.colors.AMBER_100,
@@ -196,8 +197,8 @@ class FletApp:
             ],
         )
 
-    def _set_banner(self, color):
-        self.banner_content = ft.Column()
+    def _set_banner(self, text, color):
+        self.banner_content = ft.Column([ft.Text(text)])
 
         self.page.banner = ft.Banner(
             # bgcolor=ft.colors.AMBER_100,
@@ -232,9 +233,15 @@ class FletApp:
         self.page.update()
 
     def _show_info(self, text, status='bad'):
-        self._set_banner(COLORS.banner(status))
-        self.banner_content.controls = [ft.Text(text)]
+        # self._set_banner(text, COLORS.banner(status))
+        # # self.banner_content.controls = [ft.Text(text)]
         # self.page.banner.bgcolor = COLORS.banner(status)
+        self.banner_text.value = text
+        self.page.banner.bgcolor = COLORS.banner(status)
+        self.page.banner.update()
+        print(f'{text=}')
+        print(f'{COLORS.banner(status)=}')
+        print(f'{self.page.banner.bgcolor=}')
         self._show_banner()
 
     def _build(self):
