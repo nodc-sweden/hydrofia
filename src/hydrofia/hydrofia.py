@@ -186,7 +186,6 @@ class HydrofiaExportFileDiscrete:
         self._data['ship'] = self._data['sampleName'].apply(extract_ship)
         self._data['serno'] = self._data['sampleName'].apply(extract_serno)
         self._data['depth'] = self._data['sampleName'].apply(extract_depth)
-        self._data['Rspec'] = self._data['absorbance578'].apply(float) / self._data['absorbance434'].apply(float)
 
     def _filter_data(self):
         def match_pattern(sampname):
@@ -384,7 +383,6 @@ class _HyrdofiaExcelTemplateLoad:
 
     def _add_columns(self):
         self._data['year'] = self._data['date'].apply(lambda x: x.year)
-        self._data['Rspec'] = self._data['absorbance578'].apply(float) / self._data['absorbance434'].apply(float)
 
     @property
     def path(self):
