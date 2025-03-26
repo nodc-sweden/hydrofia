@@ -48,9 +48,11 @@ class ExporterXlsxResultFile:
     ref_depth_col = 4
     salt_col = 5
     temp_col = 6
-    ph_calc_col = 7
+    lab_temp_col = 7
+    ph_calc_col = 8
+    ph_calc_25_col = 9
     # ph_col = 11
-    comment_col = 8
+    comment_col = 10
 
     def __str__(self):
         return self.__class__.__name__
@@ -137,7 +139,9 @@ class ExporterXlsxResultFile:
             self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']), fill_color=crm_color)
             self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']), fill_color=crm_color)
             self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']), fill_color=crm_color)
+            self._set_report_value(r, self.lab_temp_col, self._get_float_value(s['temperatureSample']), fill_color=ph_color)
             self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']), fill_color=ph_color)
+            self._set_report_value(r, self.ph_calc_25_col, self._get_float_value(s['calc_pH_at_25']), fill_color=ph_color)
             # self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
             comment = ''
             if type(s['depth']) == str and '/' in s['depth']:
@@ -237,7 +241,8 @@ class ExporterTxt:
     def save(self, data: pd.DataFrame, **kwargs):
         if self.path.exists() and not self._overwrite:
             raise FileExistsError(self.path)
-        leading_cols = ['year', 'ship', 'date', 'serno', 'depth', 'calc_pH', 'salt', 'temp', 'ref_depth', 'Rspec']
+        leading_cols = ['year', 'ship', 'date', 'serno', 'station', 'depth', 'ref_depth', 'salt', 'temp',
+                        'temperatureSample', 'calc_pH', 'calc_pH_at_25']
         other_cols = [col for col in data.columns if col not in leading_cols]
         new_columns = leading_cols + other_cols
         new_data = data[new_columns]

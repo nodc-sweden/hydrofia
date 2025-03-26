@@ -1,0 +1,3 @@
+measurement_date	serial_indicator	a434imp	comment
+2024-11-28	CMCP-0321-001	0.01	test value 1
+2024-11-29	CMCP-1021-001	0.02	test value 2

@@ -2,6 +2,7 @@ from typing import Protocol, runtime_checkable
 import pandas as pd
 import numpy as np
 from typing import Type
+from hydrofia.indicator_a434imp import IndicatorBatches, IndicatorBatch
 from hydrofia.ext_src import seacarb
 
 
@@ -18,6 +19,12 @@ class SalinityAndTemperatureData(Protocol):
         ...
 
 
+class A434Impurities(IndicatorBatches):
+
+    def a434imp_value(self, serial_indicator: str = None) -> float:
+        ...
+
+
 @runtime_checkable
 class Exporter(Protocol):
 
@@ -28,9 +35,12 @@ class Exporter(Protocol):
 class Calculate:
     def __init__(self,
                  hydrofia_data: HydrofiaTemplateData = None,
-                 salinity_and_temp_data: SalinityAndTemperatureData = None):
+                 salinity_and_temp_data: SalinityAndTemperatureData = None,
+                 a434imp_data: A434Impurities = None
+                 ):
         self.data_hydrofia = hydrofia_data
         self.data_salt_temp = salinity_and_temp_data
+        self.data_a434imp = a434imp_data
         self._data: pd.DataFrame = pd.DataFrame()
 
     @property
@@ -41,6 +51,7 @@ class Calculate:
         self._extract_data()
         self._make_float()
         self._add_salt_and_temp()
+        self._add_a434imp()
         # print('AAA', self._data['salt'])
         self._calculate()
         # print('BBB', self._data['salt'])
@@ -48,7 +59,6 @@ class Calculate:
     def _extract_data(self):
         # all_data = self.data_hydrofia.get_data()
         self._data = self.data_hydrofia.get_data().copy(deep=True)
-        # self._data = all_data[['timestamp', 'year', 'date', 'ship', 'serno', 'depth', 'Rspec']].copy(deep=True)
 
     def _make_float(self):
         def get_float(val):
@@ -57,7 +67,8 @@ class Calculate:
             except ValueError:
                 return val
         self._data['depth'] = self._data['depth'].apply(get_float)
-        self._data['Rspec'] = self._data['Rspec'].apply(float)
+        self._data['R0'] = self._data['R0'].apply(get_float)
+        self._data['temperatureSample'] = self._data['temperatureSample'].apply(get_float)
 
     def _add_salt_and_temp(self):
         salt_data = []
@@ -90,13 +101,33 @@ class Calculate:
         self._data['ref_depth'] = ref_depth_data
         self._data['station'] = station_data
 
+    def _add_a434imp(self):
+        a434imp = []
+        for index, row in self.data.iterrows():
+            a434imp.append(self.data_a434imp.get_a434imp(row['serialIndicator']))
+        self._data['a434imp'] = a434imp
+
     def _calculate(self):
-        def calc_pHTspec(row):
-            if not all([row['salt'], row['temp'], row['Rspec']]):
+        def calc_Rpure(row):
+            if not all([row['R0'], row['absorbance434'], row['a434imp']]):
                 return np.nan
-            return seacarb.pHTspec(row['salt'], row['temp'], row['Rspec'], 'mosley')
+            return float(row['R0']) * (1 + (row['a434imp'] / (float(row['absorbance434']) - row['a434imp'])))
+
+        self._data['Rpure'] = self._data.apply(calc_Rpure, axis=1)
+        def calc_pHTspec(row):
+            # if not all([row['salt'], row['temperatureSample'], row['Rpure']]):
+            if not all([row['salt'], row['temperatureSample'], row['R0']]):
+                return np.nan
+            # return seacarb.pHTspec(row['salt'], row['temperatureSample'], row['Rpure'], 'mosley')
+            return seacarb.pHTspec(row['salt'], row['temperatureSample'], row['R0'], 'mosley')
         # self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1).apply(lambda x: str(x).replace(',', '.'))
         self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1)
+
+        def calc_pHTspec_at_25(row):
+            if not all([row['temperatureSample'], row['calc_pH']]):
+                return np.nan
+            return row['calc_pH']+(25-row['temperatureSample'])*-0.01582  # dpH/dT from Millero 2007
+        self._data['calc_pH_at_25'] = self._data.apply(calc_pHTspec_at_25, axis=1)
 
     def save_data(self, exporters: list[Exporter] | Exporter, **kwargs) -> None:
         if isinstance(exporters, Exporter):
