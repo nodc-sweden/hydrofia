@@ -118,8 +118,8 @@ class Calculate:
             # if not all([row['salt'], row['temperatureSample'], row['Rpure']]):
             if not all([row['salt'], row['temperatureSample'], row['R0']]):
                 return np.nan
-            # return seacarb.pHTspec(row['salt'], row['temperatureSample'], row['Rpure'], 'mosley')
-            return seacarb.pHTspec(row['salt'], row['temperatureSample'], row['R0'], 'mosley')
+            # return seacarb.pHTspec(row['salt'], row['temperatureSample']+273.15, row['Rpure'], 'mueller')
+            return seacarb.pHTspec(row['salt'], row['temperatureSample']+273.15, row['R0'], 'mueller')
         # self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1).apply(lambda x: str(x).replace(',', '.'))
         self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1)
 
