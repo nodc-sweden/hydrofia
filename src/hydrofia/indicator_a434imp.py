@@ -38,8 +38,10 @@ class IndicatorBatches:
     def get_a434imp(self, serial_indicator: str) -> float:
         batch_info = self._indicator_data.get(str(serial_indicator))
         if not batch_info:
-            raise Exception(f'Invalid batch serial number: {serial_indicator}')
-        a434imp_value = float(IndicatorBatch(**batch_info).a434imp)
+            print(f'No measurements of A434 impurities for serial number: {serial_indicator}')
+            a434imp_value = float('nan')
+        else:
+            a434imp_value = float(IndicatorBatch(**batch_info).a434imp)
         return a434imp_value
 
     @classmethod
