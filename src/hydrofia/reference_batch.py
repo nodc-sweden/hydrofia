@@ -6,6 +6,7 @@ import pandas as pd
 import yaml
 
 from hydrofia.ext_src import seacarb
+import PyCO2SYS as pyco2
 
 NAME_MAPPING = {
 'Batch Number': 'batch_nr',
@@ -18,7 +19,7 @@ NAME_MAPPING = {
 DEFAULT_BATCH_YAML = pathlib.Path('batches.yaml')
 DEFAULT_BATCH_JSON = pathlib.Path('batches.json')
 NOAA_BATCH_URL = 'https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/Dickson_CRM/batches.html'
-
+NOAA_BATCH_FILE =r"\\winfs-proj\data\proj\havgem\MOL\pH\HydroFIA-pH\CRM_Batches.xlsx"
 
 class ReferenceBatch:
 
@@ -26,12 +27,16 @@ class ReferenceBatch:
                  alk: float | str = None,
                  dic: float | str = None,
                  salinity: float | str = None,
+                 phosphate: float | str = None,
+                 silicate: float | str = None,
                  bottling_date: str | datetime.date | datetime.datetime = None,
                  **kwargs
                  ) -> None:
         self._alk = float(alk)
         self._dic = float(dic)
         self._salinity = float(salinity)
+        self._phosphate = float(phosphate)
+        self._silicate = float(silicate)
         self._bottling_date = bottling_date
 
     @property
@@ -47,6 +52,14 @@ class ReferenceBatch:
         return self._salinity
 
     @property
+    def phosphate(self) -> float:
+        return self._phosphate
+
+    @property
+    def silicate(self) -> float:
+        return self._silicate
+
+    @property
     def bottling_date(self) -> datetime.date:
         if type(self._bottling_date) == datetime.date:
             return self._bottling_date
@@ -56,7 +69,11 @@ class ReferenceBatch:
 
     def get_all(self,
                 temperature: float = None) -> dict:
-        return seacarb.carb(self.salinity, float(temperature), self.alk, self.dic, 15)
+        return pyco2.sys(self.alk, self.dic, 1, 2,
+                  salinity=self.salinity, temperature=float(temperature), pressure=0,
+                  total_silicate=self.silicate, total_phosphate=self.phosphate,
+                  opt_pH_scale=1, opt_k_carbonic=10, opt_total_borate=1)
+        # return seacarb.carb(self.salinity, float(temperature), self.alk*1e-06, self.dic*1e-06, 15)
 
     def get_ph(self,
                temperature: float = None) -> float:
@@ -106,6 +123,20 @@ class ReferenceBatches:
         url = url or NOAA_BATCH_URL
         table = pd.read_html(url)[0]
         table.columns = [NAME_MAPPING.get(col, col) for col in table.columns]
+        table["batch"] = (
+            table["batch_nr"]
+            .astype(str)
+            .str.extract(r"(\d+)")
+            .iloc[:, 0]
+            .astype(str)
+        )
+        nutrients = pd.read_excel(NOAA_BATCH_FILE, dtype=str)
+        table = table.merge(
+            nutrients[["batch", "phosphate", "silicate"]],
+            on="batch",
+            how="left"
+        )
+        table = table.drop(columns=["batch"])
         data = dict()
         for i, row_dict in table.to_dict(orient='index').items():
             data[row_dict['batch_nr'].split()[-1].lstrip('0')] = row_dict

@@ -11,6 +11,7 @@ dependencies = [
     "flet>=0.24.1",
     "pillow>=10.4.0",
     "lxml>=5.3.0",
+    "pyco2sys",
 ]
 requires-python = "<3.12,>=3.11"
 readme = "README.md"

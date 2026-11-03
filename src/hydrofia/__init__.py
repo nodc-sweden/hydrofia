@@ -1,6 +1,7 @@
 import pathlib
 
 from hydrofia.calculate import Calculate
+from hydrofia.indicator_a434imp import IndicatorBatches
 from hydrofia.ctd import CtdStandardFormatCollection
 from hydrofia import exporter
 from hydrofia.exporter import ExporterTxt
@@ -50,8 +51,11 @@ def get_calculated_object(
                                           surface_layer_depth=kwargs.get('surface_layer_depth'),
                                           bottom_layer_depth=kwargs.get('bottom_layer_depth'),
                                           )
+    a434imp_obj = indicator_a434imp.get_latest_indicator_batches()
     calc = Calculate(hydrofia_data=template,
-                     salinity_and_temp_data=ctd_obj)
+                     salinity_and_temp_data=ctd_obj,
+                     a434imp_data=a434imp_obj
+                     )
     calc.calculate()
     return calc
 
