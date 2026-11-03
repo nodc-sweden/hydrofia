@@ -1185,3 +1185,8 @@ class FletApp:
 def main(log_in_console):
     app = FletApp(log_in_console=log_in_console)
     return app
+
+
+def run() -> None:
+    """Entry point for the console script."""
+    main(log_in_console='INFO')
