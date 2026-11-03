@@ -6,16 +6,16 @@ authors = [
     {name = "a001985", email = "magnus.wenzer@smhi.se"},
 ]
 dependencies = [
-    "pandas>=2.2.0",
-    "numpy",
+    "pandas>=3.0",
+    "numpy>=2.0",
     "openpyxl>=3.1.5",
     "flet>=0.24.1,<0.25",
-    "pillow>=10.4.0",
-    "lxml>=5.3.0",
-    "pyco2sys",
-    "pyyaml",
+    "pillow>=13.0",
+    "lxml>=6.0",
+    "pyco2sys>=1.8,<2",
+    "pyyaml>=6.0",
 ]
-requires-python = "<3.12,>=3.11"
+requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}
 
@@ -29,4 +29,5 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "pyinstaller>=6.10.0",
+    "ruff>=0.17",
 ]
