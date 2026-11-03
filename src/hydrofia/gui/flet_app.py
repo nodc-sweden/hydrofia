@@ -294,19 +294,17 @@ class FletApp:
         salt_row.controls.append(self._batch_salt)
 
         temp_row = ft.Row()
-        temp_row.controls.append(ft.Text(TEXTS.batch_temp_label))
-        self._batch_temp = ft.Text(weight=ft.FontWeight.W_600)
-        self._batch_temp.value = str(25.0)
-        temp_row.controls.append(self._batch_temp)
-
-        # self._batch_temp = ft.TextField(label=TEXTS.batch_temperature,
-        #                                 dense=dence,
-        #                                 width=width,
-        #                                 read_only=True,
-        #                                 input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.]", replacement_string="", ),
-        #                                 on_submit=self._calculate_ph
-        #                                 )
+        # temp_row.controls.append(ft.Text(TEXTS.batch_temp_label))
+        # self._batch_temp = ft.Text(weight=ft.FontWeight.W_600)
         # self._batch_temp.value = str(25.0)
+        self._batch_temp = ft.TextField(label=TEXTS.batch_temp_label,
+                                        dense=dence,
+                                        width=width,
+                                        input_filter=ft.InputFilter(allow=True, regex_string=r"[0-9.,]",
+                                                                    replacement_string="", ),
+                                        on_submit=self._calculate_ph
+                                        )
+        temp_row.controls.append(self._batch_temp)
 
         self._batch_measured_ph = ft.TextField(label=TEXTS.batch_measured_ph,
                                         dense=dence,
@@ -329,11 +327,11 @@ class FletApp:
 
         plot_val_row = ft.Row()
         plot_val_row.controls.append(ft.Text(TEXTS.batch_plot_value_label))
-        self._batch_plot_value = ft.Text(weight=ft.FontWeight.W_600, size=30)
+        self._batch_plot_value = ft.Text(weight=ft.FontWeight.W_600, size=16)
         plot_val_row.controls.append(self._batch_plot_value)
 
         col.controls.append(ft.Text(TEXTS.title_batch,
-                                            size=30,
+                                            size=16,
                                             weight=ft.FontWeight.W_400))
 
         col.controls.append(self._batch_nr)
@@ -372,7 +370,7 @@ class FletApp:
 
         title_row = ft.Row()
         title_row.controls.append(ft.Text(TEXTS.title_create_excel,
-                                          size=30,
+                                          size=16,
                                           weight=ft.FontWeight.W_400))
         title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.template_file))
 
@@ -409,7 +407,7 @@ class FletApp:
 
         title_row = ft.Row()
         title_row.controls.append(ft.Text(TEXTS.title_merge_ctd_with_hydrofia,
-                                            size=30,
+                                            size=16,
                                             weight=ft.FontWeight.W_400))
         title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.template_file))
 
@@ -718,7 +716,7 @@ class FletApp:
     def _calculate_ph(self, *args):
         self._batch_ph.value = ''
         self._batch_plot_value.value = ''
-        temp = self._batch_temp.value.strip()
+        temp = self._batch_temp.value.strip().replace(',', '.')
         if not temp:
             self._show_info('Ingen temperatur angiven för beräkning av pH')
             return
@@ -734,7 +732,7 @@ class FletApp:
             self._show_info(f'Fel format på {TEXTS.batch_measured_ph}', status='bad')
             return
         plot_value = float(self._batch_ph.value) - float(ph)
-        self._batch_plot_value.value = str(round(plot_value, 3))
+        self._batch_plot_value.value = str(round(plot_value, 4))
         self._batch_plot_value.update()
         saves.save()
 

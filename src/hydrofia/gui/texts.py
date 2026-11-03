@@ -183,7 +183,7 @@ class Texts:
 
     @property
     def batch_measured_ph(self) -> str:
-        return 'Uppmätt pH'
+        return 'Uppmätt pH:'
 
     @property
     def batch_alk_label(self) -> str:

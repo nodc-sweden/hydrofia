@@ -121,13 +121,13 @@ class Calculate:
             # return seacarb.pHTspec(row['salt'], row['temperatureSample']+273.15, row['Rpure'], 'mueller')
             return seacarb.pHTspec(row['salt'], row['temperatureSample']+273.15, row['R0'], 'mueller')
         # self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1).apply(lambda x: str(x).replace(',', '.'))
-        self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1)
+        self._data['pH-tot-labT-P0'] = self._data.apply(calc_pHTspec, axis=1)
 
         def calc_pHTspec_at_25(row):
-            if not all([row['temperatureSample'], row['calc_pH']]):
+            if not all([row['temperatureSample'], row['pH-tot-labT-P0']]):
                 return np.nan
-            return row['calc_pH']+(25-row['temperatureSample'])*-0.01582  # dpH/dT from Millero 2007
-        self._data['calc_pH_at_25'] = self._data.apply(calc_pHTspec_at_25, axis=1)
+            return row['pH-tot-labT-P0']+(25-row['temperatureSample'])*-0.01582  # dpH/dT from Millero 2007
+        self._data['pH-tot-25C-P0'] = self._data.apply(calc_pHTspec_at_25, axis=1)
 
     def save_data(self, exporters: list[Exporter] | Exporter, **kwargs) -> None:
         if isinstance(exporters, Exporter):

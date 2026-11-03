@@ -47,12 +47,11 @@ class ExporterXlsxResultFile:
     depth_col = 3
     ref_depth_col = 4
     salt_col = 5
-    temp_col = 6
-    lab_temp_col = 7
-    ph_calc_col = 8
-    ph_calc_25_col = 9
-    # ph_col = 11
-    comment_col = 10
+    lab_temp_col = 6
+    ph_calc_col = 7
+    ph_calc_25_col = 8
+    serial_indicator_col = 9
+    comment_col = 11
 
     def __str__(self):
         return self.__class__.__name__
@@ -128,20 +127,20 @@ class ExporterXlsxResultFile:
             s = df.iloc[-1]  # Use last replicate
             crm_color = None
             ph_color = None
-            if s['calc_pH']:
+            if s['pH-tot-labT-P0']:
                 ph_color = PH_VALUE_COLOR
             if 'CRM' in s['serno']:
                 crm_color = CRM_COLOR
                 ph_color = CRM_COLOR
-            self._set_report_value(r, self.series_col, s['serno'], fill_color=crm_color)
-            self._set_report_value(r, self.station_col, s['station'], fill_color=crm_color)
-            self._set_report_value(r, self.depth_col, s['depth'], fill_color=crm_color)
-            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']), fill_color=crm_color)
-            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']), fill_color=crm_color)
-            self._set_report_value(r, self.temp_col, self._get_float_value(s['temp']), fill_color=crm_color)
+            self._set_report_value(r, self.series_col, s['serno'])
+            self._set_report_value(r, self.station_col, s['station'])
+            self._set_report_value(r, self.depth_col, s['depth'])
+            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
+            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']))
             self._set_report_value(r, self.lab_temp_col, self._get_float_value(s['temperatureSample']), fill_color=ph_color)
-            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['calc_pH']), fill_color=ph_color)
-            self._set_report_value(r, self.ph_calc_25_col, self._get_float_value(s['calc_pH_at_25']), fill_color=ph_color)
+            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['pH-tot-labT-P0']), fill_color=ph_color)
+            self._set_report_value(r, self.ph_calc_25_col, self._get_float_value(s['pH-tot-25C-P0']))
+            self._set_report_value(r, self.serial_indicator_col, self._get_float_value(s['serialIndicator']))
             # self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
             comment = ''
             if type(s['depth']) == str and '/' in s['depth']:
@@ -241,8 +240,8 @@ class ExporterTxt:
     def save(self, data: pd.DataFrame, **kwargs):
         if self.path.exists() and not self._overwrite:
             raise FileExistsError(self.path)
-        leading_cols = ['year', 'ship', 'date', 'serno', 'station', 'depth', 'ref_depth', 'salt', 'temp',
-                        'temperatureSample', 'calc_pH', 'calc_pH_at_25']
+        leading_cols = ['year', 'ship', 'date', 'serno', 'station', 'depth', 'ref_depth', 'salt',
+                        'temperatureSample', 'pH-tot-labT-P0', 'pH-tot-25C-P0']
         other_cols = [col for col in data.columns if col not in leading_cols]
         new_columns = leading_cols + other_cols
         new_data = data[new_columns]
