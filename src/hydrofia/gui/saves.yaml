@@ -3,6 +3,6 @@ _ctd_directory: C:\git\hydrofia\tests\test_data\CTD_standard_format
 _hydrofia_file_path: C:\git\hydrofia\tests\test_data\BAS 24-0846.txt
 _metadata_project: BAS
 _metadata_signature: MagW
-_template_directory: C:\git\hydrofia\tests\exported_data
-_use_template_path: "C:\\git\\hydrofia\\tests\\exported_data\\BAS_2024_0007_0873_r\xE4\
+_template_directory: C:\git\hydrofia\tests\test_data\exported_data
+_use_template_path: "C:\\git\\hydrofia\\tests\\test_data\\exported_data\\BAS_2024_0007_0873_r\xE4\
   ttningsfil.xlsx"

@@ -50,8 +50,9 @@ class ExporterXlsxResultFile:
     lab_temp_col = 6
     ph_calc_col = 7
     ph_calc_25_col = 8
-    serial_indicator_col = 9
-    comment_col = 11
+    serial_indicator_col = 8
+    purified_indicator_col = 9
+    comment_col = 10
 
     def __str__(self):
         return self.__class__.__name__
@@ -139,8 +140,8 @@ class ExporterXlsxResultFile:
             self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']))
             self._set_report_value(r, self.lab_temp_col, self._get_float_value(s['temperatureSample']), fill_color=ph_color)
             self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['pH-tot-labT-P0']), fill_color=ph_color)
-            self._set_report_value(r, self.ph_calc_25_col, self._get_float_value(s['pH-tot-25C-P0']))
-            self._set_report_value(r, self.serial_indicator_col, self._get_float_value(s['serialIndicator']))
+            self._set_report_value(r, self.purified_indicator_col, "N")
+            self._set_report_value(r, self.serial_indicator_col, s['serialIndicator'])
             # self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
             comment = ''
             if type(s['depth']) == str and '/' in s['depth']:
@@ -241,7 +242,7 @@ class ExporterTxt:
         if self.path.exists() and not self._overwrite:
             raise FileExistsError(self.path)
         leading_cols = ['year', 'ship', 'date', 'serno', 'station', 'depth', 'ref_depth', 'salt',
-                        'temperatureSample', 'pH-tot-labT-P0', 'pH-tot-25C-P0']
+                        'temperatureSample', 'pH-tot-labT-P0']
         other_cols = [col for col in data.columns if col not in leading_cols]
         new_columns = leading_cols + other_cols
         new_data = data[new_columns]
