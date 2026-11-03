@@ -1,8 +1,6 @@
 from typing import Protocol, runtime_checkable
 import pandas as pd
 import numpy as np
-from typing import Type
-from hydrofia.indicator_a434imp import IndicatorBatches, IndicatorBatch
 from hydrofia.ext_src import seacarb
 
 
@@ -15,13 +13,7 @@ class HydrofiaTemplateData(Protocol):
 class SalinityAndTemperatureData(Protocol):
 
     def get_ctd_data(self, year: str | int = None, ship: str | int = None, serno: str | int = None,
-                              depth: str | int | str = None) -> dict:
-        ...
-
-
-class A434Impurities(IndicatorBatches):
-
-    def a434imp_value(self, serial_indicator: str = None) -> float:
+                              depth: str | int = None) -> dict:
         ...
 
 
@@ -36,11 +28,9 @@ class Calculate:
     def __init__(self,
                  hydrofia_data: HydrofiaTemplateData = None,
                  salinity_and_temp_data: SalinityAndTemperatureData = None,
-                 a434imp_data: A434Impurities = None
                  ):
         self.data_hydrofia = hydrofia_data
         self.data_salt_temp = salinity_and_temp_data
-        self.data_a434imp = a434imp_data
         self._data: pd.DataFrame = pd.DataFrame()
 
     @property
@@ -51,13 +41,9 @@ class Calculate:
         self._extract_data()
         self._make_float()
         self._add_salt_and_temp()
-        self._add_a434imp()
-        # print('AAA', self._data['salt'])
         self._calculate()
-        # print('BBB', self._data['salt'])
 
     def _extract_data(self):
-        # all_data = self.data_hydrofia.get_data()
         self._data = self.data_hydrofia.get_data().copy(deep=True)
 
     def _make_float(self):
@@ -101,26 +87,11 @@ class Calculate:
         self._data['ref_depth'] = ref_depth_data
         self._data['station'] = station_data
 
-    def _add_a434imp(self):
-        a434imp = []
-        for index, row in self.data.iterrows():
-            a434imp.append(self.data_a434imp.get_a434imp(row['serialIndicator']))
-        self._data['a434imp'] = a434imp
-
     def _calculate(self):
-        def calc_Rpure(row):
-            if not all([row['R0'], row['absorbance434'], row['a434imp']]):
-                return np.nan
-            return float(row['R0']) * (1 + (row['a434imp'] / (float(row['absorbance434']) - row['a434imp'])))
-
-        self._data['Rpure'] = self._data.apply(calc_Rpure, axis=1)
         def calc_pHTspec(row):
-            # if not all([row['salt'], row['temperatureSample'], row['Rpure']]):
             if not all([row['salt'], row['temperatureSample'], row['R0']]):
                 return np.nan
-            # return seacarb.pHTspec(row['salt'], row['temperatureSample']+273.15, row['Rpure'], 'mueller')
             return seacarb.pHTspec(row['salt'], row['temperatureSample']+273.15, row['R0'], 'mueller')
-        # self._data['calc_pH'] = self._data.apply(calc_pHTspec, axis=1).apply(lambda x: str(x).replace(',', '.'))
         self._data['pH-tot-labT-P0'] = self._data.apply(calc_pHTspec, axis=1)
 
         def calc_pHTspec_at_25(row):
@@ -136,16 +107,4 @@ class Calculate:
             if not isinstance(exporter, Exporter):
                 raise NotImplementedError
             exporter.save(self.data, **kwargs)
-
-
-
-
-
-        # stationsnamn
-        # år
-        # månad
-        # serienummer
-        # salthalt
-        # temperatur
-        # pH
 
