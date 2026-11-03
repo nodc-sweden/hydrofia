@@ -1,31 +1,32 @@
 [project]
 name = "hydrofia"
 version = "1.0.0"
-description = "Default template for PDM package"
+description = "Calculation of pH from HydroFIA measurements"
 authors = [
     {name = "a001985", email = "magnus.wenzer@smhi.se"},
 ]
 dependencies = [
     "pandas>=2.2.0",
+    "numpy",
     "openpyxl>=3.1.5",
-    "flet>=0.24.1",
+    "flet>=0.24.1,<0.25",
     "pillow>=10.4.0",
     "lxml>=5.3.0",
     "pyco2sys",
+    "pyyaml",
 ]
 requires-python = "<3.12,>=3.11"
 readme = "README.md"
 license = {text = "MIT"}
 
+[project.scripts]
+hydrofia = "hydrofia.gui.flet_app:run"
+
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["uv_build>=0.13.6,<0.14"]
+build-backend = "uv_build"
 
-
-[tool.pdm]
-distribution = true
-
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "pyinstaller>=6.10.0",
 ]
