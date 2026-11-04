@@ -6,7 +6,7 @@ import sys
 import json
 
 import hydrofia
-from hydrofia.gui.tooltip import TooltipTexts, get_tooltip_widget, get_tooltip_icon
+from hydrofia.gui.tooltip import TooltipTexts, get_tooltip_icon
 from hydrofia.gui.texts import Texts
 from hydrofia.gui.colors import Colors
 from hydrofia.gui import saves
@@ -14,7 +14,6 @@ from hydrofia import utils
 from hydrofia import reference_batch
 
 import flet as ft
-from flet_core.constrained_control import ConstrainedControl
 
 logger = logging.getLogger(__name__)
 
@@ -62,14 +61,14 @@ class FletApp:
 
         self._month_all_option = 'ALLA'
 
-        self._toggle_buttons: list[ConstrainedControl] = []
+        self._toggle_buttons: list[ft.LayoutControl] = []
 
         self.logging_level = 'DEBUG'
         self.logging_format = '%(asctime)s [%(levelname)10s]    %(pathname)s [%(lineno)d] => %(funcName)s():    %(message)s'
         self.logging_format_stdout = '[%(levelname)10s] %(filename)s: %(funcName)s() [%(lineno)d] %(message)s'
         self._setup_logger()
 
-        self.app = ft.app(target=self.main)
+        self.app = ft.run(self.main)
 
     @property
     def _log_directory(self):
@@ -80,8 +79,8 @@ class FletApp:
     def main(self, page: ft.Page):
         self.page = page
         self.page.title = TEXTS.title
-        self.page.window_height = 1100
-        self.page.window_width = 1600
+        self.page.window.height = 1100
+        self.page.window.width = 1600
         self._initiate_pickers()
         self._build()
         self._initiate_banner()
@@ -153,58 +152,46 @@ class FletApp:
             self.logger.addHandler(handler)
 
     def _initiate_pickers(self):
-        self._hydrofia_file_picker = ft.FilePicker(on_result=self._on_pick_hydrofia_file_path)
-        # Setting properties not working. Report bug!
-        # self._hydrofia_file_picker.dialog_title = TEXTS.dialog_title_hydrofia_file_path
-        # self._hydrofia_file_picker.initial_directory
-        # self._hydrofia_file_picker.file_type
-        # self._hydrofia_file_picker.allowed_extensions = ['txt']
-        # self._hydrofia_file_picker.allow_multiple = False
+        # FilePicker is a service in flet 1.0 and registers itself with the current page.
+        self._file_picker = ft.FilePicker()
 
-        self._template_directory_picker = ft.FilePicker(on_result=self._on_pick_template_dir)
-        # self._template_directory_picker.dialog_title = TEXTS.dialog_title_template_directory
-        # self._template_directory_picker.initial_directory
+    async def _pick_hydrofia_file(self, e=None):
+        files = await self._file_picker.pick_files(
+            dialog_title=TEXTS.dialog_title_hydrofia_file_path,
+            allowed_extensions=['txt'],
+            allow_multiple=False
+        )
+        self._on_pick_hydrofia_file_path(files)
 
-        self._ctd_directory_picker = ft.FilePicker(on_result=self._on_pick_ctd_dir)
-        # self._template_directory_picker.dialog_title = TEXTS.dialog_title_template_directory
-        # self._template_directory_picker.initial_directory
+    async def _pick_template_dir(self, e=None):
+        path = await self._file_picker.get_directory_path(
+            dialog_title=TEXTS.dialog_title_template_directory
+        )
+        self._on_pick_template_dir(path)
 
-        self._template_file_picker = ft.FilePicker(on_result=self._on_pick_template_file)
-        # Setting properties not working. Report bug!
-        # self._template_file_picker.dialog_title = TEXTS.dialog_title_template_file
-        # self._template_file_picker.initial_directory
-        # self._template_file_picker.file_type
-        # self._template_file_picker.allowed_extensions = ['txt']
-        # self._template_file_picker.allow_multiple = False
+    async def _pick_ctd_dir(self, e=None):
+        path = await self._file_picker.get_directory_path(
+            dialog_title=TEXTS.dialog_title_ctd_directory
+        )
+        self._on_pick_ctd_dir(path)
 
-        self.page.overlay.append(self._hydrofia_file_picker)
-        self.page.overlay.append(self._template_directory_picker)
-        self.page.overlay.append(self._ctd_directory_picker)
-        self.page.overlay.append(self._template_file_picker)
+    async def _pick_template_file(self, e=None):
+        files = await self._file_picker.pick_files(
+            dialog_title=TEXTS.dialog_title_template_file,
+            allowed_extensions=['xlsx'],
+            allow_multiple=False
+        )
+        self._on_pick_template_file(files)
 
     def _initiate_banner(self):
-        self.banner_text = ft.Text()
-        self.banner_content = ft.Column([self.banner_text])
+        # Banner is a dialog in flet 1.0; a new one is created each time info is shown.
+        self._banner: ft.Banner | None = None
 
-        self.page.banner = ft.Banner(
-            # bgcolor=ft.colors.AMBER_100,
-            # bgcolor=COLORS.banner(),
-            leading=ft.Icon(ft.icons.WARNING_AMBER_ROUNDED, color=ft.colors.AMBER, size=40),
-            content=self.banner_content,
-            force_actions_below=True,
-            actions=[
-                ft.TextButton("OK!", on_click=self._close_banner),
-            ],
-        )
-
-    def _set_banner(self, text, color):
-        self.banner_content = ft.Column([ft.Text(text)])
-
-        self.page.banner = ft.Banner(
-            # bgcolor=ft.colors.AMBER_100,
+    def _create_banner(self, text, color):
+        return ft.Banner(
             bgcolor=color,
-            leading=ft.Icon(ft.icons.WARNING_AMBER_ROUNDED, color=ft.colors.AMBER, size=40),
-            content=self.banner_content,
+            leading=ft.Icon(ft.Icons.WARNING_AMBER_ROUNDED, color=ft.Colors.AMBER, size=40),
+            content=ft.Column([ft.Text(text)]),
             force_actions_below=True,
             actions=[
                 ft.TextButton("OK!", on_click=self._close_banner),
@@ -222,27 +209,15 @@ class FletApp:
             btn.update()
 
     def _close_banner(self, e=None):
-        if not self.page.banner.open:
+        if self._banner is None or not self._banner.open:
             return
-        self.page.banner.open = False
-        self.page.update()
-
-    # def _show_banner(self, e=None):
-    def _show_banner(self):
-        self.page.banner.open = True
-        self.page.update()
+        self._banner.open = False
+        self._banner.update()
 
     def _show_info(self, text, status='bad'):
-        # self._set_banner(text, COLORS.banner(status))
-        # # self.banner_content.controls = [ft.Text(text)]
-        # self.page.banner.bgcolor = COLORS.banner(status)
-        self.banner_text.value = text
-        self.page.banner.bgcolor = COLORS.banner(status)
-        self.page.banner.update()
-        print(f'{text=}')
-        print(f'{COLORS.banner(status)=}')
-        print(f'{self.page.banner.bgcolor=}')
-        self._show_banner()
+        self._close_banner()
+        self._banner = self._create_banner(text, COLORS.banner(status))
+        self.page.show_dialog(self._banner)
 
     def _build(self):
         top_row = ft.Row(
@@ -263,12 +238,12 @@ class FletApp:
 
     def _get_batch_container(self):
 
-        batch_nr_options = [ft.dropdown.Option(item) for item in reversed(self._batches.batch_nr_list)]
+        batch_nr_options = [ft.DropdownOption(item) for item in reversed(self._batches.batch_nr_list)]
         self._batch_nr = ft.Dropdown(
             label='Batchnummer',
             hint_text='Använd data från batch nummer...',
             options=batch_nr_options,
-            on_change=self._update_batch_info,
+            on_select=self._update_batch_info,
             dense=True
         )
         self._batch_nr.value = str(self._batches.latest_batch_nr)
@@ -313,7 +288,7 @@ class FletApp:
                                         on_submit=self._calculate_ph
                                         )
 
-        calc_ph_btn = ft.ElevatedButton(TEXTS.calculate_ph, on_click=self._calculate_ph)
+        calc_ph_btn = ft.Button(TEXTS.calculate_ph, on_click=self._calculate_ph)
 
         # self._batch_salt.on_blur = lambda x: self._batch_temp.focus
         # self._batch_salt.on_submit = lambda x: self._batch_temp.focus
@@ -425,21 +400,13 @@ class FletApp:
 
     def _get_result_option_container(self):
 
-        file_btn = ft.ElevatedButton(TEXTS.get_template_path_button, on_click=lambda _:
-        self._template_file_picker.pick_files(
-            dialog_title=TEXTS.dialog_title_template_file,
-            allowed_extensions=['xlsx'],
-            allow_multiple=False
-        ))
+        file_btn = ft.Button(TEXTS.get_template_path_button, on_click=self._pick_template_file)
 
         self._use_template_path = ft.Text(TEXTS.missing_template_path)
 
-        self._open_template_file_btn = ft.ElevatedButton(TEXTS.open_file_template, on_click=self._open_template_file)
+        self._open_template_file_btn = ft.Button(TEXTS.open_file_template, on_click=self._open_template_file)
 
-        dir_btn = ft.ElevatedButton(TEXTS.get_ctd_directory_button, on_click=lambda _:
-        self._ctd_directory_picker.get_directory_path(
-            dialog_title=TEXTS.dialog_title_ctd_directory
-        ))
+        dir_btn = ft.Button(TEXTS.get_ctd_directory_button, on_click=self._pick_ctd_dir)
 
         self._ctd_directory = ft.Text(TEXTS.missing_ctd_directory)
 
@@ -449,9 +416,9 @@ class FletApp:
         # self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
         self._overwrite_result = ft.Checkbox(label=TEXTS.get_file_exists(False), value=False, active_color='red')
 
-        self._open_result_file_btn = ft.ElevatedButton(TEXTS.open_file_result, on_click=self._open_result_file)
+        self._open_result_file_btn = ft.Button(TEXTS.open_file_result, on_click=self._open_result_file)
 
-        self._create_result_btn = ft.ElevatedButton(TEXTS.create_result, on_click=self._create_result)
+        self._create_result_btn = ft.Button(TEXTS.create_result, on_click=self._create_result)
 
         self._toggle_buttons.append(self._open_template_file_btn)
         self._toggle_buttons.append(self._open_result_file_btn)
@@ -493,48 +460,40 @@ class FletApp:
         return container
 
     def _get_hydrofia_option_container(self):
-        btn = ft.ElevatedButton(TEXTS.get_hydrofia_export_button, on_click=lambda _:
-        self._hydrofia_file_picker.pick_files(
-            dialog_title=TEXTS.dialog_title_hydrofia_file_path,
-            allowed_extensions=['txt'],
-            allow_multiple=False
-        ))
+        btn = ft.Button(TEXTS.get_hydrofia_export_button, on_click=self._pick_hydrofia_file)
 
         self._hydrofia_file_path = ft.Text(TEXTS.missing_hydrofia_file_path)
 
         # Filter on year
         year_options = []
         for y in range(2022, datetime.datetime.now().year + 1):
-            year_options.append(ft.dropdown.Option(str(y)))
+            year_options.append(ft.DropdownOption(str(y)))
         self._year = ft.Dropdown(
             label='År',
             hint_text='Filtrera på år',
             options=year_options,
-            on_change=self._update_create_template_path,
+            on_select=self._update_create_template_path,
             dense=True
         )
         self._year.value = str(datetime.datetime.now().year)
 
         # Filter on month
-        month_options = [ft.dropdown.Option(self._month_all_option)]
+        month_options = [ft.DropdownOption(self._month_all_option)]
         for m in range(1, 13):
-            month_options.append(ft.dropdown.Option(str(m)))
+            month_options.append(ft.DropdownOption(str(m)))
         self._month = ft.Dropdown(
             label='Månad',
             hint_text='Filtrera på månad',
             options=month_options,
-            on_change=self._update_create_template_path,
+            on_select=self._update_create_template_path,
             autofocus=True,
             dense=True,
         )
         self._month.value = self._month_all_option
 
-        dir_btn = ft.ElevatedButton(TEXTS.get_template_directory_button, on_click=lambda _:
-        self._template_directory_picker.get_directory_path(
-            dialog_title=TEXTS.dialog_title_template_directory
-        ))
+        dir_btn = ft.Button(TEXTS.get_template_directory_button, on_click=self._pick_template_dir)
 
-        # self._open_template_dir_btn = ft.ElevatedButton(TEXTS.open_directory, on_click=self._open_template_directory)
+        # self._open_template_dir_btn = ft.Button(TEXTS.open_directory, on_click=self._open_template_directory)
 
         self._template_directory = ft.Text(TEXTS.missing_template_directory)
         # self.template_directory = str(hydrofia.get_default_template_path().parent)
@@ -544,7 +503,7 @@ class FletApp:
 
         self._overwrite_template = ft.Checkbox(label=TEXTS.get_file_exists(False), value=False, active_color='red')
 
-        create_template_btn = ft.ElevatedButton(TEXTS.create_template, on_click=self._create_template)
+        create_template_btn = ft.Button(TEXTS.create_template, on_click=self._create_template)
 
         self._toggle_buttons.append(btn)
         self._toggle_buttons.append(dir_btn)
@@ -666,7 +625,7 @@ class FletApp:
                                                                                          replacement_string="")
                                                             )
 
-        reset_depth_margins_btn = ft.ElevatedButton(TEXTS.reset_depth_margins, on_click=self._reset_depth_margins)
+        reset_depth_margins_btn = ft.Button(TEXTS.reset_depth_margins, on_click=self._reset_depth_margins)
 
         col = ft.Column(
             alignment=ft.MainAxisAlignment.START,
@@ -736,11 +695,11 @@ class FletApp:
         self._batch_plot_value.update()
         saves.save()
 
-    def _on_pick_hydrofia_file_path(self, e: ft.FilePickerResultEvent):
+    def _on_pick_hydrofia_file_path(self, files: list[ft.FilePickerFile]):
         self._close_banner()
-        if not e.files:
+        if not files:
             return
-        path = e.files[0].path
+        path = files[0].path
         self._set_hydrofia_file_path(path)
 
     def _set_hydrofia_file_path(self, text=None):
@@ -751,28 +710,28 @@ class FletApp:
         self._update_create_template_path()
         self.update_page()
 
-    def _on_pick_ctd_dir(self, e: ft.FilePickerResultEvent):
+    def _on_pick_ctd_dir(self, path: str | None):
         self._close_banner()
-        if not e.path:
+        if not path:
             return
-        self.ctd_directory = e.path
+        self.ctd_directory = path
         saves.save()
 
-    def _on_pick_template_dir(self, e: ft.FilePickerResultEvent):
+    def _on_pick_template_dir(self, path: str | None):
         """Related to the creation of the TEMPLATE"""
         self._close_banner()
-        if not e.path:
+        if not path:
             return
-        self.template_directory = e.path
+        self.template_directory = path
         self._update_create_template_path()
 
-    def _on_pick_template_file(self, e: ft.FilePickerResultEvent):
+    def _on_pick_template_file(self, files: list[ft.FilePickerFile]):
         """Related to creation of RESULT file"""
         self._close_banner()
-        logger.info(f'{e.files=}')
-        if not e.files:
+        logger.info(f'{files=}')
+        if not files:
             return
-        self.use_template_path = e.files[0].path
+        self.use_template_path = files[0].path
         self._update_create_result_path()
 
     # def _set_default_result_file_name(self):
@@ -960,7 +919,7 @@ class FletApp:
     def filter_path(str):
         # return str.split('.')[0]
         # return str.strip(',.-\!"#¤%&/()=')
-        return re.sub('[^A-Za-z0-9åäö_\-]+', '', str)
+        return re.sub(r'[^A-Za-z0-9åäö_\-]+', '', str)
 
     # def _on_change_template_export_file_name(self, *args):
     #     name = self.filter_path(self.template_export_file_name)
