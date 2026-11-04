@@ -8,30 +8,30 @@ from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Border, Side, Alignment
 
 
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     ROOT_DIR = pathlib.Path(sys.executable).parent
 else:
     ROOT_DIR = pathlib.Path(__file__).parent
 
 
-CRM_COLOR = PatternFill(start_color='8fb7f7',
-                        end_color='8fb7f7',
-                        fill_type='solid')
+CRM_COLOR = PatternFill(start_color="8fb7f7", end_color="8fb7f7", fill_type="solid")
 
-PH_VALUE_COLOR = PatternFill(start_color='c0d6fa',
-                             end_color='c0d6fa',
-                             fill_type='solid')
+PH_VALUE_COLOR = PatternFill(
+    start_color="c0d6fa", end_color="c0d6fa", fill_type="solid"
+)
 
-BORDER_USER_ACTION = Border(left=Side(style='thin'),
-                            right=Side(style='thin'),
-                            top=Side(style='thin'),
-                            bottom=Side(style='thin'))
+BORDER_USER_ACTION = Border(
+    left=Side(style="thin"),
+    right=Side(style="thin"),
+    top=Side(style="thin"),
+    bottom=Side(style="thin"),
+)
 
 
 class ExporterXlsxResultFile:
-    name = 'xlsx-template-export'
-    template_sheet_name = 'Rapport för utskrift'
-    raw_data_sheet_name = 'Rådata'
+    name = "xlsx-template-export"
+    template_sheet_name = "Rapport för utskrift"
+    raw_data_sheet_name = "Rådata"
 
     date_cell = [1, 8]
     signature_cell = [2, 8]
@@ -60,19 +60,16 @@ class ExporterXlsxResultFile:
     def __init__(self, path, overwrite: bool = False):
         self._export_path = pathlib.Path(path)
         self._overwrite = overwrite
-        self._template_path = pathlib.Path(ROOT_DIR, 'hydrofia_ph_template.xlsx')
+        self._template_path = pathlib.Path(ROOT_DIR, "hydrofia_ph_template.xlsx")
         self._wb = load_workbook(self._template_path)
         self._report_ws = self._wb[self.template_sheet_name]
         self._raw_data_ws = self._wb[self.raw_data_sheet_name]
         self._data = pd.DataFrame()
 
-    def save(self,
-             data: pd.DataFrame,
-             signature: str = '',
-             project: str = '',
-             **kwargs
-             ):
-        self._data = data.fillna('')
+    def save(
+        self, data: pd.DataFrame, signature: str = "", project: str = "", **kwargs
+    ):
+        self._data = data.fillna("")
         self._write_header()
         self._write_data()
         self._write_raw_data()
@@ -85,17 +82,17 @@ class ExporterXlsxResultFile:
     @staticmethod
     def _get_float_value(value):
         try:
-            value = str(round(float(value), 3)).replace(',', '.')
+            value = str(round(float(value), 3)).replace(",", ".")
         except ValueError:
             pass
-        if value == 'nan':
-            value = ''
+        if value == "nan":
+            value = ""
         return value
 
     def _set_report_value(self, r: int, c: int, value: str | float, fill_color=None):
         cell = self._report_ws.cell(r, c)
         cell.value = value
-        cell.alignment = Alignment(horizontal='left')
+        cell.alignment = Alignment(horizontal="left")
         if fill_color:
             cell.fill = fill_color
 
@@ -103,70 +100,82 @@ class ExporterXlsxResultFile:
         self._raw_data_ws.cell(r, c).value = value
 
     def _write_header(self):
-        self.date = 'today'
+        self.date = "today"
         self._write_ship_code()
         self._write_country_code()
         self._write_serno_span()
 
     def _write_country_code(self):
-        values = [item for item in sorted(set(self.data['country'])) if item]
-        self.country_code = ', '.join(values)
+        values = [item for item in sorted(set(self.data["country"])) if item]
+        self.country_code = ", ".join(values)
 
     def _write_ship_code(self):
-        values = [item for item in sorted(set(self.data['ship'])) if item]
-        self.ship_code = ', '.join(values)
+        values = [item for item in sorted(set(self.data["ship"])) if item]
+        self.ship_code = ", ".join(values)
 
     def _write_serno_span(self):
         # TODO: Use sorted set and see if its faster
-        int_serno = [int(serno) for serno in self.data['serno'] if 'CRM' not in serno]
+        int_serno = [int(serno) for serno in self.data["serno"] if "CRM" not in serno]
         # int_serno = self.data['serno'].apply(int)
-        self.serno_span = f'{str(min(int_serno)).zfill(4)}-{str(max(int_serno)).zfill(4)}'
+        self.serno_span = (
+            f"{str(min(int_serno)).zfill(4)}-{str(max(int_serno)).zfill(4)}"
+        )
 
     def _write_data(self):
         r = self.data_start_row
-        for index, df in self.data.groupby(['date', 'serno', 'depth']):
+        for index, df in self.data.groupby(["date", "serno", "depth"]):
             s = df.iloc[-1]  # Use last replicate
             crm_color = None
             ph_color = None
-            if s['pH-tot-labT-P0']:
+            if s["pH-tot-labT-P0"]:
                 ph_color = PH_VALUE_COLOR
-            if 'CRM' in s['serno']:
+            if "CRM" in s["serno"]:
                 crm_color = CRM_COLOR
                 ph_color = CRM_COLOR
-            self._set_report_value(r, self.series_col, s['serno'])
-            self._set_report_value(r, self.station_col, s['station'])
-            self._set_report_value(r, self.depth_col, s['depth'])
-            self._set_report_value(r, self.ref_depth_col, self._get_float_value(s['ref_depth']))
-            self._set_report_value(r, self.salt_col, self._get_float_value(s['salt']))
-            self._set_report_value(r, self.lab_temp_col, self._get_float_value(s['temperatureSample']), fill_color=ph_color)
-            self._set_report_value(r, self.ph_calc_col, self._get_float_value(s['pH-tot-labT-P0']), fill_color=ph_color)
+            self._set_report_value(r, self.series_col, s["serno"])
+            self._set_report_value(r, self.station_col, s["station"])
+            self._set_report_value(r, self.depth_col, s["depth"])
+            self._set_report_value(
+                r, self.ref_depth_col, self._get_float_value(s["ref_depth"])
+            )
+            self._set_report_value(r, self.salt_col, self._get_float_value(s["salt"]))
+            self._set_report_value(
+                r,
+                self.lab_temp_col,
+                self._get_float_value(s["temperatureSample"]),
+                fill_color=ph_color,
+            )
+            self._set_report_value(
+                r,
+                self.ph_calc_col,
+                self._get_float_value(s["pH-tot-labT-P0"]),
+                fill_color=ph_color,
+            )
             self._set_report_value(r, self.purified_indicator_col, "N")
-            self._set_report_value(r, self.serial_indicator_col, s['serialIndicator'])
+            self._set_report_value(r, self.serial_indicator_col, s["serialIndicator"])
             # self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
-            comment = ''
-            if type(s['depth']) == str and '/' in s['depth']:
-                nr = s['depth'].split('/')[-1]
-                comment= f'Replikat nr {nr}'
+            comment = ""
+            if type(s["depth"]) == str and "/" in s["depth"]:
+                nr = s["depth"].split("/")[-1]
+                comment = f"Replikat nr {nr}"
             self._set_report_value(r, self.comment_col, comment, fill_color=crm_color)
             r += 1
 
     def old_write_raw_data(self):
         book = load_workbook(self._export_path)
-        writer = pd.ExcelWriter(self._export_path, engine='openpyxl', mode='a')
+        writer = pd.ExcelWriter(self._export_path, engine="openpyxl", mode="a")
         writer.workbook = book
         self.data.to_excel(writer, sheet_name=self.raw_data_sheet_name, index=False)
         writer.close()
 
     def _write_raw_data(self):
         data = self.data.copy()
-        data.pop('index')
+        data.pop("index")
         for c, name in enumerate(data, 1):
             self._set_raw_data_value(1, c, name)
         for r, row in enumerate(data.iterrows(), 2):
             for c, val in enumerate(row[1].values, 1):
                 self._set_raw_data_value(r, c, val)
-
-
 
     def _save_file(self):
         if self._export_path.exists() and not self._overwrite:
@@ -191,7 +200,7 @@ class ExporterXlsxResultFile:
 
     @date.setter
     def date(self, value):
-        if value.lower() == 'today':
+        if value.lower() == "today":
             value = str(datetime.datetime.now().date())
         self._report_ws.cell(*self.date_cell).value = value
 
@@ -229,7 +238,7 @@ class ExporterXlsxResultFile:
 
 
 class ExporterTxt:
-    name = 'txt-export'
+    name = "txt-export"
 
     def __str__(self):
         return self.__class__.__name__
@@ -241,21 +250,28 @@ class ExporterTxt:
     def save(self, data: pd.DataFrame, **kwargs):
         if self.path.exists() and not self._overwrite:
             raise FileExistsError(self.path)
-        leading_cols = ['year', 'ship', 'date', 'serno', 'station', 'depth', 'ref_depth', 'salt',
-                        'temperatureSample', 'pH-tot-labT-P0']
+        leading_cols = [
+            "year",
+            "ship",
+            "date",
+            "serno",
+            "station",
+            "depth",
+            "ref_depth",
+            "salt",
+            "temperatureSample",
+            "pH-tot-labT-P0",
+        ]
         other_cols = [col for col in data.columns if col not in leading_cols]
         new_columns = leading_cols + other_cols
         new_data = data[new_columns]
-        if 'index' in new_data.columns:
-            new_data.pop('index')
-        new_data.to_csv(self.path, sep='\t', index=False)
+        if "index" in new_data.columns:
+            new_data.pop("index")
+        new_data.to_csv(self.path, sep="\t", index=False)
 
 
 class Exporters:
-    exporters = [
-        ExporterTxt,
-        ExporterXlsxResultFile
-    ]
+    exporters = [ExporterTxt, ExporterXlsxResultFile]
 
     @staticmethod
     def get_arguments_from_class(cls):
@@ -265,11 +281,9 @@ class Exporters:
         self._exporters = {}
         for cls in Exporters.exporters:
             info = dict(
-                cls=cls,
-                name=cls.name,
-                args=Exporters.get_arguments_from_class(cls)
+                cls=cls, name=cls.name, args=Exporters.get_arguments_from_class(cls)
             )
-            self._exporters[info['name']] = info
+            self._exporters[info["name"]] = info
 
     def get_exporters(self):
         return self._exporters
@@ -278,24 +292,23 @@ class Exporters:
         return list(self._exporters)
 
     def get_exporter_cls(self, name):
-        return self._exporters[name]['cls']
+        return self._exporters[name]["cls"]
 
     def get_exporter_args(self, name):
-        return self._exporters[name]['args']
+        return self._exporters[name]["args"]
 
 
-if __name__ == '__main__':
-    path = pathlib.Path(ROOT_DIR, 'hydrofia_ph_template.xlsx')
-    save_path = pathlib.Path(ROOT_DIR, 'hydrofia_ph_template_out.xlsx')
+if __name__ == "__main__":
+    path = pathlib.Path(ROOT_DIR, "hydrofia_ph_template.xlsx")
+    save_path = pathlib.Path(ROOT_DIR, "hydrofia_ph_template_out.xlsx")
     print(path.exists())
     wb = load_workbook(path)
-    ws = wb['Rapport för utskrift']
+    ws = wb["Rapport för utskrift"]
 
     e = ExporterXlsxResultFile()
-    e.signature = 'MWen'
-    e.date = 'today'
-    e.country_code = 'SE'
-    e.ship_code = '77'
+    e.signature = "MWen"
+    e.date = "today"
+    e.country_code = "SE"
+    e.ship_code = "77"
 
     e.save(save_path)
-
