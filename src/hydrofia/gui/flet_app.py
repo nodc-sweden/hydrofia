@@ -6,7 +6,8 @@ import sys
 import json
 
 import hydrofia
-from hydrofia.gui.tooltip import TooltipTexts, get_tooltip_icon
+from hydrofia.gui.tooltip import TooltipTexts
+from hydrofia.gui import layout, style
 from hydrofia.gui.texts import Texts
 from hydrofia.gui.colors import Colors
 from hydrofia.gui import saves
@@ -57,7 +58,7 @@ class FletApp:
 
         self._month_all_option = "ALLA"
 
-        self._toggle_buttons: list[ft.LayoutControl] = []
+        self._toggle_buttons: list[ft.LayoutControl] = []  # set in _create_controls
 
         self.logging_level = "DEBUG"
         self.logging_format = "%(asctime)s [%(levelname)10s]    %(pathname)s [%(lineno)d] => %(funcName)s():    %(message)s"
@@ -77,8 +78,8 @@ class FletApp:
     def main(self, page: ft.Page):
         self.page = page
         self.page.title = TEXTS.title
-        self.page.window.height = 1100
-        self.page.window.width = 1600
+        self.page.window.height = style.WINDOW_HEIGHT
+        self.page.window.width = style.WINDOW_WIDTH
         self._initiate_pickers()
         self._build()
         self._initiate_banner()
@@ -224,482 +225,299 @@ class FletApp:
         self.page.show_dialog(self._banner)
 
     def _build(self):
-        top_row = ft.Row(
-            spacing=10,
-            expand=True,
-            # scroll=ft.ScrollMode.AUTO
-        )
-        top_row.controls.append(self._get_batch_container())
-        top_row.controls.append(self._get_hydrofia_container())
-
-        self.page.controls.append(top_row)
-        self.page.controls.append(self._get_result_container())
+        self._create_controls()
+        self.page.controls.extend(self._build_layout())
 
         self._open_template_file_btn.visible = False
         self._open_result_file_btn.visible = False
 
         self.update_page()
 
-    def _get_batch_container(self):
+    # ------------------------------------------------------------------
+    # Controls: created here, placed in _build_layout()
+    # ------------------------------------------------------------------
+    def _create_controls(self):
+        self._create_batch_controls()
+        self._create_template_controls()
+        self._create_result_controls()
 
-        batch_nr_options = [
-            ft.DropdownOption(item) for item in reversed(self._batches.batch_nr_list)
+        # Disabled while a template or result file is being created
+        self._toggle_buttons = [
+            self._pick_hydrofia_file_btn,
+            self._pick_template_dir_btn,
+            self._overwrite_template,
+            self._open_template_file_btn,
+            self._open_result_file_btn,
+            self._pick_template_file_btn,
+            self._pick_ctd_dir_btn,
         ]
+
+    def _create_batch_controls(self):
+        """Step 1: pH of the reference batch (CRM)"""
         self._batch_nr = ft.Dropdown(
             label="Batchnummer",
             hint_text="Använd data från batch nummer...",
-            options=batch_nr_options,
+            options=[
+                ft.DropdownOption(item)
+                for item in reversed(self._batches.batch_nr_list)
+            ],
             on_select=self._update_batch_info,
             dense=True,
         )
         self._batch_nr.value = str(self._batches.latest_batch_nr)
 
-        col = ft.Column()
+        self._batch_alk = layout.value_text()
+        self._batch_dic = layout.value_text()
+        self._batch_salt = layout.value_text()
+        self._batch_ph = layout.value_text()
+        self._batch_plot_value = layout.value_text(size=style.HIGHLIGHT_SIZE)
 
-        width = 200
-        dence = False
-
-        alk_row = ft.Row()
-        alk_row.controls.append(ft.Text(TEXTS.batch_alk_label))
-        self._batch_alk = ft.Text(weight=ft.FontWeight.W_600)
-        alk_row.controls.append(self._batch_alk)
-
-        dic_row = ft.Row()
-        dic_row.controls.append(ft.Text(TEXTS.batch_dic_label))
-        self._batch_dic = ft.Text(weight=ft.FontWeight.W_600)
-        dic_row.controls.append(self._batch_dic)
-
-        salt_row = ft.Row()
-        salt_row.controls.append(ft.Text(TEXTS.batch_salt_label))
-        self._batch_salt = ft.Text(weight=ft.FontWeight.W_600)
-        salt_row.controls.append(self._batch_salt)
-
-        temp_row = ft.Row()
-        # temp_row.controls.append(ft.Text(TEXTS.batch_temp_label))
-        # self._batch_temp = ft.Text(weight=ft.FontWeight.W_600)
-        # self._batch_temp.value = str(25.0)
-        self._batch_temp = ft.TextField(
-            label=TEXTS.batch_temp_label,
-            dense=dence,
-            width=width,
-            input_filter=ft.InputFilter(
-                allow=True,
-                regex_string=r"[0-9.,]",
-                replacement_string="",
-            ),
+        self._batch_temp = layout.text_field(
+            TEXTS.batch_temp_label,
+            allowed=layout.DECIMAL_WITH_COMMA,
             on_submit=self._calculate_ph,
         )
-        temp_row.controls.append(self._batch_temp)
-
-        self._batch_measured_ph = ft.TextField(
-            label=TEXTS.batch_measured_ph,
-            dense=dence,
-            width=width,
-            input_filter=ft.InputFilter(
-                allow=True,
-                regex_string=r"[0-9.,]",
-                replacement_string="",
-            ),
+        self._batch_measured_ph = layout.text_field(
+            TEXTS.batch_measured_ph,
+            allowed=layout.DECIMAL_WITH_COMMA,
             on_submit=self._calculate_ph,
         )
-
-        calc_ph_btn = ft.Button(TEXTS.calculate_ph, on_click=self._calculate_ph)
-
-        # self._batch_salt.on_blur = lambda x: self._batch_temp.focus
-        # self._batch_salt.on_submit = lambda x: self._batch_temp.focus
-        # self._batch_temp.on_blur = lambda x: calc_ph_btn.focus
-        # self._batch_temp.on_submit = lambda x: calc_ph_btn.focus
-
-        ph_row = ft.Row()
-        ph_row.controls.append(ft.Text(TEXTS.batch_ph_label))
-        self._batch_ph = ft.Text(weight=ft.FontWeight.W_600)
-        ph_row.controls.append(self._batch_ph)
-
-        plot_val_row = ft.Row()
-        plot_val_row.controls.append(ft.Text(TEXTS.batch_plot_value_label))
-        self._batch_plot_value = ft.Text(weight=ft.FontWeight.W_600, size=16)
-        plot_val_row.controls.append(self._batch_plot_value)
-
-        col.controls.append(
-            ft.Text(TEXTS.title_batch, size=16, weight=ft.FontWeight.W_400)
+        self._calculate_ph_btn = ft.Button(
+            TEXTS.calculate_ph, on_click=self._calculate_ph
         )
 
-        col.controls.append(self._batch_nr)
-        col.controls.append(alk_row)
-        col.controls.append(dic_row)
-        col.controls.append(salt_row)
-        col.controls.append(temp_row)
-        # col.controls.append(self._batch_temp)
-        col.controls.append(ph_row)
-        col.controls.append(self._batch_measured_ph)
-        col.controls.append(calc_ph_btn)
-        col.controls.append(plot_val_row)
-
-        container = ft.Container(
-            content=col,
-            bgcolor=COLORS.batch,
-            border_radius=10,
-            padding=10,
-            expand=False,
+    def _create_template_controls(self):
+        """Step 2: create the template (rättningsfil) from a HydroFIA export"""
+        self._metadata_signature = layout.text_field(TEXTS.signature)
+        self._metadata_project = layout.text_field(
+            TEXTS.project, on_blur=self._update_create_template_path
         )
 
-        return container
-
-    def _get_hydrofia_container(self):
-        meta_container = self._get_hydrofia_metadata_container()
-        option_container = self._get_hydrofia_option_container()
-
-        main_row = ft.Row(
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=30,
-            run_spacing=30,
-            expand=True,
-        )
-
-        main_row.controls.append(meta_container)
-        main_row.controls.append(option_container)
-
-        title_row = ft.Row()
-        title_row.controls.append(
-            ft.Text(TEXTS.title_create_excel, size=16, weight=ft.FontWeight.W_400)
-        )
-        title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.template_file))
-
-        main_column = ft.Column()
-        main_column.controls.append(title_row)
-        main_column.controls.append(main_row)
-
-        # main_column = ft.Column()
-        # main_column.controls.append(ft.Text(TEXTS.title_create_excel,
-        #                                     size=30,
-        #                                     weight=ft.FontWeight.W_400))
-        # main_column.controls.append(main_row)
-
-        container = ft.Container(
-            content=main_column,
-            bgcolor=COLORS.hydrofia_container,
-            border_radius=10,
-            padding=10,
-            expand=1,
-        )
-
-        return container
-
-    def _get_result_container(self):
-        meta_container = self._get_result_metadata_container()
-        option_container = self._get_result_option_container()
-
-        main_row = ft.Row(
-            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-            spacing=30,
-            run_spacing=30,
-        )
-
-        main_row.controls.append(meta_container)
-        main_row.controls.append(option_container)
-
-        title_row = ft.Row()
-        title_row.controls.append(
-            ft.Text(
-                TEXTS.title_merge_ctd_with_hydrofia, size=16, weight=ft.FontWeight.W_400
-            )
-        )
-        title_row.controls.append(get_tooltip_icon(TOOLTIP_TEXT.template_file))
-
-        main_column = ft.Column()
-        main_column.controls.append(title_row)
-        main_column.controls.append(main_row)
-
-        container = ft.Container(
-            content=main_column,
-            bgcolor=COLORS.result_container,
-            border_radius=10,
-            padding=10,
-            expand=1,
-        )
-
-        return container
-
-    def _get_result_option_container(self):
-
-        file_btn = ft.Button(
-            TEXTS.get_template_path_button, on_click=self._pick_template_file
-        )
-
-        self._use_template_path = ft.Text(TEXTS.missing_template_path)
-
-        self._open_template_file_btn = ft.Button(
-            TEXTS.open_file_template, on_click=self._open_template_file
-        )
-
-        dir_btn = ft.Button(TEXTS.get_ctd_directory_button, on_click=self._pick_ctd_dir)
-
-        self._ctd_directory = ft.Text(TEXTS.missing_ctd_directory)
-
-        create_path_label = ft.Text(TEXTS.create_file_label)
-        self._create_result_path = ft.Text()
-
-        # self._overwrite_result = ft.Switch(label=TEXTS.overwrite, value=False, active_color='red')
-        self._overwrite_result = ft.Checkbox(
-            label=TEXTS.get_file_exists(False), value=False, active_color="red"
-        )
-
-        self._open_result_file_btn = ft.Button(
-            TEXTS.open_file_result, on_click=self._open_result_file
-        )
-
-        self._create_result_btn = ft.Button(
-            TEXTS.create_result, on_click=self._create_result
-        )
-
-        self._toggle_buttons.append(self._open_template_file_btn)
-        self._toggle_buttons.append(self._open_result_file_btn)
-        self._toggle_buttons.append(file_btn)
-        self._toggle_buttons.append(dir_btn)
-
-        file_row = ft.Row()
-        ctd_row = ft.Row()
-        create_path_row = ft.Row()
-
-        file_row.controls.append(file_btn)
-        file_row.controls.append(self._use_template_path)
-        file_row.controls.append(self._open_template_file_btn)
-
-        ctd_row.controls.append(dir_btn)
-        ctd_row.controls.append(self._ctd_directory)
-
-        create_path_row.controls.append(create_path_label)
-        create_path_row.controls.append(self._create_result_path)
-
-        overwrite_row = ft.Row()
-        overwrite_row.controls.append(self._overwrite_result)
-        overwrite_row.controls.append(self._open_result_file_btn)
-
-        option_column = ft.Column()
-        option_column.controls.append(file_row)
-        option_column.controls.append(ctd_row)
-        option_column.controls.append(create_path_row)
-        option_column.controls.append(overwrite_row)
-        option_column.controls.append(self._create_result_btn)
-
-        container = ft.Container(
-            content=option_column,
-            bgcolor=COLORS.option_container,
-            border_radius=10,
-            padding=10,
-            # expand=True
-        )
-
-        return container
-
-    def _get_hydrofia_option_container(self):
-        btn = ft.Button(
+        self._pick_hydrofia_file_btn = ft.Button(
             TEXTS.get_hydrofia_export_button, on_click=self._pick_hydrofia_file
         )
-
         self._hydrofia_file_path = ft.Text(TEXTS.missing_hydrofia_file_path)
 
-        # Filter on year
-        year_options = []
-        for y in range(2022, datetime.datetime.now().year + 1):
-            year_options.append(ft.DropdownOption(str(y)))
         self._year = ft.Dropdown(
             label="År",
             hint_text="Filtrera på år",
-            options=year_options,
+            options=[
+                ft.DropdownOption(str(y))
+                for y in range(2022, datetime.datetime.now().year + 1)
+            ],
             on_select=self._update_create_template_path,
             dense=True,
         )
         self._year.value = str(datetime.datetime.now().year)
 
-        # Filter on month
-        month_options = [ft.DropdownOption(self._month_all_option)]
-        for m in range(1, 13):
-            month_options.append(ft.DropdownOption(str(m)))
         self._month = ft.Dropdown(
             label="Månad",
             hint_text="Filtrera på månad",
-            options=month_options,
+            options=[ft.DropdownOption(self._month_all_option)]
+            + [ft.DropdownOption(str(m)) for m in range(1, 13)],
             on_select=self._update_create_template_path,
             autofocus=True,
             dense=True,
         )
         self._month.value = self._month_all_option
 
-        dir_btn = ft.Button(
+        self._pick_template_dir_btn = ft.Button(
             TEXTS.get_template_directory_button, on_click=self._pick_template_dir
         )
-
-        # self._open_template_dir_btn = ft.Button(TEXTS.open_directory, on_click=self._open_template_directory)
-
         self._template_directory = ft.Text(TEXTS.missing_template_directory)
-        # self.template_directory = str(hydrofia.get_default_template_path().parent)
 
-        create_path_label = ft.Text(TEXTS.create_file_label)
         self._create_template_path = ft.Text()
-
         self._overwrite_template = ft.Checkbox(
             label=TEXTS.get_file_exists(False), value=False, active_color="red"
         )
-
-        create_template_btn = ft.Button(
+        self._create_template_btn = ft.Button(
             TEXTS.create_template, on_click=self._create_template
         )
 
-        self._toggle_buttons.append(btn)
-        self._toggle_buttons.append(dir_btn)
-        # self._toggle_buttons.append(self._open_template_dir_btn)
-        self._toggle_buttons.append(self._overwrite_template)
-
-        path_row = ft.Row()
-        filter_row = ft.Row()
-        folder_row = ft.Row()
-        create_path_row = ft.Row()
-
-        path_row.controls.append(btn)
-        path_row.controls.append(self._hydrofia_file_path)
-
-        filter_row.controls.append(self._year)
-        filter_row.controls.append(self._month)
-
-        folder_row.controls.append(dir_btn)
-        folder_row.controls.append(self._template_directory)
-        # folder_row.controls.append(self._open_template_dir_btn)
-
-        create_path_row.controls.append(create_path_label)
-        create_path_row.controls.append(self._create_template_path)
-
-        overwrite_row = ft.Row()
-        overwrite_row.controls.append(self._overwrite_template)
-
-        option_column = ft.Column()
-        option_column.controls.append(path_row)
-        option_column.controls.append(filter_row)
-        option_column.controls.append(folder_row)
-        option_column.controls.append(create_path_row)
-        option_column.controls.append(overwrite_row)
-        option_column.controls.append(create_template_btn)
-
-        container = ft.Container(
-            content=option_column,
-            bgcolor=COLORS.option_container,
-            border_radius=10,
-            padding=10,
-            expand=False,
+    def _create_result_controls(self):
+        """Step 3: merge the template with CTD data into a result file"""
+        self._metadata_surface_layer = layout.text_field(
+            TEXTS.surface_layer, allowed=layout.DECIMAL
         )
-
-        return container
-
-    def _get_hydrofia_metadata_container(self):
-
-        # export_row = ft.Row(
-        #     # scroll=ft.ScrollMode.AUTO,
-        #     expand=True
-        # )
-        dence = False
-        width = 200
-        self._metadata_signature = ft.TextField(
-            label=TEXTS.signature, dense=dence, width=width
+        self._metadata_bottom_layer = layout.text_field(
+            TEXTS.bottom_layer, allowed=layout.DECIMAL
         )
-
-        self._metadata_project = ft.TextField(
-            label=TEXTS.project,
-            dense=dence,
-            width=width,
-            on_blur=self._update_create_template_path,
+        self._metadata_max_depth_diff_allowed = layout.text_field(
+            TEXTS.max_depth_diff_allowed, allowed=layout.DECIMAL
         )
-
-        col = ft.Column(
-            alignment=ft.MainAxisAlignment.START,
-            scroll=ft.ScrollMode.AUTO,
-            expand=False,
-            spacing=20,
-        )
-
-        col.controls.append(self._metadata_signature)
-        col.controls.append(self._metadata_project)
-
-        # tt = get_tooltip_widget(TOOLTIP_TEXT.metadata)
-        # tt.content = row
-        #
-        # export_row.controls.append(tt)
-
-        container = ft.Container(
-            content=col,
-            bgcolor=COLORS.metadata,
-            border_radius=10,
-            padding=10,
-            expand=False,
-        )
-
-        return container
-
-    def _get_result_metadata_container(self):
-
-        # export_row = ft.Row(
-        #     # scroll=ft.ScrollMode.AUTO,
-        #     expand=True
-        # )
-        dence = False
-
-        width = 200
-
-        self._metadata_surface_layer = ft.TextField(
-            label=TEXTS.surface_layer,
-            dense=dence,
-            width=width,
-            input_filter=ft.InputFilter(
-                allow=True, regex_string=r"[0-9.]", replacement_string=""
-            ),
-        )
-
-        self._metadata_bottom_layer = ft.TextField(
-            label=TEXTS.bottom_layer,
-            dense=dence,
-            width=width,
-            input_filter=ft.InputFilter(
-                allow=True, regex_string=r"[0-9.]", replacement_string=""
-            ),
-        )
-
-        self._metadata_max_depth_diff_allowed = ft.TextField(
-            label=TEXTS.max_depth_diff_allowed,
-            dense=dence,
-            width=width,
-            input_filter=ft.InputFilter(
-                allow=True, regex_string=r"[0-9.]", replacement_string=""
-            ),
-        )
-
-        reset_depth_margins_btn = ft.Button(
+        self._reset_depth_margins_btn = ft.Button(
             TEXTS.reset_depth_margins, on_click=self._reset_depth_margins
         )
 
-        col = ft.Column(
-            alignment=ft.MainAxisAlignment.START,
-            scroll=ft.ScrollMode.AUTO,
-            expand=False,
-            spacing=20,
+        self._pick_template_file_btn = ft.Button(
+            TEXTS.get_template_path_button, on_click=self._pick_template_file
         )
-        col.controls.append(self._metadata_surface_layer)
-        col.controls.append(self._metadata_bottom_layer)
-        col.controls.append(self._metadata_max_depth_diff_allowed)
-        col.controls.append(reset_depth_margins_btn)
-
-        # tt = get_tooltip_widget(TOOLTIP_TEXT.metadata)
-        # tt.content = row
-        #
-        # export_row.controls.append(tt)
-
-        container = ft.Container(
-            content=col,
-            bgcolor=COLORS.metadata,
-            border_radius=10,
-            padding=10,
-            expand=False,
+        self._use_template_path = ft.Text(TEXTS.missing_template_path)
+        self._open_template_file_btn = ft.Button(
+            TEXTS.open_file_template, on_click=self._open_template_file
         )
 
-        return container
+        self._pick_ctd_dir_btn = ft.Button(
+            TEXTS.get_ctd_directory_button, on_click=self._pick_ctd_dir
+        )
+        self._ctd_directory = ft.Text(TEXTS.missing_ctd_directory)
+
+        self._create_result_path = ft.Text()
+        self._overwrite_result = ft.Checkbox(
+            label=TEXTS.get_file_exists(False), value=False, active_color="red"
+        )
+        self._open_result_file_btn = ft.Button(
+            TEXTS.open_file_result, on_click=self._open_result_file
+        )
+        self._create_result_btn = ft.Button(
+            TEXTS.create_result, on_click=self._create_result
+        )
+
+    # ------------------------------------------------------------------
+    # Layout: the whole page in one place. Move controls around here.
+    # ------------------------------------------------------------------
+    def _build_layout(self) -> list[ft.Control]:
+        ph_from_crm_card = layout.card(
+            bgcolor=COLORS.batch,
+            content=ft.Column(
+                [
+                    layout.title(TEXTS.title_batch),
+                    self._batch_nr,
+                    layout.label_value(TEXTS.batch_alk_label, self._batch_alk),
+                    layout.label_value(TEXTS.batch_dic_label, self._batch_dic),
+                    layout.label_value(TEXTS.batch_salt_label, self._batch_salt),
+                    ft.Row([self._batch_temp]),
+                    layout.label_value(TEXTS.batch_ph_label, self._batch_ph),
+                    self._batch_measured_ph,
+                    self._calculate_ph_btn,
+                    layout.label_value(
+                        TEXTS.batch_plot_value_label, self._batch_plot_value
+                    ),
+                ]
+            ),
+        )
+
+        correction_file_card = layout.card(
+            bgcolor=COLORS.hydrofia_container,
+            expand=1,
+            content=ft.Column(
+                [
+                    layout.title_with_tooltip(
+                        TEXTS.title_create_excel, TOOLTIP_TEXT.template_file
+                    ),
+                    ft.Row(
+                        [
+                            layout.card(
+                                bgcolor=COLORS.metadata,
+                                content=layout.field_column(
+                                    self._metadata_signature,
+                                    self._metadata_project,
+                                ),
+                            ),
+                            layout.card(
+                                bgcolor=COLORS.option_container,
+                                content=ft.Column(
+                                    [
+                                        ft.Row(
+                                            [
+                                                self._pick_hydrofia_file_btn,
+                                                self._hydrofia_file_path,
+                                            ]
+                                        ),
+                                        ft.Row([self._year, self._month]),
+                                        ft.Row(
+                                            [
+                                                self._pick_template_dir_btn,
+                                                self._template_directory,
+                                            ]
+                                        ),
+                                        layout.label_value(
+                                            TEXTS.create_file_label,
+                                            self._create_template_path,
+                                        ),
+                                        ft.Row([self._overwrite_template]),
+                                        self._create_template_btn,
+                                    ]
+                                ),
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.START,
+                        spacing=style.SECTION_SPACING,
+                        run_spacing=style.SECTION_SPACING,
+                        expand=True,
+                    ),
+                ]
+            ),
+        )
+
+        result_file_card = layout.card(
+            bgcolor=COLORS.result_container,
+            expand=1,
+            content=ft.Column(
+                [
+                    layout.title_with_tooltip(
+                        TEXTS.title_merge_ctd_with_hydrofia,
+                        TOOLTIP_TEXT.template_file,
+                    ),
+                    ft.Row(
+                        [
+                            layout.card(
+                                bgcolor=COLORS.metadata,
+                                content=layout.field_column(
+                                    self._metadata_surface_layer,
+                                    self._metadata_bottom_layer,
+                                    self._metadata_max_depth_diff_allowed,
+                                    self._reset_depth_margins_btn,
+                                ),
+                            ),
+                            layout.card(
+                                bgcolor=COLORS.option_container,
+                                content=ft.Column(
+                                    [
+                                        ft.Row(
+                                            [
+                                                self._pick_template_file_btn,
+                                                self._use_template_path,
+                                                self._open_template_file_btn,
+                                            ]
+                                        ),
+                                        ft.Row(
+                                            [
+                                                self._pick_ctd_dir_btn,
+                                                self._ctd_directory,
+                                            ]
+                                        ),
+                                        layout.label_value(
+                                            TEXTS.create_file_label,
+                                            self._create_result_path,
+                                        ),
+                                        ft.Row(
+                                            [
+                                                self._overwrite_result,
+                                                self._open_result_file_btn,
+                                            ]
+                                        ),
+                                        self._create_result_btn,
+                                    ]
+                                ),
+                            ),
+                        ],
+                        alignment=ft.MainAxisAlignment.START,
+                        spacing=style.SECTION_SPACING,
+                        run_spacing=style.SECTION_SPACING,
+                    ),
+                ]
+            ),
+        )
+
+        return [
+            correction_file_card,
+            ft.Row(
+                [result_file_card, ph_from_crm_card],
+                spacing=style.TOP_ROW_SPACING,
+                expand=True,
+            ),
+        ]
 
     def _update_batch_info(self, *args):
         batch = self._batches.get_batch(self._batch_nr.value)
