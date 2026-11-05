@@ -1,23 +1,9 @@
 class Colors:
-    @property
-    def hydrofia_container(self):
-        return "#DFE8CC"
-
-    @property
-    def result_container(self):
-        return "#6ab080"
-
-    @property
-    def option_container(self):
-        return "#DFF8C9"
-
-    @property
-    def metadata(self):
-        return "#f0e962"
-
-    @property
-    def batch(self):
-        return "#03b1fc"
+    hydrofia_container = "#DFE8CC"
+    result_container = "#6ab080"
+    option_container = "#DFF8C9"
+    metadata = "#f0e962"
+    batch = "#03b1fc"
 
     @staticmethod
     def banner(status="bad"):
