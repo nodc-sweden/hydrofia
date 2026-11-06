@@ -519,7 +519,11 @@ class FletApp:
         depth_card = layout.card(
             bgcolor=COLORS.metadata,
             content=layout.field_column(
-                layout.title(TEXTS.title_ctd_matching),
+                layout.title_with_info(
+                    TEXTS.title_ctd_matching,
+                    TOOLTIP_TEXT.ctd,
+                    style.INFO_DIALOG_CTD_CARD,
+                ),
                 self._metadata_surface_layer,
                 self._metadata_bottom_layer,
                 self._metadata_max_depth_diff_allowed,
@@ -533,7 +537,9 @@ class FletApp:
             content=ft.Column(
                 [
                     layout.card_title(
-                        TEXTS.title_create_excel, TOOLTIP_TEXT.hydrofia_file
+                        TEXTS.title_create_excel,
+                        TOOLTIP_TEXT.hydrofia_file,
+                        style.INFO_DIALOG_UPPER_CARD,
                     ),
                     layout.path_row(
                         self._pick_hydrofia_file_btn,
@@ -566,6 +572,7 @@ class FletApp:
                     layout.card_title(
                         TEXTS.title_merge_ctd_with_hydrofia,
                         TOOLTIP_TEXT.template_file,
+                        style.INFO_DIALOG_LOWER_CARD,
                     ),
                     layout.path_row(
                         self._pick_template_file_btn,
