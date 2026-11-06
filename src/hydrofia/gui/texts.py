@@ -4,6 +4,8 @@ VERSION = "v0.2.0"
 class Texts:
     title = f"HydroFIA ({VERSION})"
 
+    show_help = "Visa hjälp"
+
     get_hydrofia_export_button = "Välj .txt-fil från HydroFIA"
     get_template_path_button = "Välj rättningsfil"
     get_ctd_directory_button = "Välj mapp för ctd-filer (standardformat)"

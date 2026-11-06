@@ -374,7 +374,12 @@ class _HyrdofiaExcelTemplateCreate:
             for c, key in enumerate(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING, 1):
                 cell = self.ws.cell(r, c)
                 value = series[key]
-                if key == "salinity" and "CRM" not in series["serno"] or "temperature" in key and "CRM" not in series["serno"]:
+                if (
+                    key == "salinity"
+                    and "CRM" not in series["serno"]
+                    or "temperature" in key
+                    and "CRM" not in series["serno"]
+                ):
                     value = ""
                 cell.value = str(value)
                 cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION

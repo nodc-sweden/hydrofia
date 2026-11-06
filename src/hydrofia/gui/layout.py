@@ -6,7 +6,7 @@ import flet as ft
 
 from hydrofia.gui import style
 from hydrofia.gui.colors import Colors
-from hydrofia.gui.tooltip import get_tooltip_icon
+from hydrofia.gui.tooltip import get_info_button
 
 # Patterns for numeric input fields. Flet tests the whole field content against the
 # pattern and rejects the edit on no match, so they must be anchored and match "".
@@ -30,11 +30,16 @@ def title(text: str) -> ft.Text:
     return ft.Text(text, size=style.TITLE_SIZE, weight=ft.FontWeight.W_600)
 
 
-def card_title(text: str, tooltip: str) -> ft.Container:
-    """Main heading of a card, with an info icon and space below it."""
+def title_with_info(text: str, tooltip: str, dialog_alignment: ft.Alignment) -> ft.Row:
+    """Heading for a part of the page, with an info button."""
+    return ft.Row([title(text), get_info_button(text, tooltip, dialog_alignment)])
+
+
+def card_title(text: str, tooltip: str, dialog_alignment: ft.Alignment) -> ft.Container:
+    """Main heading of a card, with an info button and space below it."""
     heading = ft.Text(text, size=style.CARD_TITLE_SIZE, weight=ft.FontWeight.W_600)
     return ft.Container(
-        content=ft.Row([heading, get_tooltip_icon(tooltip)]),
+        content=ft.Row([heading, get_info_button(text, tooltip, dialog_alignment)]),
         padding=ft.Padding.only(bottom=style.CARD_TITLE_BOTTOM_PADDING),
     )
 
