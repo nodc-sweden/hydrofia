@@ -20,8 +20,9 @@
 #  MA 02110-1301, USA.
 
 import sys
+
 import numpy as np
-from numpy import log, log10, exp, sqrt
+from numpy import exp, log, log10, sqrt
 
 
 def total2free(S, T):

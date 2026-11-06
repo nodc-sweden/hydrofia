@@ -3,10 +3,8 @@ import json
 import pathlib
 
 import pandas as pd
-import yaml
-
-from hydrofia.ext_src import seacarb
 import PyCO2SYS as pyco2
+import yaml
 
 NAME_MAPPING = {
     "Batch Number": "batch_nr",

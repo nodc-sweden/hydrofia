@@ -1,12 +1,11 @@
 import datetime
+import inspect
 import pathlib
+import sys
 
 import pandas as pd
-import inspect
-import sys
 from openpyxl import load_workbook
-from openpyxl.styles import PatternFill, Border, Side, Alignment
-
+from openpyxl.styles import Alignment, Border, PatternFill, Side
 
 if getattr(sys, "frozen", False):
     ROOT_DIR = pathlib.Path(sys.executable).parent

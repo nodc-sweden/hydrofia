@@ -12,8 +12,8 @@ class TooltipTexts:
         "Välj vilken mapp du vill att filen ska sparas i. filtrera på rätt månad och år vid behov"
     )
     template_file = (
-        "Här sammanfogar du HydroFIA- med CTD-data för att beräkna pH vid Insitu S och T. Fyll i din signatur,\n "
-        "namnge projekt (BAS). Ändra vid behov tjocklek på ytlagret, bottenlagret och maximal diff mellan djup,\n "
+        "Här sammanfogar du HydroFIA- med CTD-data för att beräkna pH vid Insitu S och T.\n "
+        "Ändra vid behov tjocklek på ytlagret, bottenlagret och maximal diff mellan djup,\n "
         "detta för att rätt värde ska hämtas från CTD profil"
     )
     metadata = (

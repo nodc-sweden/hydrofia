@@ -17,6 +17,7 @@ class Texts:
     missing_template_directory = "Ingen mapp för mall vald..."
     missing_ctd_directory = "Ingen mapp för ctd vald..."
     missing_template_path = "Ingen data tillgänglig..."
+    missing_use_template_path = "Ingen rättningsfil vald..."
     missing_result_path = "Ingen resultatfil bestämd..."
 
     dialog_title_ctd_directory = "Välj ctd-mapp"
@@ -45,18 +46,23 @@ class Texts:
     signature = "Din signatur"
     project = "Projekt"
 
-    surface_layer = "Tillåtet avstånd vid ytan [m] (för att matcha salt och temp)"
-    bottom_layer = "Tillåtet avstånd vid botten [m] (för att matcha salt och temp)"
-    max_depth_diff_allowed = "Max tillåtet avstånd för matching [m]"
+    surface_layer = "Avstånd vid ytan [m]"
+    bottom_layer = "Avstånd vid botten [m]"
+    max_depth_diff_allowed = "Max avstånd [m]"
     reset_depth_margins = "Återställ"
+    title_ctd_matching = "CTD-matchning"
+    title_metadata = "Metadata"
 
-    title_merge_ctd_with_hydrofia = (
-        "Läs in CTD data för att beräkna pH vid rätt salthalt och temperatur"
-    )
+    title_merge_ctd_with_hydrofia = "Skapa resultatfil"
     # title_merge_ctd_with_hydrofia = 'Steg 3: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
     title_create_excel = "Skapa rättningsfil"
-    title_batch = "Beräkna pH på CRM"
+    period_filter_label = "Filtrera på period:"
 
+    tab_crm = "CRM"
+    tab_tris = "TRIS"
+    tris_title = "Beräkna pH med TRIS"
+
+    title_title = "Beräkna pH med CRM"
     batch_salinity = "Salinitet"
     batch_temperature = "Temperatur"
     batch_temp_label = "Temperatur:"
@@ -64,9 +70,8 @@ class Texts:
     batch_alk_label = "ALK i batch:"
     batch_dic_label = "DIC i batch:"
     batch_salt_label = "Salthalt i batch:"
-    batch_plot_value_label = "Avvikelse, plottas i kontrollkort:"
-    batch_ph_label = "Beräknat pH i batch:"
-    calculate_ph = "Beräkna avvikelse"
+    batch_plot_value_label = "Avvikelse:"
+    batch_ph_label = "Beräknat pH:"
 
     # Texts with parameters
     def select_overwrite(self, path):

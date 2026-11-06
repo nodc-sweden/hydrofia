@@ -1,10 +1,8 @@
+import datetime
 import pathlib
-from typing import Tuple, Any
+from functools import cache, cached_property
 
 import pandas as pd
-import datetime
-import numpy as np
-from functools import cached_property, cache
 
 EXCLUDE_QUALITY_FLAGS = ["B"]
 
@@ -114,7 +112,7 @@ class CtdStandardFormat:
 
     def get_last_data_at_depth(
         self,
-        depth: int | float | str,
+        depth: float | str,
         max_depth_diff_allowed: float = None,
         surface_layer_depth: float = None,
         bottom_layer_depth: float = None,
@@ -195,7 +193,7 @@ class CtdStandardFormatCollection:
         year: str | int = None,
         ship: str | int = None,
         serno: str | int = None,
-        depth: str | int | str = None,
+        depth: str | int = None,
     ) -> dict:
         # depth can be "deepest"
         file = self._get_file(year=year, ship=ship, serno=serno)

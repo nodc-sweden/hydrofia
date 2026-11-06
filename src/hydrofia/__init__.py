@@ -1,13 +1,10 @@
 import pathlib
 
+from hydrofia import exporter, utils
 from hydrofia.calculate import Calculate
 from hydrofia.ctd import CtdStandardFormatCollection
-from hydrofia import exporter
-from hydrofia.exporter import ExporterTxt
-from hydrofia.exporter import ExporterXlsxResultFile
-from hydrofia.hydrofia import HydrofiaExportFileDiscrete
-from hydrofia.hydrofia import HyrdofiaExcelTemplate
-from hydrofia import utils
+from hydrofia.exporter import ExporterTxt, ExporterXlsxResultFile
+from hydrofia.hydrofia import HydrofiaExportFileDiscrete, HyrdofiaExcelTemplate
 
 
 def get_default_template_path(directory: pathlib.Path | str = None) -> pathlib.Path:
@@ -28,6 +25,13 @@ def create_template(
     hf = HydrofiaExportFileDiscrete(hydrofia_export_path)
     hf.filter_data_by_date(start_date=start_date, end_date=end_date)
     return template.create_template(hf, overwrite=overwrite)
+
+
+def get_periods_in_hydrofia_export_file(
+    path: pathlib.Path | str,
+) -> dict[int, list[int]]:
+    """Returns the months with samples for each year in a HydroFIA export file"""
+    return HydrofiaExportFileDiscrete(path).get_periods()
 
 
 def get_id_string_for_hydrofia_export_file(
