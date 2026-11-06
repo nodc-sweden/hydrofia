@@ -8,7 +8,7 @@ from typing import Protocol
 import numpy as np
 import pandas as pd
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Side, numbers, Alignment
+from openpyxl.styles import Border, PatternFill, Side, numbers
 from openpyxl.utils import get_column_letter
 
 from hydrofia import utils
@@ -16,58 +16,67 @@ from hydrofia import utils
 # if typing.TYPE_CHECKING:
 #     from hydrofia.calculate import HydrofiaData
 
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     DIRECTORY = pathlib.Path(sys.executable).parent
 else:
     DIRECTORY = pathlib.Path(__file__).parent
 
 
 class HydrofiaExportFileDiscrete:
-
     SAMPLE_NAME_PATTERNS = [
-        re.compile('^{}{}{}-{}{}{}$'.format(
-            r'(?P<year>\d{4})',
-            r'(?P<country>\d{2})',
-            r'(?P<ship>\d{2})',
-            r'(?P<serno>\d{4})',
-            r'(?P<sep>[-_])',
-            # r'(?P<depth>\d*)'
-            r'(?P<depth>[0-9/]*)'
-        )),
-        re.compile('^{}{}{}-{}{}{}$'.format(
-            r'(?P<year>\d{2})',
-            r'(?P<country>\d{2})',
-            r'(?P<ship>\d{2})',
-            r'(?P<serno>\d{4})',
-            r'(?P<sep>[-_])',
-            # r'(?P<depth>\d*)'
-            r'(?P<depth>[0-9/]*)'
-        )),
-        re.compile('^{}{}{}-{}{}{}$'.format(
-            r'(?P<year>\d{4})',
-            r'(?P<country>\d{2})',
-            r'(?P<ship>\d{2})',
-            r'(?P<serno>\d{4})',
-            r'(?P<sep>[-_])',
-            r'(?P<depth>[xX])'
-        )),
-        re.compile('^{}{}{}-{}{}{}$'.format(
-            r'(?P<year>\d{2})',
-            r'(?P<country>\d{2})',
-            r'(?P<ship>\d{2})',
-            r'(?P<serno>\d{4})',
-            r'(?P<sep>[-_])',
-            r'(?P<depth>[xX])'
-        )),
-        re.compile('^.*CRM.*$'),
-        re.compile('^{}{}{}-{}{}{}$'.format(
-            r'(?P<year>\d{2})',
-            r'(?P<country>\d{2})',
-            r'(?P<ship>\d{2})',
-            r'(?P<serno>\d{4})',
-            r'(?P<sep>[-_])',
-            r'(?P<depth>DIB)'
-        )),
+        re.compile(
+            "^{}{}{}-{}{}{}$".format(
+                r"(?P<year>\d{4})",
+                r"(?P<country>\d{2})",
+                r"(?P<ship>\d{2})",
+                r"(?P<serno>\d{4})",
+                r"(?P<sep>[-_])",
+                # r'(?P<depth>\d*)'
+                r"(?P<depth>[0-9/]*)",
+            )
+        ),
+        re.compile(
+            "^{}{}{}-{}{}{}$".format(
+                r"(?P<year>\d{2})",
+                r"(?P<country>\d{2})",
+                r"(?P<ship>\d{2})",
+                r"(?P<serno>\d{4})",
+                r"(?P<sep>[-_])",
+                # r'(?P<depth>\d*)'
+                r"(?P<depth>[0-9/]*)",
+            )
+        ),
+        re.compile(
+            "^{}{}{}-{}{}{}$".format(
+                r"(?P<year>\d{4})",
+                r"(?P<country>\d{2})",
+                r"(?P<ship>\d{2})",
+                r"(?P<serno>\d{4})",
+                r"(?P<sep>[-_])",
+                r"(?P<depth>[xX])",
+            )
+        ),
+        re.compile(
+            "^{}{}{}-{}{}{}$".format(
+                r"(?P<year>\d{2})",
+                r"(?P<country>\d{2})",
+                r"(?P<ship>\d{2})",
+                r"(?P<serno>\d{4})",
+                r"(?P<sep>[-_])",
+                r"(?P<depth>[xX])",
+            )
+        ),
+        re.compile("^.*CRM.*$"),
+        re.compile(
+            "^{}{}{}-{}{}{}$".format(
+                r"(?P<year>\d{2})",
+                r"(?P<country>\d{2})",
+                r"(?P<ship>\d{2})",
+                r"(?P<serno>\d{4})",
+                r"(?P<sep>[-_])",
+                r"(?P<depth>DIB)",
+            )
+        ),
     ]
 
     def __init__(self, path: str | pathlib.Path) -> None:
@@ -83,12 +92,14 @@ class HydrofiaExportFileDiscrete:
         self._reorder_columns()
 
     def __str__(self) -> str:
-        return '\n'.join([
-            f'{self.__class__.__name__}: {self.path}',
-            f'  Nr data lines: {len(self.data)}',
-            f'  Start time   : {min(self.data["timestamp"])}',
-            f'  End time     : {max(self.data["timestamp"])}',
-        ])
+        return "\n".join(
+            [
+                f"{self.__class__.__name__}: {self.path}",
+                f"  Nr data lines: {len(self.data)}",
+                f"  Start time   : {min(self.data['timestamp'])}",
+                f"  End time     : {max(self.data['timestamp'])}",
+            ]
+        )
 
     def __getitem__(self, item: str) -> str:
         return self.data[item]
@@ -102,32 +113,42 @@ class HydrofiaExportFileDiscrete:
         return list(self.data.columns)
 
     def get_info(self) -> dict:
-        sorted_sernos = sorted(set(self._data['serno']))
-        crms = [serno for serno in sorted_sernos if 'CRM' in serno]
-        sorted_sernos = [serno for serno in sorted_sernos if 'CRM' not in serno]
-        years = sorted(set(self._data['year']))
+        sorted_sernos = sorted(set(self._data["serno"]))
+        crms = [serno for serno in sorted_sernos if "CRM" in serno]
+        sorted_sernos = [serno for serno in sorted_sernos if "CRM" not in serno]
+        years = sorted(set(self._data["year"]))
         if not sorted_sernos:
             return {}
         from_serno = sorted_sernos[0]
         to_serno = sorted_sernos[-1]
         info = dict(
             years=years,
-            year_string='-'.join([str(y) for y in years]),
+            year_string="-".join([str(y) for y in years]),
             from_serno=from_serno,
             to_serno=to_serno,
-            crms=crms
+            crms=crms,
         )
         return info
+
+    def get_periods(self) -> dict[int, list[int]]:
+        """Return the sorted months with samples for each year, excluding CRM."""
+        periods: dict[int, set[int]] = {}
+        for date, serno in zip(self.data["date"], self.data["serno"]):
+            if "CRM" not in serno:
+                periods.setdefault(date.year, set()).add(date.month)
+        return {year: sorted(periods[year]) for year in sorted(periods)}
 
     def get_data(self) -> pd.DataFrame:
         return self.data
 
-    def filter_data_by_date(self, start_date: datetime.date = None, end_date: datetime.date = None) -> None:
+    def filter_data_by_date(
+        self, start_date: datetime.date = None, end_date: datetime.date = None
+    ) -> None:
         filter_boolean = np.full(len(self.data), True)
         if start_date:
-            filter_boolean = filter_boolean & (self.data['date'] >= start_date)
+            filter_boolean = filter_boolean & (self.data["date"] >= start_date)
         if end_date:
-            filter_boolean = filter_boolean & (self.data['date'] <= end_date)
+            filter_boolean = filter_boolean & (self.data["date"] <= end_date)
         self._data = self._data[filter_boolean]
 
     def _load_file(self) -> None:
@@ -148,44 +169,44 @@ class HydrofiaExportFileDiscrete:
     def _add_columns(self):
 
         def extract_country(sampname: str):
-            if 'CRM' in sampname:
-                return ''
-            parts = sampname.split('-')
+            if "CRM" in sampname:
+                return ""
+            parts = sampname.split("-")
             return utils.map_ship(parts[0][-4:-2])
 
         def extract_ship(sampname: str):
-            if 'CRM' in sampname:
-                return ''
-            parts = sampname.split('-')
+            if "CRM" in sampname:
+                return ""
+            parts = sampname.split("-")
             return utils.map_ship(parts[0][-2:])
 
         def extract_serno(sampname) -> str:
-            if 'CRM' in sampname:
+            if "CRM" in sampname:
                 return sampname
-            parts = sampname.split('-')
+            parts = sampname.split("-")
             if len(parts) == 3:
                 return parts[1]
-            return parts[1].split('_')[0]
+            return parts[1].split("_")[0]
 
         def extract_depth(sampname):
-            if 'CRM' in sampname:
-                return ''
+            if "CRM" in sampname:
+                return ""
             if not sampname:
-                return ''
-            if '_' in sampname:
-                return sampname.split('_')[-1]
-            return sampname.split('-')[-1]
+                return ""
+            if "_" in sampname:
+                return sampname.split("_")[-1]
+            return sampname.split("-")[-1]
 
         def convert_timestamp(d):
-            return datetime.datetime.strptime(d, '%Y-%m-%dT%H:%M:%S')
+            return datetime.datetime.strptime(d, "%Y-%m-%dT%H:%M:%S")
 
-        self._data['timestamp'] = self._data['timestamp'].apply(convert_timestamp)
-        self._data['date'] = self._data['timestamp'].apply(lambda x: x.date())
-        self._data['year'] = self._data['date'].apply(lambda x: x.year)
-        self._data['country'] = self._data['sampleName'].apply(extract_country)
-        self._data['ship'] = self._data['sampleName'].apply(extract_ship)
-        self._data['serno'] = self._data['sampleName'].apply(extract_serno)
-        self._data['depth'] = self._data['sampleName'].apply(extract_depth)
+        self._data["timestamp"] = self._data["timestamp"].apply(convert_timestamp)
+        self._data["date"] = self._data["timestamp"].apply(lambda x: x.date())
+        self._data["year"] = self._data["date"].apply(lambda x: x.year)
+        self._data["country"] = self._data["sampleName"].apply(extract_country)
+        self._data["ship"] = self._data["sampleName"].apply(extract_ship)
+        self._data["serno"] = self._data["sampleName"].apply(extract_serno)
+        self._data["depth"] = self._data["sampleName"].apply(extract_depth)
 
     def _filter_data(self):
         def match_pattern(sampname):
@@ -194,44 +215,47 @@ class HydrofiaExportFileDiscrete:
                 if pat.match(sampname_upper):
                     return True
             return False
-        boolean = self._data['action'] == 'Measure discrete'
-        boolean = boolean * self._data['sampleName'].apply(match_pattern)
+
+        boolean = self._data["action"] == "Measure discrete"
+        boolean = boolean * self._data["sampleName"].apply(match_pattern)
         self._data = self._data[boolean]
 
     def _reorder_columns(self):
-        first_columns = ['country', 'ship', 'date', 'serno', 'depth']
-        new_columns = first_columns + [col for col in self.columns if col not in first_columns]
+        first_columns = ["country", "ship", "date", "serno", "depth"]
+        new_columns = first_columns + [
+            col for col in self.columns if col not in first_columns
+        ]
         self._data = self._data[new_columns]
 
 
 class HydrofiaTemplateData(Protocol):
-
-    def get_data(self) -> pd.DataFrame:
-        ...
+    def get_data(self) -> pd.DataFrame: ...
 
 
 class HyrdofiaExcelTemplate:
     ADDITIONAL_HEADER_MAPPING = {
-        'country': 'COUNTRY (correct)',
-        'ship': 'SHIP (correct)',
-        'date': 'DATE (correct)',
-        'serno': 'SERNO (correct)',
-        'depth': 'DEPTH (correct)',
-        'salinity': 'SALINITY (CRM)',
+        "country": "COUNTRY (correct)",
+        "ship": "SHIP (correct)",
+        "date": "DATE (correct)",
+        "serno": "SERNO (correct)",
+        "depth": "DEPTH (correct)",
+        "salinity": "SALINITY (CRM)",
         # 'temperatureSampleC': 'temperatureSampleC (correct)',
     }
-    FILL_USER_ACTION = PatternFill(start_color='faeda2',
-                                   end_color='faeda2',
-                                   fill_type='solid')
+    FILL_USER_ACTION = PatternFill(
+        start_color="faeda2", end_color="faeda2", fill_type="solid"
+    )
 
-    FILL_USER_ACTION_DIFFER = PatternFill(start_color='ffc996',
-                                   end_color='ffc996',
-                                   fill_type='solid')
+    FILL_USER_ACTION_DIFFER = PatternFill(
+        start_color="ffc996", end_color="ffc996", fill_type="solid"
+    )
 
-    BORDER_USER_ACTION = Border(left=Side(style='thin'),
-                                 right=Side(style='thin'),
-                                 top=Side(style='thin'),
-                                 bottom=Side(style='thin'))
+    BORDER_USER_ACTION = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
 
     def __init__(self, path):
         self._path = pathlib.Path(path)
@@ -241,20 +265,27 @@ class HyrdofiaExcelTemplate:
     @staticmethod
     def get_default_template_path(directory: pathlib.Path | str = None) -> pathlib.Path:
         if directory is None:
-            directory = pathlib.Path(pathlib.Path.home(), 'hydrofia')
+            directory = pathlib.Path(pathlib.Path.home(), "hydrofia")
         else:
             directory = pathlib.Path(directory)
         if directory.exists() and not directory.is_dir():
             raise NotADirectoryError(directory)
         directory.mkdir(parents=True, exist_ok=True)
-        return pathlib.Path(directory, f'hydrofia_mall_{datetime.datetime.now().strftime("%Y%m%d")}.xlsx')
+        return pathlib.Path(
+            directory,
+            f"hydrofia_mall_{datetime.datetime.now().strftime('%Y%m%d')}.xlsx",
+        )
 
     @property
     def path(self):
         return self._path
 
-    def create_template(self, hydrofia: HydrofiaTemplateData, overwrite: bool = False) -> pathlib.Path:
-        return self._template_create.create_template(hydrofia=hydrofia, overwrite=overwrite)
+    def create_template(
+        self, hydrofia: HydrofiaTemplateData, overwrite: bool = False
+    ) -> pathlib.Path:
+        return self._template_create.create_template(
+            hydrofia=hydrofia, overwrite=overwrite
+        )
 
     def open_template(self):
         utils.open_file_in_default_program(self.path)
@@ -268,18 +299,20 @@ class HyrdofiaExcelTemplate:
 
 
 class _HyrdofiaExcelTemplateCreate:
-    FILL_USER_ACTION = PatternFill(start_color='faeda2',
-                                   end_color='faeda2',
-                                   fill_type='solid')
+    FILL_USER_ACTION = PatternFill(
+        start_color="faeda2", end_color="faeda2", fill_type="solid"
+    )
 
-    FILL_USER_ACTION_DIFFER = PatternFill(start_color='ffc996',
-                                   end_color='ffc996',
-                                   fill_type='solid')
+    FILL_USER_ACTION_DIFFER = PatternFill(
+        start_color="ffc996", end_color="ffc996", fill_type="solid"
+    )
 
-    BORDER_USER_ACTION = Border(left=Side(style='thin'),
-                                 right=Side(style='thin'),
-                                 top=Side(style='thin'),
-                                 bottom=Side(style='thin'))
+    BORDER_USER_ACTION = Border(
+        left=Side(style="thin"),
+        right=Side(style="thin"),
+        top=Side(style="thin"),
+        bottom=Side(style="thin"),
+    )
 
     def __init__(self, parent: HyrdofiaExcelTemplate):
         self._parent = parent
@@ -294,7 +327,9 @@ class _HyrdofiaExcelTemplateCreate:
     def data(self):
         return self.hydrofia.get_data()
 
-    def create_template(self, hydrofia: HydrofiaTemplateData, overwrite: bool = False) -> pathlib.Path:
+    def create_template(
+        self, hydrofia: HydrofiaTemplateData, overwrite: bool = False
+    ) -> pathlib.Path:
         self.hydrofia = hydrofia
         if self.path.exists() and not overwrite:
             raise FileExistsError(self.path)
@@ -308,16 +343,18 @@ class _HyrdofiaExcelTemplateCreate:
 
     def _set_info_header(self):
         cell = self.ws.cell(1, 1)
-        cell.value = 'Gå igenom och sätt rätt värde i dessa kolumner!'
+        cell.value = "Gå igenom och sätt rätt värde i dessa kolumner!"
         cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION
 
     def _set_data_header(self):
         """Column width help at: https://stackoverflow.com/questions/13197574/openpyxl-adjust-column-width-size"""
-        header = list(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING.values()) + list(self.data.columns)
+        header = list(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING.values()) + list(
+            self.data.columns
+        )
         for c, item in enumerate(header, 1):
             cell = self.ws.cell(2, c)
             cell.value = item
-            self.ws.column_dimensions[get_column_letter(c)].width = len(item)+6
+            self.ws.column_dimensions[get_column_letter(c)].width = len(item) + 6
             if c <= len(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING):
                 cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION
 
@@ -337,10 +374,13 @@ class _HyrdofiaExcelTemplateCreate:
             for c, key in enumerate(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING, 1):
                 cell = self.ws.cell(r, c)
                 value = series[key]
-                if key == 'salinity' and 'CRM' not in series['serno']:
-                    value = ''
-                elif 'temperature' in key and 'CRM' not in series['serno']:
-                    value = ''
+                if (
+                    key == "salinity"
+                    and "CRM" not in series["serno"]
+                    or "temperature" in key
+                    and "CRM" not in series["serno"]
+                ):
+                    value = ""
                 cell.value = str(value)
                 cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION
                 cell.border = HyrdofiaExcelTemplate.BORDER_USER_ACTION
@@ -356,7 +396,6 @@ class _HyrdofiaExcelTemplateCreate:
 
 
 class _HyrdofiaExcelTemplateLoad:
-
     def __init__(self, parent: HyrdofiaExcelTemplate):
         self._parent = parent
         self._data = pd.DataFrame()
@@ -373,16 +412,19 @@ class _HyrdofiaExcelTemplateLoad:
     def _modify_header(self):
         for col in HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING:
             self._data.drop(col, inplace=True, axis=1)
-        mapper = dict((value, key) for key, value in HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING.items())
+        mapper = dict(
+            (value, key)
+            for key, value in HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING.items()
+        )
         self._data.rename(columns=mapper, inplace=True)
 
     def _filter_data(self):
-        boolean = self._data['depth'].apply(lambda x: str(x).upper()) == 'X'
+        boolean = self._data["depth"].apply(lambda x: str(x).upper()) == "X"
         self._data = self._data[~boolean]
         self._data.reset_index(inplace=True)
 
     def _add_columns(self):
-        self._data['year'] = self._data['date'].apply(lambda x: x.year)
+        self._data["year"] = self._data["date"].apply(lambda x: x.year)
 
     @property
     def path(self):
@@ -396,7 +438,3 @@ class _HyrdofiaExcelTemplateLoad:
         if self._data.empty:
             self.load()
         return self.data
-
-
-
-

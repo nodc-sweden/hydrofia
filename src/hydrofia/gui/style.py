@@ -1,0 +1,41 @@
+"""Layout constants for the GUI. Change sizes and spacing here."""
+
+import flet as ft
+
+# Window
+WINDOW_WIDTH = 1600
+WINDOW_HEIGHT = 1100
+
+# Cards
+CARD_PADDING = 10
+CARD_RADIUS = 10
+PH_CARD_WIDTH = 240
+TAB_CONTENT_TOP_PADDING = 10
+
+# Buttons
+PATH_BUTTON_WIDTH = 320
+
+# Spacing
+TOP_ROW_SPACING = 10
+FIELD_COLUMN_SPACING = 20
+LABELED_ROW_SPACING = 10
+LABELED_ROW_TOP_PADDING = 10
+
+# Text
+CARD_TITLE_SIZE = 20
+CARD_TITLE_BOTTOM_PADDING = 8
+TITLE_SIZE = 16
+PATH_TEXT_SIZE = 13
+OUTPUT_LABEL_SPACING = 4
+HIGHLIGHT_SIZE = 16
+
+# Info dialogs. Position in the window, near the card each dialog belongs to.
+INFO_DIALOG_WIDTH = 480
+INFO_DIALOG_PADDING = 24
+INFO_DIALOG_UPPER_CARD = ft.Alignment(0, -1)
+INFO_DIALOG_LOWER_CARD = ft.Alignment(0, 0.2)
+INFO_DIALOG_CTD_CARD = ft.Alignment.BOTTOM_LEFT
+
+# Input fields
+FIELD_WIDTH = 200
+FIELD_DENSE = False
