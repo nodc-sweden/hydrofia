@@ -1,20 +1,19 @@
-import datetime
+import asyncio
+import json
 import logging.handlers
 import pathlib
 import re
 import sys
-import json
-
-import hydrofia
-from hydrofia.gui.tooltip import TooltipTexts
-from hydrofia.gui import layout, style
-from hydrofia.gui.texts import Texts
-from hydrofia.gui.colors import Colors
-from hydrofia.gui import saves
-from hydrofia import utils
-from hydrofia import reference_batch
 
 import flet as ft
+
+import hydrofia
+from hydrofia import reference_batch, utils
+from hydrofia.gui import layout, saves, style
+from hydrofia.gui.colors import Colors
+from hydrofia.gui.texts import Texts
+from hydrofia.gui.tooltip import TooltipTexts
+from hydrofia.tris_calculations import TRIS_BUFFERS
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +26,9 @@ TOOLTIP_TEXT = TooltipTexts()
 
 TEXTS = Texts()
 COLORS = Colors()
+
+# Time for the text field's own Delete edit to reach Python before the field is cleared
+DELETE_SETTLE_SECONDS = 0.1
 
 TEMPLATE_STEM_ENDING = "_rättningsfil"
 RESULT_STEM_ENDING = "_resultat"
@@ -57,6 +59,7 @@ class FletApp:
         self._batches = reference_batch.get_latest_batches()
 
         self._month_all_option = "ALLA"
+        self._periods: dict[int, list[int]] = {}
 
         self._toggle_buttons: list[ft.LayoutControl] = []  # set in _create_controls
 
@@ -82,6 +85,7 @@ class FletApp:
         self.page.window.width = style.WINDOW_WIDTH
         self._initiate_pickers()
         self._build()
+        self.page.on_keyboard_event = self._on_keyboard_event
         self._initiate_banner()
 
         saves.add_control("_hydrofia_file_path", self._hydrofia_file_path)
@@ -96,6 +100,7 @@ class FletApp:
 
         self._check_paths()
 
+        self._update_period_options()
         self._update_create_template_path()
         self._update_create_result_path()
 
@@ -106,18 +111,16 @@ class FletApp:
         self._reset_depth_margins()
 
     def _check_paths(self):
-        """Checks all paths that should exist and reset if not exists"""
-        for widget in [
-            self._hydrofia_file_path,
-            self._template_directory,
-            self._use_template_path,
-            self._ctd_directory,
+        """Show the missing text for all paths that are not set or no longer exist"""
+        for widget, missing_text in [
+            (self._hydrofia_file_path, TEXTS.missing_hydrofia_file_path),
+            (self._template_directory, TEXTS.missing_template_directory),
+            (self._use_template_path, TEXTS.missing_use_template_path),
+            (self._ctd_directory, TEXTS.missing_ctd_directory),
         ]:
-            if not widget.value.strip():
+            if widget.value.strip() and pathlib.Path(widget.value).exists():
                 continue
-            if pathlib.Path(widget.value).exists():
-                continue
-            widget.value = ""
+            widget.value = missing_text
             widget.update()
 
     def update_page(self):
@@ -158,9 +161,24 @@ class FletApp:
         # FilePicker is a service in flet 1.0 and registers itself with the current page.
         self._file_picker = ft.FilePicker()
 
+    @staticmethod
+    def _get_start_directory(*paths: pathlib.Path | None) -> str | None:
+        """Return the first existing directory among the paths, or the folder of a file.
+
+        With None the file dialog falls back to the default of the operating system.
+        """
+        for path in paths:
+            if not path:
+                continue
+            directory = path if path.is_dir() else path.parent
+            if directory.is_dir():
+                return str(directory)
+        return None
+
     async def _pick_hydrofia_file(self, e=None):
         files = await self._file_picker.pick_files(
             dialog_title=TEXTS.dialog_title_hydrofia_file_path,
+            initial_directory=self._get_start_directory(self.hydrofia_file_path),
             allowed_extensions=["txt"],
             allow_multiple=False,
         )
@@ -168,19 +186,24 @@ class FletApp:
 
     async def _pick_template_dir(self, e=None):
         path = await self._file_picker.get_directory_path(
-            dialog_title=TEXTS.dialog_title_template_directory
+            dialog_title=TEXTS.dialog_title_template_directory,
+            initial_directory=self._get_start_directory(self.template_directory),
         )
         self._on_pick_template_dir(path)
 
     async def _pick_ctd_dir(self, e=None):
         path = await self._file_picker.get_directory_path(
-            dialog_title=TEXTS.dialog_title_ctd_directory
+            dialog_title=TEXTS.dialog_title_ctd_directory,
+            initial_directory=self._get_start_directory(self.ctd_directory),
         )
         self._on_pick_ctd_dir(path)
 
     async def _pick_template_file(self, e=None):
         files = await self._file_picker.pick_files(
             dialog_title=TEXTS.dialog_title_template_file,
+            initial_directory=self._get_start_directory(
+                self.use_template_path, self.template_directory
+            ),
             allowed_extensions=["xlsx"],
             allow_multiple=False,
         )
@@ -237,9 +260,16 @@ class FletApp:
     # Controls: created here, placed in _build_layout()
     # ------------------------------------------------------------------
     def _create_controls(self):
+        self._create_tris_controls()
         self._create_batch_controls()
         self._create_template_controls()
         self._create_result_controls()
+        self._track_float_field_focus(
+            self._tris_temp,
+            self._tris_measured_ph,
+            self._batch_temp,
+            self._batch_measured_ph,
+        )
 
         # Disabled while a template or result file is being created
         self._toggle_buttons = [
@@ -252,6 +282,51 @@ class FletApp:
             self._pick_ctd_dir_btn,
         ]
 
+    def _track_float_field_focus(self, *fields: ft.TextField):
+        self._focused_float_field = None
+        for field in fields:
+            field.on_focus = self._on_float_field_focus
+            field.on_blur = self._on_float_field_blur
+
+    def _on_float_field_focus(self, e):
+        self._focused_float_field = e.control
+
+    def _on_float_field_blur(self, e):
+        if self._focused_float_field is e.control:
+            self._focused_float_field = None
+
+    async def _on_keyboard_event(self, e: ft.KeyboardEvent):
+        """Clear the focused float field when Delete is pressed."""
+        field = self._focused_float_field
+        if field is None or e.key != "Delete":
+            return
+        await asyncio.sleep(DELETE_SETTLE_SECONDS)
+        field.value = ""
+        field.update()
+        if field.on_change:
+            field.on_change(e)
+
+    def _create_tris_controls(self):
+        self._tris_type = ft.Dropdown(
+            label="TRIS-buffert",
+            value="TRIS_Dickson",
+            options=[ft.DropdownOption(item) for item in TRIS_BUFFERS],
+            on_select=self._update_tris_ph,
+            dense=True,
+        )
+
+        self._tris_ph = layout.value_text()
+        self._tris_plot_value = layout.value_text(size=style.HIGHLIGHT_SIZE)
+
+        self._tris_temp = layout.float_field(
+            TEXTS.batch_temp_label,
+            on_change=self._update_tris_ph,
+        )
+        self._tris_measured_ph = layout.float_field(
+            TEXTS.batch_measured_ph,
+            on_change=self._update_tris_ph,
+        )
+
     def _create_batch_controls(self):
         """Step 1: pH of the reference batch (CRM)"""
         self._batch_nr = ft.Dropdown(
@@ -261,7 +336,7 @@ class FletApp:
                 ft.DropdownOption(item)
                 for item in reversed(self._batches.batch_nr_list)
             ],
-            on_select=self._update_batch_info,
+            on_select=self._on_select_batch,
             dense=True,
         )
         self._batch_nr.value = str(self._batches.latest_batch_nr)
@@ -272,18 +347,13 @@ class FletApp:
         self._batch_ph = layout.value_text()
         self._batch_plot_value = layout.value_text(size=style.HIGHLIGHT_SIZE)
 
-        self._batch_temp = layout.text_field(
+        self._batch_temp = layout.float_field(
             TEXTS.batch_temp_label,
-            allowed=layout.DECIMAL_WITH_COMMA,
-            on_submit=self._calculate_ph,
+            on_change=self._update_crm_ph,
         )
-        self._batch_measured_ph = layout.text_field(
+        self._batch_measured_ph = layout.float_field(
             TEXTS.batch_measured_ph,
-            allowed=layout.DECIMAL_WITH_COMMA,
-            on_submit=self._calculate_ph,
-        )
-        self._calculate_ph_btn = ft.Button(
-            TEXTS.calculate_ph, on_click=self._calculate_ph
+            on_change=self._update_crm_ph,
         )
 
     def _create_template_controls(self):
@@ -296,25 +366,21 @@ class FletApp:
         self._pick_hydrofia_file_btn = ft.Button(
             TEXTS.get_hydrofia_export_button, on_click=self._pick_hydrofia_file
         )
-        self._hydrofia_file_path = ft.Text(TEXTS.missing_hydrofia_file_path)
+        self._hydrofia_file_path = layout.PathText(
+            value=TEXTS.missing_hydrofia_file_path, is_file=True
+        )
 
         self._year = ft.Dropdown(
             label="År",
             hint_text="Filtrera på år",
-            options=[
-                ft.DropdownOption(str(y))
-                for y in range(2022, datetime.datetime.now().year + 1)
-            ],
-            on_select=self._update_create_template_path,
+            on_select=self._on_select_year,
             dense=True,
         )
-        self._year.value = str(datetime.datetime.now().year)
 
         self._month = ft.Dropdown(
             label="Månad",
             hint_text="Filtrera på månad",
-            options=[ft.DropdownOption(self._month_all_option)]
-            + [ft.DropdownOption(str(m)) for m in range(1, 13)],
+            options=[ft.DropdownOption(self._month_all_option)],
             on_select=self._update_create_template_path,
             autofocus=True,
             dense=True,
@@ -324,13 +390,15 @@ class FletApp:
         self._pick_template_dir_btn = ft.Button(
             TEXTS.get_template_directory_button, on_click=self._pick_template_dir
         )
-        self._template_directory = ft.Text(TEXTS.missing_template_directory)
+        self._template_directory = layout.PathText(
+            value=TEXTS.missing_template_directory
+        )
 
-        self._create_template_path = ft.Text()
+        self._create_template_path = layout.PathText(is_file=True)
         self._overwrite_template = ft.Checkbox(
             label=TEXTS.get_file_exists(False), value=False, active_color="red"
         )
-        self._create_template_btn = ft.Button(
+        self._create_template_btn = ft.FilledButton(
             TEXTS.create_template, on_click=self._create_template
         )
 
@@ -352,7 +420,9 @@ class FletApp:
         self._pick_template_file_btn = ft.Button(
             TEXTS.get_template_path_button, on_click=self._pick_template_file
         )
-        self._use_template_path = ft.Text(TEXTS.missing_template_path)
+        self._use_template_path = layout.PathText(
+            value=TEXTS.missing_use_template_path, is_file=True
+        )
         self._open_template_file_btn = ft.Button(
             TEXTS.open_file_template, on_click=self._open_template_file
         )
@@ -360,16 +430,16 @@ class FletApp:
         self._pick_ctd_dir_btn = ft.Button(
             TEXTS.get_ctd_directory_button, on_click=self._pick_ctd_dir
         )
-        self._ctd_directory = ft.Text(TEXTS.missing_ctd_directory)
+        self._ctd_directory = layout.PathText(value=TEXTS.missing_ctd_directory)
 
-        self._create_result_path = ft.Text()
+        self._create_result_path = layout.PathText(is_file=True)
         self._overwrite_result = ft.Checkbox(
             label=TEXTS.get_file_exists(False), value=False, active_color="red"
         )
         self._open_result_file_btn = ft.Button(
             TEXTS.open_file_result, on_click=self._open_result_file
         )
-        self._create_result_btn = ft.Button(
+        self._create_result_btn = ft.FilledButton(
             TEXTS.create_result, on_click=self._create_result
         )
 
@@ -377,11 +447,11 @@ class FletApp:
     # Layout: the whole page in one place. Move controls around here.
     # ------------------------------------------------------------------
     def _build_layout(self) -> list[ft.Control]:
-        ph_from_crm_card = layout.card(
-            bgcolor=COLORS.batch,
+        ph_from_crm_tab = ft.Container(
+            padding=ft.Padding.only(top=style.TAB_CONTENT_TOP_PADDING),
             content=ft.Column(
                 [
-                    layout.title(TEXTS.title_batch),
+                    layout.title(TEXTS.title_title),
                     self._batch_nr,
                     layout.label_value(TEXTS.batch_alk_label, self._batch_alk),
                     layout.label_value(TEXTS.batch_dic_label, self._batch_dic),
@@ -389,11 +459,71 @@ class FletApp:
                     ft.Row([self._batch_temp]),
                     layout.label_value(TEXTS.batch_ph_label, self._batch_ph),
                     self._batch_measured_ph,
-                    self._calculate_ph_btn,
                     layout.label_value(
                         TEXTS.batch_plot_value_label, self._batch_plot_value
                     ),
                 ]
+            ),
+        )
+
+        ph_from_tris_tab = ft.Container(
+            padding=ft.Padding.only(top=style.TAB_CONTENT_TOP_PADDING),
+            content=ft.Column(
+                [
+                    layout.title(TEXTS.tris_title),
+                    self._tris_type,
+                    ft.Row([self._tris_temp]),
+                    layout.label_value(TEXTS.batch_ph_label, self._tris_ph),
+                    self._tris_measured_ph,
+                    layout.label_value(
+                        TEXTS.batch_plot_value_label, self._tris_plot_value
+                    ),
+                ]
+            ),
+        )
+
+        metadata_card = layout.card(
+            bgcolor=COLORS.metadata,
+            content=layout.field_column(
+                layout.title(TEXTS.title_metadata),
+                self._metadata_signature,
+                self._metadata_project,
+            ),
+        )
+
+        ph_card = layout.card(
+            bgcolor=COLORS.batch,
+            expand=True,
+            content=ft.Tabs(
+                length=2,
+                expand=True,
+                content=ft.Column(
+                    [
+                        ft.TabBar(
+                            scrollable=False,
+                            tabs=[
+                                ft.Tab(label=TEXTS.tab_tris),
+                                ft.Tab(label=TEXTS.tab_crm),
+                            ],
+                        ),
+                        ft.TabBarView(
+                            expand=True,
+                            controls=[ph_from_tris_tab, ph_from_crm_tab],
+                        ),
+                    ],
+                    expand=True,
+                ),
+            ),
+        )
+
+        depth_card = layout.card(
+            bgcolor=COLORS.metadata,
+            content=layout.field_column(
+                layout.title(TEXTS.title_ctd_matching),
+                self._metadata_surface_layer,
+                self._metadata_bottom_layer,
+                self._metadata_max_depth_diff_allowed,
+                self._reset_depth_margins_btn,
             ),
         )
 
@@ -402,49 +532,27 @@ class FletApp:
             expand=1,
             content=ft.Column(
                 [
-                    layout.title_with_tooltip(
-                        TEXTS.title_create_excel, TOOLTIP_TEXT.template_file
+                    layout.card_title(
+                        TEXTS.title_create_excel, TOOLTIP_TEXT.hydrofia_file
                     ),
-                    ft.Row(
-                        [
-                            layout.card(
-                                bgcolor=COLORS.metadata,
-                                content=layout.field_column(
-                                    self._metadata_signature,
-                                    self._metadata_project,
-                                ),
-                            ),
-                            layout.card(
-                                bgcolor=COLORS.option_container,
-                                content=ft.Column(
-                                    [
-                                        ft.Row(
-                                            [
-                                                self._pick_hydrofia_file_btn,
-                                                self._hydrofia_file_path,
-                                            ]
-                                        ),
-                                        ft.Row([self._year, self._month]),
-                                        ft.Row(
-                                            [
-                                                self._pick_template_dir_btn,
-                                                self._template_directory,
-                                            ]
-                                        ),
-                                        layout.label_value(
-                                            TEXTS.create_file_label,
-                                            self._create_template_path,
-                                        ),
-                                        ft.Row([self._overwrite_template]),
-                                        self._create_template_btn,
-                                    ]
-                                ),
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.START,
-                        spacing=style.SECTION_SPACING,
-                        run_spacing=style.SECTION_SPACING,
-                        expand=True,
+                    layout.path_row(
+                        self._pick_hydrofia_file_btn,
+                        self._hydrofia_file_path,
+                    ),
+                    layout.path_row(
+                        self._pick_template_dir_btn,
+                        self._template_directory,
+                    ),
+                    layout.labeled_row(
+                        TEXTS.period_filter_label, self._year, self._month
+                    ),
+                    ft.Container(expand=True),
+                    ft.Divider(),
+                    layout.output_row(
+                        self._create_template_btn,
+                        TEXTS.create_file_label,
+                        self._create_template_path,
+                        self._overwrite_template,
                     ),
                 ]
             ),
@@ -455,69 +563,68 @@ class FletApp:
             expand=1,
             content=ft.Column(
                 [
-                    layout.title_with_tooltip(
+                    layout.card_title(
                         TEXTS.title_merge_ctd_with_hydrofia,
                         TOOLTIP_TEXT.template_file,
                     ),
-                    ft.Row(
-                        [
-                            layout.card(
-                                bgcolor=COLORS.metadata,
-                                content=layout.field_column(
-                                    self._metadata_surface_layer,
-                                    self._metadata_bottom_layer,
-                                    self._metadata_max_depth_diff_allowed,
-                                    self._reset_depth_margins_btn,
-                                ),
-                            ),
-                            layout.card(
-                                bgcolor=COLORS.option_container,
-                                content=ft.Column(
-                                    [
-                                        ft.Row(
-                                            [
-                                                self._pick_template_file_btn,
-                                                self._use_template_path,
-                                                self._open_template_file_btn,
-                                            ]
-                                        ),
-                                        ft.Row(
-                                            [
-                                                self._pick_ctd_dir_btn,
-                                                self._ctd_directory,
-                                            ]
-                                        ),
-                                        layout.label_value(
-                                            TEXTS.create_file_label,
-                                            self._create_result_path,
-                                        ),
-                                        ft.Row(
-                                            [
-                                                self._overwrite_result,
-                                                self._open_result_file_btn,
-                                            ]
-                                        ),
-                                        self._create_result_btn,
-                                    ]
-                                ),
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.START,
-                        spacing=style.SECTION_SPACING,
-                        run_spacing=style.SECTION_SPACING,
+                    layout.path_row(
+                        self._pick_template_file_btn,
+                        self._use_template_path,
+                        self._open_template_file_btn,
+                    ),
+                    layout.path_row(
+                        self._pick_ctd_dir_btn,
+                        self._ctd_directory,
+                    ),
+                    ft.Container(expand=True),
+                    ft.Divider(),
+                    layout.output_row(
+                        self._create_result_btn,
+                        TEXTS.create_file_label,
+                        self._create_result_path,
+                        self._overwrite_result,
+                        self._open_result_file_btn,
                     ),
                 ]
             ),
         )
 
         return [
-            correction_file_card,
             ft.Row(
-                [result_file_card, ph_from_crm_card],
+                [
+                    ft.Column(
+                        [metadata_card, ph_card, depth_card],
+                        spacing=style.TOP_ROW_SPACING,
+                        width=style.PH_CARD_WIDTH,
+                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                    ),
+                    ft.Column(
+                        [correction_file_card, result_file_card],
+                        spacing=style.TOP_ROW_SPACING,
+                        expand=True,
+                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                    ),
+                ],
                 spacing=style.TOP_ROW_SPACING,
+                vertical_alignment=ft.CrossAxisAlignment.STRETCH,
                 expand=True,
             ),
         ]
+
+    def _update_tris_ph(self, *args):
+        """Show the pH and its deviation. Silent while the input is incomplete."""
+        self._tris_ph.value = ""
+        self._tris_plot_value.value = ""
+        temp = layout.parse_float(self._tris_temp.value)
+        if temp is not None:
+            calculate_ph = TRIS_BUFFERS[self._tris_type.value]
+            ph = round(float(calculate_ph(temp)), 3)
+            self._tris_ph.value = str(ph)
+            measured_ph = layout.parse_float(self._tris_measured_ph.value)
+            if measured_ph is not None:
+                self._tris_plot_value.value = str(round(ph - measured_ph, 4))
+        self._tris_ph.update()
+        self._tris_plot_value.update()
 
     def _update_batch_info(self, *args):
         batch = self._batches.get_batch(self._batch_nr.value)
@@ -525,9 +632,12 @@ class FletApp:
         self._batch_dic.value = str(batch.dic)
         self._batch_salt.value = str(batch.salinity)
         self.update_page()
-        if self._batch_temp.value.strip():
-            self._calculate_ph()
+        self._update_crm_ph()
         # self._batch_temp.focus()
+
+    def _on_select_batch(self, *args):
+        self._update_batch_info()
+        saves.save()
 
     def _reset_depth_margins(self, *args):
         config = DEFAULT_DEPTH_MARGINS.copy()
@@ -539,28 +649,34 @@ class FletApp:
         self._metadata_bottom_layer.value = str(config["meta_bottom"])
         self._metadata_bottom_layer.update()
 
-    def _calculate_ph(self, *args):
-        self._batch_ph.value = ""
-        self._batch_plot_value.value = ""
-        temp = self._batch_temp.value.strip().replace(",", ".")
-        if not temp:
-            self._show_info("Ingen temperatur angiven för beräkning av pH")
+    def _crm_inputs(self) -> tuple[str, str, str]:
+        return (
+            self._batch_nr.value,
+            self._batch_temp.value,
+            self._batch_measured_ph.value,
+        )
+
+    def _update_crm_ph(self, *args):
+        """Show the pH and its deviation. Silent while the input is incomplete."""
+        inputs = self._crm_inputs()
+        batch_nr, temp_text, measured_text = inputs
+        ph_text = ""
+        plot_text = ""
+        temp = layout.parse_float(temp_text)
+        if temp is not None:
+            batch = self._batches.get_batch(batch_nr)
+            ph = round(float(batch.get_ph(temperature=temp)), 3)
+            ph_text = str(ph)
+            measured_ph = layout.parse_float(measured_text)
+            if measured_ph is not None:
+                plot_text = str(round(ph - measured_ph, 4))
+        # The calculation is slow enough for a newer edit to arrive, which then takes over
+        if self._crm_inputs() != inputs:
             return
-        batch = self._batches.get_batch(self._batch_nr.value)
-        ph = batch.get_ph(temperature=float(temp))
-        ph = round(ph, 3)
-        self._batch_ph.value = str(ph)
+        self._batch_ph.value = ph_text
+        self._batch_plot_value.value = plot_text
         self._batch_ph.update()
-        ph = self._batch_measured_ph.value.strip().replace(",", ".")
-        if not ph:
-            return
-        if ph.count(".") > 1:
-            self._show_info(f"Fel format på {TEXTS.batch_measured_ph}", status="bad")
-            return
-        plot_value = float(self._batch_ph.value) - float(ph)
-        self._batch_plot_value.value = str(round(plot_value, 4))
         self._batch_plot_value.update()
-        saves.save()
 
     def _on_pick_hydrofia_file_path(self, files: list[ft.FilePickerFile]):
         self._close_banner()
@@ -574,8 +690,36 @@ class FletApp:
             return
         # TODO: Validate file
         self._hydrofia_file_path.value = text
+        self._update_period_options()
         self._update_create_template_path()
         self.update_page()
+
+    def _update_period_options(self):
+        """Offer only the years with samples in the HydroFIA file, latest selected."""
+        path = self.hydrofia_file_path
+        self._periods = (
+            hydrofia.get_periods_in_hydrofia_export_file(path) if path else {}
+        )
+        self._year.options = [ft.DropdownOption(str(y)) for y in self._periods]
+        self._year.value = str(max(self._periods)) if self._periods else None
+        self._year.update()
+        self._month.value = self._month_all_option
+        self._update_month_options()
+
+    def _update_month_options(self):
+        """Offer only the months with samples in the selected year."""
+        months = (
+            self._periods.get(int(self._year.value), []) if self._year.value else []
+        )
+        options = [self._month_all_option, *map(str, months)]
+        self._month.options = [ft.DropdownOption(option) for option in options]
+        if self._month.value not in options:
+            self._month.value = self._month_all_option
+        self._month.update()
+
+    def _on_select_year(self, *args):
+        self._update_month_options()
+        self._update_create_template_path()
 
     def _on_pick_ctd_dir(self, path: str | None):
         self._close_banner()
@@ -624,6 +768,7 @@ class FletApp:
         logger.info(f"{label=}")
 
         self._overwrite_template.disabled = disabled
+        self._overwrite_template.visible = not disabled
         self._overwrite_template.label = label
         self._overwrite_template.value = overwrite
         self._overwrite_template.update()
@@ -646,6 +791,7 @@ class FletApp:
         logger.info(f"{label=}")
 
         self._overwrite_result.disabled = disabled
+        self._overwrite_result.visible = not disabled
         self._overwrite_result.label = label
         self._overwrite_result.value = overwrite
         self._overwrite_result.update()
@@ -770,7 +916,7 @@ class FletApp:
 
     def _create_result_ok(self):
         if not self.use_template_path:
-            self._show_info(TEXTS.missing_template_path)
+            self._show_info(TEXTS.missing_use_template_path)
             return False
         if not self.use_template_path.exists():
             self._show_info(TEXTS.non_existing_template_path)
@@ -815,7 +961,7 @@ class FletApp:
     def _update_create_template_path(self, *args):
         """Updates the template path related to the creation of template"""
         path = ""
-        if self.template_directory and self.hydrofia_file_path:
+        if self.template_directory and self.hydrofia_file_path and self._year.value:
             proj = self._metadata_project.value.strip()
             if not proj:
                 self.create_template_path = None
@@ -856,12 +1002,12 @@ class FletApp:
         """Updates the template path related to the creation of template"""
         template_path = self.use_template_path
         if not template_path:
+            self.create_result_path = None
             self._check_create_result_path_exists()
             return
         directory = template_path.parent
         stem = template_path.stem
-        if stem.endswith(TEMPLATE_STEM_ENDING):
-            stem = stem[: -len(TEMPLATE_STEM_ENDING)]
+        stem = stem.removesuffix(TEMPLATE_STEM_ENDING)
         stem = stem + RESULT_STEM_ENDING
         path = pathlib.Path(directory, stem + ".xlsx")
         self.create_result_path = path
@@ -927,7 +1073,7 @@ class FletApp:
     @property
     def use_template_path(self) -> pathlib.Path | None:
         value = self._use_template_path.value
-        if not value or value == TEXTS.missing_template_path:
+        if not value or value == TEXTS.missing_use_template_path:
             return None
         return pathlib.Path(value)
 
@@ -935,7 +1081,7 @@ class FletApp:
     def use_template_path(self, path=None):
         self._open_template_file_btn.visible = True
         if not path:
-            path = TEXTS.missing_template_path
+            path = TEXTS.missing_use_template_path
             self._open_template_file_btn.visible = False
         self._open_template_file_btn.update()
         self._use_template_path.value = str(path)
@@ -960,11 +1106,6 @@ class FletApp:
     def create_result_path(self, path=None):
         if not path:
             path = TEXTS.missing_result_path
-            if self.result_file_name and self.use_template_path:
-                path = pathlib.Path(
-                    self.use_template_path.parent,
-                    pathlib.Path(self.result_file_name).stem + ".xlsx",
-                )
         self._create_result_path.value = str(path)
         self._create_result_path.update()
 

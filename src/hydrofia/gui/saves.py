@@ -1,6 +1,7 @@
-import yaml
 import pathlib
 import sys
+
+import yaml
 
 if getattr(sys, "frozen", False):
     ROOT_DIR = pathlib.Path(sys.executable).parent

@@ -1,6 +1,8 @@
 from typing import Protocol, runtime_checkable
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
 from hydrofia.ext_src import seacarb
 
 

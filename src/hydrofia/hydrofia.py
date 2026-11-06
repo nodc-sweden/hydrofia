@@ -8,7 +8,7 @@ from typing import Protocol
 import numpy as np
 import pandas as pd
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Border, Side, numbers, Alignment
+from openpyxl.styles import Border, PatternFill, Side, numbers
 from openpyxl.utils import get_column_letter
 
 from hydrofia import utils
@@ -129,6 +129,14 @@ class HydrofiaExportFileDiscrete:
             crms=crms,
         )
         return info
+
+    def get_periods(self) -> dict[int, list[int]]:
+        """Return the sorted months with samples for each year, excluding CRM."""
+        periods: dict[int, set[int]] = {}
+        for date, serno in zip(self.data["date"], self.data["serno"]):
+            if "CRM" not in serno:
+                periods.setdefault(date.year, set()).add(date.month)
+        return {year: sorted(periods[year]) for year in sorted(periods)}
 
     def get_data(self) -> pd.DataFrame:
         return self.data
@@ -366,9 +374,7 @@ class _HyrdofiaExcelTemplateCreate:
             for c, key in enumerate(HyrdofiaExcelTemplate.ADDITIONAL_HEADER_MAPPING, 1):
                 cell = self.ws.cell(r, c)
                 value = series[key]
-                if key == "salinity" and "CRM" not in series["serno"]:
-                    value = ""
-                elif "temperature" in key and "CRM" not in series["serno"]:
+                if key == "salinity" and "CRM" not in series["serno"] or "temperature" in key and "CRM" not in series["serno"]:
                     value = ""
                 cell.value = str(value)
                 cell.fill = HyrdofiaExcelTemplate.FILL_USER_ACTION
