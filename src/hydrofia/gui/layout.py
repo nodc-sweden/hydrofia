@@ -73,9 +73,7 @@ class PathText(ft.Container):
         ]
 
 
-def _path_span(
-    text: str, color: str, weight: ft.FontWeight | None = None
-) -> ft.TextSpan:
+def _path_span(text: str, color: str, weight: ft.FontWeight | None = None) -> ft.TextSpan:
     return ft.TextSpan(text, style=ft.TextStyle(color=color, weight=weight))
 
 

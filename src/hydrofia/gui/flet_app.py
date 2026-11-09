@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import json
 import logging.handlers
 import pathlib
@@ -9,11 +10,11 @@ import flet as ft
 
 import hydrofia
 from hydrofia import reference_batch, utils
+from hydrofia.errors import InvalidBatchError, InvalidHydrofiaFileError
 from hydrofia.gui import layout, saves, style
 from hydrofia.gui.colors import Colors
 from hydrofia.gui.texts import Texts
 from hydrofia.gui.tooltip import TooltipTexts
-from hydrofia.errors import InvalidHydrofiaFileError
 from hydrofia.tris_calculations import TRIS_BUFFERS
 
 logger = logging.getLogger(__name__)
@@ -34,14 +35,14 @@ DELETE_SETTLE_SECONDS = 0.1
 TEMPLATE_STEM_ENDING = "_rättningsfil"
 RESULT_STEM_ENDING = "_resultat"
 
-DEFAULT_DEPTH_MARGINS = dict(meta_surface=4.0, meta_bottom=4.0, meta_diff=1.0)
+DEFAULT_DEPTH_MARGINS = {"meta_surface": 4.0, "meta_bottom": 4.0, "meta_diff": 1.0}
 
 
 def get_config():
     path = DIRECTORY / "config.json"
     if not path.exists():
         return {}
-    with open(path) as fid:
+    with path.open() as fid:
         return json.load(fid)
 
 
@@ -65,7 +66,10 @@ class FletApp:
         self._toggle_buttons: list[ft.LayoutControl] = []  # set in _create_controls
 
         self.logging_level = "DEBUG"
-        self.logging_format = "%(asctime)s [%(levelname)10s]    %(pathname)s [%(lineno)d] => %(funcName)s():    %(message)s"
+        self.logging_format = (
+            "%(asctime)s [%(levelname)10s]    "
+            "%(pathname)s [%(lineno)d] => %(funcName)s():    %(message)s"
+        )
         self.logging_format_stdout = (
             "[%(levelname)10s] %(filename)s: %(funcName)s() [%(lineno)d] %(message)s"
         )
@@ -349,8 +353,7 @@ class FletApp:
             label="Batchnummer",
             hint_text="Använd data från batch nummer...",
             options=[
-                ft.DropdownOption(item)
-                for item in reversed(self._batches.batch_nr_list)
+                ft.DropdownOption(item) for item in reversed(self._batches.batch_nr_list)
             ],
             on_select=self._on_select_batch,
             dense=True,
@@ -406,9 +409,7 @@ class FletApp:
         self._pick_template_dir_btn = ft.Button(
             TEXTS.get_template_directory_button, on_click=self._pick_template_dir
         )
-        self._template_directory = layout.PathText(
-            value=TEXTS.missing_template_directory
-        )
+        self._template_directory = layout.PathText(value=TEXTS.missing_template_directory)
 
         self._create_template_path = layout.PathText(is_file=True)
         self._overwrite_template = ft.Checkbox(
@@ -646,10 +647,15 @@ class FletApp:
         self._tris_plot_value.update()
 
     def _update_batch_info(self, *args):
-        batch = self._batches.get_batch(self._batch_nr.value)
-        self._batch_alk.value = str(batch.alk)
-        self._batch_dic.value = str(batch.dic)
-        self._batch_salt.value = str(batch.salinity)
+        try:
+            batch = self._batches.get_batch(self._batch_nr.value)
+        except InvalidBatchError as e:
+            logger.warning(e)
+            self._show_info(TEXTS.invalid_batch(self._batch_nr.value))
+            batch = None
+        self._batch_alk.value = str(batch.alk) if batch else ""
+        self._batch_dic.value = str(batch.dic) if batch else ""
+        self._batch_salt.value = str(batch.salinity) if batch else ""
         self.update_page()
         self._update_crm_ph()
         # self._batch_temp.focus()
@@ -682,8 +688,12 @@ class FletApp:
         ph_text = ""
         plot_text = ""
         temp = layout.parse_float(temp_text)
+        batch = None
         if temp is not None:
-            batch = self._batches.get_batch(batch_nr)
+            # An invalid batch is reported by _update_batch_info
+            with contextlib.suppress(InvalidBatchError):
+                batch = self._batches.get_batch(batch_nr)
+        if batch:
             ph = round(float(batch.get_ph(temperature=temp)), 3)
             ph_text = str(ph)
             measured_ph = layout.parse_float(measured_text)
@@ -735,9 +745,7 @@ class FletApp:
 
     def _update_month_options(self):
         """Offer only the months with samples in the selected year."""
-        months = (
-            self._periods.get(int(self._year.value), []) if self._year.value else []
-        )
+        months = self._periods.get(int(self._year.value), []) if self._year.value else []
         options = [self._month_all_option, *map(str, months)]
         self._month.options = [ft.DropdownOption(option) for option in options]
         if self._month.value not in options:
@@ -902,15 +910,16 @@ class FletApp:
                 path=self.create_result_path.with_suffix(".txt"),
                 overwrite=self._overwrite_result.value,
             )
-            # hydrofia.create_xlsx_result_file(template_path=self.use_template_path,
-            #                                           ctd_directory=self.ctd_directory,
-            #                                           result_file_path=self.create_result_path,
-            #                                           signature=self.metadata_signature,
-            #                                           project=self.metadata_project,
-            #                                           max_depth_diff_allowed=self.metadata_max_depth_diff_allowed,
-            #                                           surface_layer_depth=self.metadata_surface_layer,
-            #                                           bottom_layer_depth=self.metadata_bottom_layer,
-            #                                           overwrite=self._overwrite_result.value)
+            # hydrofia.create_xlsx_result_file(
+            #   template_path=self.use_template_path,
+            #   ctd_directory=self.ctd_directory,
+            #   result_file_path=self.create_result_path,
+            #   signature=self.metadata_signature,
+            #   project=self.metadata_project,
+            #   max_depth_diff_allowed=self.metadata_max_depth_diff_allowed,
+            #   surface_layer_depth=self.metadata_surface_layer,
+            #   bottom_layer_depth=self.metadata_bottom_layer,
+            #   overwrite=self._overwrite_result.value)
             # self._check_create_template_path_exists()
             self._show_info(
                 TEXTS.get_info_creating_result_done(self.create_result_path),
@@ -941,37 +950,36 @@ class FletApp:
             return False
         return True
 
-    def _create_result_ok(self):
+    def _create_result_ok(self) -> bool:
+        error = None
         if not self.use_template_path:
-            self._show_info(TEXTS.missing_use_template_path)
+            error = TEXTS.missing_use_template_path
+        elif not self.use_template_path.exists():
+            error = TEXTS.non_existing_template_path
+        elif not self.ctd_directory:
+            error = TEXTS.missing_ctd_directory
+        elif not self.ctd_directory.exists():
+            error = TEXTS.non_existing_ctd_path
+        elif not self.create_result_path:
+            error = TEXTS.missing_result_path
+        elif self.create_result_path.exists() and not self._overwrite_result.value:
+            error = TEXTS.select_overwrite(self.create_result_path)
+        elif not self._metadata_project.value.strip():
+            error = TEXTS.missing_metadata("projekt")
+        elif not self._metadata_signature.value.strip():
+            error = TEXTS.missing_metadata("signatur")
+
+        if error:
+            self._show_info(error)
             return False
-        if not self.use_template_path.exists():
-            self._show_info(TEXTS.non_existing_template_path)
-        if not self.ctd_directory:
-            self._show_info(TEXTS.missing_ctd_directory)
-            return False
-        if not self.ctd_directory.exists():
-            self._show_info(TEXTS.non_existing_ctd_path)
-            return False
-        if not self.create_result_path:
-            self._show_info(TEXTS.missing_result_path)
-            return False
-        if self.create_result_path.exists() and not self._overwrite_result.value:
-            self._show_info(TEXTS.select_overwrite(self.create_result_path))
-            return False
-        if not self._metadata_project.value.strip():
-            self._show_info(TEXTS.missing_metadata("projekt"))
-            return False
-        if not self._metadata_signature.value.strip():
-            self._show_info(TEXTS.missing_metadata("signatur"))
-            return False
+
         return True
 
     @staticmethod
-    def filter_path(str):
+    def filter_path(path):
         # return str.split('.')[0]
         # return str.strip(',.-\!"#¤%&/()=')
-        return re.sub(r"[^A-Za-z0-9åäö_\-]+", "", str)
+        return re.sub(r"[^A-Za-z0-9åäö_\-]+", "", path)
 
     # def _on_change_template_export_file_name(self, *args):
     #     name = self.filter_path(self.template_export_file_name)
@@ -995,10 +1003,7 @@ class FletApp:
                 return
             year = int(self._year.value)
             month = self._month.value
-            if month == "ALLA":
-                month = None
-            else:
-                month = int(month)
+            month = None if month == "ALLA" else int(month)
             id_string = hydrofia.get_id_string_for_hydrofia_export_file(
                 self.hydrofia_file_path, year=year, month=month
             )
@@ -1083,7 +1088,9 @@ class FletApp:
         if not path:
             path = TEXTS.missing_template_path
             # if self.template_export_file_name and self.template_directory:
-            #     path = pathlib.Path(self.template_directory, self.template_export_file_name + '.xlsx')
+            #     path = pathlib.Path(
+            #       self.template_directory, self.template_export_file_name + '.xlsx'
+            #     )
         self._create_template_path.value = str(path)
         self._create_template_path.update()
         self._check_create_template_path_exists()
@@ -1193,8 +1200,7 @@ class FletApp:
 
 
 def main(log_in_console):
-    app = FletApp(log_in_console=log_in_console)
-    return app
+    return FletApp(log_in_console=log_in_console)
 
 
 def run() -> None:

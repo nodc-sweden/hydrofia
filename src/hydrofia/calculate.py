@@ -13,10 +13,10 @@ class HydrofiaTemplateData(Protocol):
 class SalinityAndTemperatureData(Protocol):
     def get_ctd_data(
         self,
-        year: str | int = None,
-        ship: str | int = None,
-        serno: str | int = None,
-        depth: str | int = None,
+        year: str | int | None = None,
+        ship: str | int | None = None,
+        serno: str | int | None = None,
+        depth: str | int | None = None,
     ) -> dict: ...
 
 
@@ -57,25 +57,24 @@ class Calculate:
 
         self._data["depth"] = self._data["depth"].apply(get_float)
         self._data["R0"] = self._data["R0"].apply(get_float)
-        self._data["temperatureSample"] = self._data["temperatureSample"].apply(
-            get_float
-        )
+        self._data["temperatureSample"] = self._data["temperatureSample"].apply(get_float)
 
     def _add_salt_and_temp(self):
         salt_data = []
         temp_data = []
         ref_depth_data = []
         station_data = []
-        for index, row in self.data.iterrows():
+        for _index, row in self.data.iterrows():
             if "CRM" in row["serno"].upper():
-                data = dict(
-                    salt=float(row["salinity"]), temp=float(row["temperatureSample"])
-                )
+                data = {
+                    "salt": float(row["salinity"]),
+                    "temp": float(row["temperatureSample"]),
+                }
             else:
                 depth = row["depth"]
-                if type(depth) == str:
+                if type(depth) is str:
                     depth = depth.split("/")[0]  # If replicate
-                if type(depth) == str and depth.upper() == "DIB":
+                if type(depth) is str and depth.upper() == "DIB":
                     depth = "deepest"
                 data = self.data_salt_temp.get_ctd_data(
                     year=row["year"],
@@ -94,23 +93,23 @@ class Calculate:
         self._data["station"] = station_data
 
     def _calculate(self):
-        def calc_pHTspec(row):
+        def calc_ph_t_spec(row):
             if not all([row["salt"], row["temperatureSample"], row["R0"]]):
                 return np.nan
             return seacarb.pHTspec(
                 row["salt"], row["temperatureSample"] + 273.15, row["R0"], "mueller"
             )
 
-        self._data["pH-tot-labT-P0"] = self._data.apply(calc_pHTspec, axis=1)
+        self._data["pH-tot-labT-P0"] = self._data.apply(calc_ph_t_spec, axis=1)
 
-        def calc_pHTspec_at_25(row):
+        def calc_ph_t_spec_at_25(row):
             if not all([row["temperatureSample"], row["pH-tot-labT-P0"]]):
                 return np.nan
             return (
                 row["pH-tot-labT-P0"] + (25 - row["temperatureSample"]) * -0.01582
             )  # dpH/dT from Millero 2007
 
-        self._data["pH-tot-25C-P0"] = self._data.apply(calc_pHTspec_at_25, axis=1)
+        self._data["pH-tot-25C-P0"] = self._data.apply(calc_ph_t_spec_at_25, axis=1)
 
     def save_data(self, exporters: list[Exporter] | Exporter, **kwargs) -> None:
         if isinstance(exporters, Exporter):

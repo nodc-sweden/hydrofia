@@ -36,9 +36,10 @@ def get_info_button(
 
 class TooltipTexts:
     hydrofia_file = (
-        "Här väljer du vilken txt-fil från HydroFIA som du vill skapa en rättningsmall i Excel av. "
-        "Excelfilen skapar du för att enkelt kunna granska och rätta din HydroFIA-rapport. "
-        "Välj vilken mapp du vill att filen ska sparas i. Filtrera på rätt månad och år vid behov."
+        "Här väljer du vilken txt-fil från HydroFIA som du vill skapa en rättningsmall "
+        "i Excel av. Excelfilen skapar du för att enkelt kunna granska och rätta din "
+        "HydroFIA-rapport. Välj vilken mapp du vill att filen ska sparas i. Filtrera på "
+        "rätt månad och år vid behov."
     )
     template_file = (
         "Slår ihop HydroFIA-data med CTD-data och beräknar pH vid in situ-salthalt "
@@ -48,7 +49,6 @@ class TooltipTexts:
     metadata = (
         "Dessa fält behövs för beräkning samt för att fylla i metadata i resultatifilen"
     )
-    # create_template = 'Ange det namn du vill att excelfilen ska ha (HydroFIA-BAS ÅÅ-första serienr'
     create_result = "Ange det namn du vill att exportfilen ska ha"
     ctd = (
         "Varje prov får salthalt och temperatur från närmaste djup i CTD-profilen. "
