@@ -1,211 +1,94 @@
-VERSION = 'v0.2.0'
+VERSION = "v0.2.0"
 
 
 class Texts:
+    title = f"HydroFIA ({VERSION})"
 
-    @property
-    def title(self):
-        return f'HydroFIA ({VERSION})'
+    show_help = "Visa hjälp"
 
-    @property
-    def get_hydrofia_export_button(self):
-        return 'Välj .txt-fil från HydroFIA'
+    get_hydrofia_export_button = "Välj .txt-fil från HydroFIA"
+    get_template_path_button = "Välj rättningsfil"
+    get_ctd_directory_button = "Välj mapp för ctd-filer (standardformat)"
+    get_template_directory_button = "Välj exportmapp"
 
-    @property
-    def get_template_path_button(self):
-        return 'Välj rättningsfil'
+    non_existing_hydrofia_path = "Den valda hydrofia-filen existerar inte..."
+    non_existing_template_path = "Den valda mallen existerar inte..."
+    non_existing_ctd_path = "Den valda mappen för ctd-filer existerar inte..."
 
-    @property
-    def get_ctd_directory_button(self):
-        return 'Välj mapp för ctd-filer (standardformat)'
+    missing_hydrofia_file_path = "Ingen exportfil från hydrofia vald..."
+    missing_template_directory = "Ingen mapp för mall vald..."
+    missing_ctd_directory = "Ingen mapp för ctd vald..."
+    missing_template_path = "Ingen data tillgänglig..."
+    missing_use_template_path = "Ingen rättningsfil vald..."
+    missing_result_path = "Ingen resultatfil bestämd..."
 
-    @property
-    def get_template_directory_button(self):
-        return 'Välj exportmapp'
+    dialog_title_ctd_directory = "Välj ctd-mapp"
+    dialog_title_template_directory = "Välj mapp där du vill lägga din mall"
+    dialog_title_template_file = "Välj den mallen som du vill använda"
+    dialog_title_hydrofia_file_path = (
+        "Välj den exportfil från Hydrofia som du vill använda"
+    )
 
-    @property
-    def non_existing_hydrofia_path(self):
-        return 'Den valda hydrofia-filen existerar inte...'
+    open_directory = "Öppna mapp"
+    open_file_template = "Öppna rättningsfil"
+    open_file_result = "Öppna resultatfil"
 
-    @property
-    def non_existing_template_path(self):
-        return 'Den valda mallen existerar inte...'
+    create_template = "Skapa rättningsfil"
+    create_result = "Skapa resultatfil"
 
-    @property
-    def non_existing_ctd_path(self):
-        return 'Den valda mappen för ctd-filer existerar inte...'
+    # overwrite = 'Vill du skriva över filen?'
 
-    @property
-    def missing_hydrofia_file_path(self):
-        return 'Ingen exportfil från hydrofia vald...'
+    info_creating_template = "Mall skapas! Vänta..."
+    info_creating_result = "Resultatfil skapas! Vänta..."
 
-    @property
-    def missing_template_directory(self):
-        return 'Ingen mapp för mall vald...'
+    template_export_file_name = "Ange namn på din Hydro FIA excelfil som ska skapas"
+    result_file_name = "Välj ev. namn på resultatfil"
+    create_file_label = "Fil som kommer att skapas:"
 
-    @property
-    def missing_ctd_directory(self):
-        return 'Ingen mapp för ctd vald...'
+    signature = "Din signatur"
+    project = "Projekt"
 
-    @property
-    def missing_template_path(self):
-        return 'Ingen data tillgänglig...'
+    surface_layer = "Avstånd vid ytan [m]"
+    bottom_layer = "Avstånd vid botten [m]"
+    max_depth_diff_allowed = "Max avstånd [m]"
+    reset_depth_margins = "Återställ"
+    title_ctd_matching = "CTD-matchning"
+    title_metadata = "Metadata"
 
-    @property
-    def missing_result_path(self):
-        return 'Ingen resultatfil bestämd...'
+    title_merge_ctd_with_hydrofia = "Skapa resultatfil"
+    # title_merge_ctd_with_hydrofia = 'Steg 3: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
+    title_create_excel = "Skapa rättningsfil"
+    period_filter_label = "Filtrera på period:"
 
-    @property
-    def dialog_title_ctd_directory(self):
-        return 'Välj ctd-mapp'
+    tab_crm = "CRM"
+    tab_tris = "TRIS"
+    tris_title = "Beräkna pH med TRIS"
 
-    @property
-    def dialog_title_template_directory(self):
-        return 'Välj mapp där du vill lägga din mall'
+    title_title = "Beräkna pH med CRM"
+    batch_salinity = "Salinitet"
+    batch_temperature = "Temperatur"
+    temperature = "Temperatur"
+    measured_ph = "Uppmätt pH"
+    batch_alk_label = "ALK i batch"
+    batch_dic_label = "DIC i batch"
+    batch_salt_label = "Salthalt i batch"
+    deviation = "Avvikelse"
+    calculated_ph = "Beräknat pH"
 
-    @property
-    def dialog_title_template_file(self):
-        return 'Välj den mallen som du vill använda'
-
-    @property
-    def dialog_title_hydrofia_file_path(self):
-        return 'Välj den exportfil från Hydrofia som du vill använda'
-
-    @property
-    def open_directory(self):
-        return 'Öppna mapp'
-
-    @property
-    def open_file_template(self):
-        return 'Öppna rättningsfil'
-
-    @property
-    def open_file_result(self):
-        return 'Öppna resultatfil'
-
-    @property
-    def create_template(self):
-        return 'Skapa rättningsfil'
-
-    @property
-    def create_result(self):
-        return 'Skapa resultatfil'
-
-    # @property
-    # def overwrite(self):
-    #     return 'Vill du skriva över filen?'
-
+    # Texts with parameters
     def select_overwrite(self, path):
-        return f'Filen finns redan. Du måste välja att skriva över filen om du vill fortsätta: {path}'
+        return f"Filen finns redan. Du måste välja att skriva över filen om du vill fortsätta: {path}"
 
     def get_file_exists(self, status):
         if status:
-            return f'Filen finns redan. Vill du skriva över den?'
-        return f'Filen finns inte.'
-
-    @property
-    def info_creating_template(self):
-        return 'Mall skapas! Vänta...'
-
-    @property
-    def info_creating_result(self):
-        return 'Resultatfil skapas! Vänta...'
+            return "Filen finns redan. Vill du skriva över den?"
+        return "Filen finns inte."
 
     def info_creating_template_done(self, path):
-        return f'Rättningsfil har skapats: {path}'
+        return f"Rättningsfil har skapats: {path}"
 
     def get_info_creating_result_done(self, path):
-        return f'Resultatfil har skapats: {path}'
-
-    @property
-    def template_export_file_name(self):
-        return 'Ange namn på din Hydro FIA excelfil som ska skapas'
-
-    @property
-    def result_file_name(self):
-        return 'Välj ev. namn på resultatfil'
-
-    @property
-    def create_file_label(self):
-        return "Fil som kommer att skapas:"
-
-    @property
-    def signature(self):
-        return 'Din signatur'
-
-    @property
-    def project(self):
-        return 'Projekt'
-
-    @property
-    def surface_layer(self):
-        return 'Tillåtet avstånd vid ytan [m] (för att matcha salt och temp)'
-
-    @property
-    def bottom_layer(self):
-        return 'Tillåtet avstånd vid botten [m] (för att matcha salt och temp)'
-
-    @property
-    def max_depth_diff_allowed(self):
-        return 'Max tillåtet avstånd för matching [m]'
-
-    @property
-    def reset_depth_margins(self):
-        return 'Återställ'
-
-    @property
-    def title_merge_ctd_with_hydrofia(self):
-        return 'Steg 3: Läs in CTD data för att beräkna pH vid rätt salthalt och temperatur'
-        # return 'Steg 3: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
-
-    @property
-    def title_create_excel(self):
-        return 'Steg 2: Skapa rättningsfil'
-
-    @property
-    def title_batch(self):
-        return 'Steg 1: Beräkna pH på CRM'
+        return f"Resultatfil har skapats: {path}"
 
     def missing_metadata(self, meta: str) -> str:
-        return f'Metadata saknas: {meta}'
-
-    @property
-    def batch_salinity(self) -> str:
-        return 'Salinitet'
-
-    @property
-    def batch_temperature(self) -> str:
-        return 'Temperatur'
-
-    @property
-    def batch_temp_label(self) -> str:
-        return 'Temperatur:'
-
-    @property
-    def batch_measured_ph(self) -> str:
-        return 'Uppmätt pH:'
-
-    @property
-    def batch_alk_label(self) -> str:
-        return 'ALK i batch:'
-
-    @property
-    def batch_dic_label(self) -> str:
-        return 'DIC i batch:'
-
-    @property
-    def batch_salt_label(self) -> str:
-        return 'Salthalt i batch:'
-
-    @property
-    def batch_plot_value_label(self) -> str:
-        return 'Avvikelse, plottas i kontrollkort:'
-
-    @property
-    def batch_ph_label(self) -> str:
-        return 'Beräknat pH i batch:'
-
-    @property
-    def calculate_ph(self) -> str:
-        return 'Beräkna avvikelse'
-
+        return f"Metadata saknas: {meta}"
