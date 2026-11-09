@@ -76,6 +76,12 @@ class Texts:
     calculated_ph = "Beräknat pH"
 
     # Texts with parameters
+    def invalid_hydrofia_file(self, file_name: str) -> str:
+        return (
+            f"{file_name} ser inte ut som en exportfil från HydroFIA. "
+            "Välj txt-filen som HydroFIA har exporterat."
+        )
+
     def select_overwrite(self, path):
         return f"Filen finns redan. Du måste välja att skriva över filen om du vill fortsätta: {path}"
 

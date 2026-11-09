@@ -1,9 +1,0 @@
-_batch_nr: '211'
-_ctd_directory: /home/k000840/code/oceanografi/hydrofia/DATA/INPUT/CTD
-_hydrofia_file_path: /home/k000840/code/oceanografi/hydrofia/DATA/INPUT/HydroFIA/BAS
-  24-0846.txt
-_metadata_project: BAS
-_metadata_signature: MagW
-_template_directory: /home/k000840/code/oceanografi/hydrofia/DATA/EXPORT
-_use_template_path: "/home/k000840/code/oceanografi/hydrofia/DATA/EXPORT/BAS_2024_0559_0584_r\xE4\
-  ttningsfil.xlsx"

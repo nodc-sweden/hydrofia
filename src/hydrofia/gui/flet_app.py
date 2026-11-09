@@ -13,6 +13,7 @@ from hydrofia.gui import layout, saves, style
 from hydrofia.gui.colors import Colors
 from hydrofia.gui.texts import Texts
 from hydrofia.gui.tooltip import TooltipTexts
+from hydrofia.errors import InvalidHydrofiaFileError
 from hydrofia.tris_calculations import TRIS_BUFFERS
 
 logger = logging.getLogger(__name__)
@@ -81,8 +82,9 @@ class FletApp:
     def main(self, page: ft.Page):
         self.page = page
         self.page.title = TEXTS.title
-        self.page.window.height = style.WINDOW_HEIGHT
-        self.page.window.width = style.WINDOW_WIDTH
+        self.page.window.maximized = True
+        self.page.padding = style.PAGE_PADDING
+        self.page.on_resize = self._fit_content_to_window
         self._initiate_pickers()
         self._build()
         self.page.on_keyboard_event = self._on_keyboard_event
@@ -109,6 +111,20 @@ class FletApp:
         self._update_batch_info()
 
         self._reset_depth_margins()
+
+        self._fit_content_to_window()
+
+    def _fit_content_to_window(self, *args):
+        """Let the content fill the window, or scroll it when the window is too low."""
+        if self.page.height is None:
+            return
+        too_low = self.page.height < style.MIN_PAGE_HEIGHT
+        self._content.expand = not too_low
+        self._content.height = (
+            style.MIN_PAGE_HEIGHT - 2 * style.PAGE_PADDING if too_low else None
+        )
+        self.page.scroll = ft.ScrollMode.AUTO if too_low else None
+        self.page.update()
 
     def _check_paths(self):
         """Show the missing text for all paths that are not set or no longer exist"""
@@ -489,7 +505,7 @@ class FletApp:
 
         ph_card = layout.card(
             bgcolor=COLORS.batch,
-            expand=True,
+            expand=style.PH_CARD_EXPAND,
             content=ft.Tabs(
                 length=2,
                 expand=True,
@@ -514,6 +530,7 @@ class FletApp:
 
         depth_card = layout.card(
             bgcolor=COLORS.metadata,
+            expand=style.DEPTH_CARD_EXPAND,
             content=layout.field_column(
                 layout.title_with_info(
                     TEXTS.title_ctd_matching,
@@ -592,27 +609,26 @@ class FletApp:
             ),
         )
 
-        return [
-            ft.Row(
-                [
-                    ft.Column(
-                        [metadata_card, ph_card, depth_card],
-                        spacing=style.TOP_ROW_SPACING,
-                        width=style.PH_CARD_WIDTH,
-                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                    ),
-                    ft.Column(
-                        [correction_file_card, result_file_card],
-                        spacing=style.TOP_ROW_SPACING,
-                        expand=True,
-                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                    ),
-                ],
-                spacing=style.TOP_ROW_SPACING,
-                vertical_alignment=ft.CrossAxisAlignment.STRETCH,
-                expand=True,
-            ),
-        ]
+        self._content = ft.Row(
+            [
+                ft.Column(
+                    [metadata_card, ph_card, depth_card],
+                    spacing=style.TOP_ROW_SPACING,
+                    width=style.SIDE_COLUMN_WIDTH,
+                    horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                ),
+                ft.Column(
+                    [correction_file_card, result_file_card],
+                    spacing=style.TOP_ROW_SPACING,
+                    expand=True,
+                    horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                ),
+            ],
+            spacing=style.TOP_ROW_SPACING,
+            vertical_alignment=ft.CrossAxisAlignment.STRETCH,
+            expand=True,
+        )
+        return [self._content]
 
     def _update_tris_ph(self, *args):
         """Show the pH and its deviation. Silent while the input is incomplete."""
@@ -691,18 +707,26 @@ class FletApp:
     def _set_hydrofia_file_path(self, text=None):
         if not text:
             return
-        # TODO: Validate file
         self._hydrofia_file_path.value = text
         self._update_period_options()
         self._update_create_template_path()
         self.update_page()
 
     def _update_period_options(self):
-        """Offer only the years with samples in the HydroFIA file, latest selected."""
+        """Offer only the years with samples in the HydroFIA file, latest selected.
+
+        A file that is not a HydroFIA export is reported and deselected.
+        """
         path = self.hydrofia_file_path
-        self._periods = (
-            hydrofia.get_periods_in_hydrofia_export_file(path) if path else {}
-        )
+        try:
+            self._periods = (
+                hydrofia.get_periods_in_hydrofia_export_file(path) if path else {}
+            )
+        except InvalidHydrofiaFileError as e:
+            logger.warning(e)
+            self._show_info(TEXTS.invalid_hydrofia_file(path.name))
+            self.hydrofia_file_path = None
+            self._periods = {}
         self._year.options = [ft.DropdownOption(str(y)) for y in self._periods]
         self._year.value = str(max(self._periods)) if self._periods else None
         self._year.update()

@@ -2,14 +2,22 @@
 
 import flet as ft
 
-# Window
-WINDOW_WIDTH = 1600
-WINDOW_HEIGHT = 1100
+# Page. The window starts maximized. Below this height the content keeps its
+# size and the page scrolls instead, so no card is cut. The left column with the
+# CRM tab is the tallest content and needs about 970.
+PAGE_PADDING = 10
+MIN_PAGE_HEIGHT = 980
+
+# Share of the left column height for the pH and CTD cards. The ratio matches
+# their content (about 444 and 316 high), so at MIN_PAGE_HEIGHT both fit
+# exactly and with more room both grow.
+PH_CARD_EXPAND = 7
+DEPTH_CARD_EXPAND = 5
 
 # Cards
 CARD_PADDING = 10
 CARD_RADIUS = 10
-PH_CARD_WIDTH = 240
+SIDE_COLUMN_WIDTH = 240
 TAB_CONTENT_TOP_PADDING = 10
 
 # Buttons
