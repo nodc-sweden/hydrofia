@@ -12,6 +12,7 @@ from openpyxl.styles import Border, PatternFill, Side, numbers
 from openpyxl.utils import get_column_letter
 
 from hydrofia import utils
+from hydrofia.errors import InvalidHydrofiaFileError
 
 # if typing.TYPE_CHECKING:
 #     from hydrofia.calculate import HydrofiaData
@@ -23,6 +24,9 @@ else:
 
 
 class HydrofiaExportFileDiscrete:
+    # Columns read by this class. The header is on line 2 of the file.
+    REQUIRED_COLUMNS = ("timestamp", "sampleName", "action")
+
     SAMPLE_NAME_PATTERNS = [
         re.compile(
             "^{}{}{}-{}{}{}$".format(
@@ -153,18 +157,36 @@ class HydrofiaExportFileDiscrete:
 
     def _load_file(self) -> None:
         row_data = []
-        with open(self.path) as fid:
-            file_data = csv.reader(fid)
-            for r, row in enumerate(file_data):
-                if r == 0:
-                    continue
-                elif r == 1:
-                    self._header_original = row
-                elif r == 2:
-                    self._units_original = row
-                else:
-                    row_data.append(row)
-        self._data = pd.DataFrame(row_data, columns=self._header_original)
+        try:
+            with open(self.path, encoding="utf-8") as fid:
+                file_data = csv.reader(fid)
+                for r, row in enumerate(file_data):
+                    if r == 0:
+                        continue
+                    elif r == 1:
+                        self._header_original = row
+                    elif r == 2:
+                        self._units_original = row
+                    else:
+                        row_data.append(row)
+        except (UnicodeDecodeError, csv.Error) as e:
+            raise InvalidHydrofiaFileError(f"Not a text file: {self.path}") from e
+        self._validate_header()
+        try:
+            self._data = pd.DataFrame(row_data, columns=self._header_original)
+        except ValueError as e:
+            raise InvalidHydrofiaFileError(
+                f"Rows do not match the header: {self.path}"
+            ) from e
+
+    def _validate_header(self) -> None:
+        if self._units_original is None:
+            raise InvalidHydrofiaFileError(f"Too few lines: {self.path}")
+        missing = [c for c in self.REQUIRED_COLUMNS if c not in self._header_original]
+        if missing:
+            raise InvalidHydrofiaFileError(
+                f"Missing columns on line 2 ({', '.join(missing)}): {self.path}"
+            )
 
     def _add_columns(self):
 
