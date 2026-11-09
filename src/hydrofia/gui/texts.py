@@ -67,13 +67,13 @@ class Texts:
     title_title = "Beräkna pH med CRM"
     batch_salinity = "Salinitet"
     batch_temperature = "Temperatur"
-    batch_temp_label = "Temperatur:"
-    batch_measured_ph = "Uppmätt pH:"
-    batch_alk_label = "ALK i batch:"
-    batch_dic_label = "DIC i batch:"
-    batch_salt_label = "Salthalt i batch:"
-    batch_plot_value_label = "Avvikelse:"
-    batch_ph_label = "Beräknat pH:"
+    temperature = "Temperatur"
+    measured_ph = "Uppmätt pH"
+    batch_alk_label = "ALK i batch"
+    batch_dic_label = "DIC i batch"
+    batch_salt_label = "Salthalt i batch"
+    deviation = "Avvikelse"
+    calculated_ph = "Beräknat pH"
 
     # Texts with parameters
     def select_overwrite(self, path):

@@ -85,7 +85,7 @@ def value_text(size: int | None = None) -> ft.Text:
 
 
 def label_value(label: str, value: ft.Control) -> ft.Row:
-    return ft.Row([ft.Text(label), value])
+    return ft.Row([ft.Text(f"{label}:"), value])
 
 
 def path_row(button: ft.Button, path: PathText, *extras: ft.Control) -> ft.Row:

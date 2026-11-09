@@ -319,11 +319,11 @@ class FletApp:
         self._tris_plot_value = layout.value_text(size=style.HIGHLIGHT_SIZE)
 
         self._tris_temp = layout.float_field(
-            TEXTS.batch_temp_label,
+            TEXTS.temperature,
             on_change=self._update_tris_ph,
         )
         self._tris_measured_ph = layout.float_field(
-            TEXTS.batch_measured_ph,
+            TEXTS.measured_ph,
             on_change=self._update_tris_ph,
         )
 
@@ -348,11 +348,11 @@ class FletApp:
         self._batch_plot_value = layout.value_text(size=style.HIGHLIGHT_SIZE)
 
         self._batch_temp = layout.float_field(
-            TEXTS.batch_temp_label,
+            TEXTS.temperature,
             on_change=self._update_crm_ph,
         )
         self._batch_measured_ph = layout.float_field(
-            TEXTS.batch_measured_ph,
+            TEXTS.measured_ph,
             on_change=self._update_crm_ph,
         )
 
@@ -457,11 +457,9 @@ class FletApp:
                     layout.label_value(TEXTS.batch_dic_label, self._batch_dic),
                     layout.label_value(TEXTS.batch_salt_label, self._batch_salt),
                     ft.Row([self._batch_temp]),
-                    layout.label_value(TEXTS.batch_ph_label, self._batch_ph),
+                    layout.label_value(TEXTS.calculated_ph, self._batch_ph),
                     self._batch_measured_ph,
-                    layout.label_value(
-                        TEXTS.batch_plot_value_label, self._batch_plot_value
-                    ),
+                    layout.label_value(TEXTS.deviation, self._batch_plot_value),
                 ]
             ),
         )
@@ -473,11 +471,9 @@ class FletApp:
                     layout.title(TEXTS.tris_title),
                     self._tris_type,
                     ft.Row([self._tris_temp]),
-                    layout.label_value(TEXTS.batch_ph_label, self._tris_ph),
+                    layout.label_value(TEXTS.calculated_ph, self._tris_ph),
                     self._tris_measured_ph,
-                    layout.label_value(
-                        TEXTS.batch_plot_value_label, self._tris_plot_value
-                    ),
+                    layout.label_value(TEXTS.deviation, self._tris_plot_value),
                 ]
             ),
         )
