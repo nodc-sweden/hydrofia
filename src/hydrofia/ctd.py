@@ -1,6 +1,6 @@
 import datetime
 import pathlib
-from functools import cache, cached_property
+from functools import cached_property
 
 import pandas as pd
 
@@ -14,7 +14,11 @@ def get_mapped_ship(ship):
 
 
 def get_key(**kwargs):
-    return f"{kwargs.get('year')}_{get_mapped_ship(kwargs.get('ship'))}_{kwargs.get('serno')}"
+    return (
+        f"{kwargs.get('year')}_"
+        f"{get_mapped_ship(kwargs.get('ship'))}_"
+        f"{kwargs.get('serno')}"
+    )
 
 
 class CtdStandardFormat:
@@ -51,16 +55,17 @@ class CtdStandardFormat:
 
     @cached_property
     def station(self):
-        with open(self.path, encoding="cp1252") as fid:
+        with self.path.open(encoding="cp1252") as fid:
             for line in fid:
                 if "STATN" in line:
                     return line.split(";")[-1].strip()
+        return None
 
     @cached_property
     def data(self):
         header = []
         data_lines = []
-        with open(self.path, encoding="cp1252") as fid:
+        with self.path.open(encoding="cp1252") as fid:
             for line in fid:
                 if line.startswith("//"):
                     continue
@@ -79,15 +84,14 @@ class CtdStandardFormat:
         boolean = salt_boolean & temp_boolean
         return df[boolean]
 
-    @cache
     def _get_data_at_depth(
         self,
         depth: float,
-        max_depth_diff_allowed: float = None,
-        surface_layer_depth: float = None,
-        bottom_layer_depth: float = None,
+        max_depth_diff_allowed: float | None = None,
+        surface_layer_depth: float | None = None,
+        bottom_layer_depth: float | None = None,
     ) -> pd.DataFrame:
-        df = self.data.copy(deep=True)
+        df = self.data
         bottom_layer_top = None
         if bottom_layer_depth:
             bottom_layer_top = df["depth"].values[-1] - bottom_layer_depth
@@ -95,7 +99,7 @@ class CtdStandardFormat:
             df = self.data[self.data["depth"] <= surface_layer_depth].reset_index()
             max_depth_diff_allowed = None
         elif bottom_layer_top and depth >= bottom_layer_top:
-            df = self.data[self.data["depth"] >= bottom_layer_depth].reset_index()
+            df = self.data[self.data["depth"] >= bottom_layer_top].reset_index()
             max_depth_diff_allowed = None
         if df.empty:
             return pd.DataFrame()
@@ -105,21 +109,21 @@ class CtdStandardFormat:
             return pd.DataFrame()
         return df[diff == min_diff]
 
-    @cache
-    def _get_data_at_deepest_depth(self):
-        max_depth = max(self.data["depth"])
+    @cached_property
+    def _data_at_deepest_depth(self) -> pd.DataFrame:
+        max_depth = self.data["depth"].max()
         return self.data[self.data["depth"] == max_depth]
 
     def get_last_data_at_depth(
         self,
         depth: float | str,
-        max_depth_diff_allowed: float = None,
-        surface_layer_depth: float = None,
-        bottom_layer_depth: float = None,
+        max_depth_diff_allowed: float | None = None,
+        surface_layer_depth: float | None = None,
+        bottom_layer_depth: float | None = None,
     ) -> (float, float, float):
         # depth can also be "deepest"
         if depth == "deepest":
-            df = self._get_data_at_deepest_depth()
+            df = self._data_at_deepest_depth
         else:
             df = self._get_data_at_depth(
                 depth,
@@ -142,17 +146,21 @@ class CtdStandardFormat:
         # if df[self.DEPTH_QF_PAR].iloc[0] in EXCLUDE_QUALITY_FLAGS:
         #     depth = np.nan
         # print('salt, temp, depth', salt, temp, depth)
+        # return (
+        #   float(df[self.SALT_PAR].iloc[0]),
+        #   float(df[self.TEMP_PAR].iloc[0]),
+        #   float(df[self.DEPTH_PAR].iloc[0]),
+        # )
         return data
-        # return float(df[self.SALT_PAR].iloc[0]), float(df[self.TEMP_PAR].iloc[0]), float(df[self.DEPTH_PAR].iloc[0])
 
 
 class CtdStandardFormatCollection:
     def __init__(
         self,
         directory: str | pathlib.Path,
-        max_depth_diff_allowed: float = None,
-        surface_layer_depth: float = None,
-        bottom_layer_depth: float = None,
+        max_depth_diff_allowed: float | None = None,
+        surface_layer_depth: float | None = None,
+        bottom_layer_depth: float | None = None,
     ):
 
         self.directory = pathlib.Path(directory)
@@ -177,7 +185,9 @@ class CtdStandardFormatCollection:
         return self._files
 
     def filter_data_by_date(
-        self, start_date: datetime.date = None, end_date: datetime.date = None
+        self,
+        start_date: datetime.date | None = None,
+        end_date: datetime.date | None = None,
     ):
         files = []
         for file in self.files:
@@ -190,10 +200,10 @@ class CtdStandardFormatCollection:
 
     def get_ctd_data(
         self,
-        year: str | int = None,
-        ship: str | int = None,
-        serno: str | int = None,
-        depth: str | int = None,
+        year: str | int | None = None,
+        ship: str | int | None = None,
+        serno: str | int | None = None,
+        depth: str | int | None = None,
     ) -> dict:
         # depth can be "deepest"
         file = self._get_file(year=year, ship=ship, serno=serno)

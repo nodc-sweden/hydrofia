@@ -7,7 +7,7 @@ THIS_DIR = pathlib.Path(__file__).parent
 
 def get_package_version() -> str:
     pyproject_path = THIS_DIR / "pyproject.toml"
-    with open(pyproject_path, "rb") as fid:
+    with pyproject_path.open("rb") as fid:
         config = tomllib.load(fid)
     return config["project"]["version"]
 

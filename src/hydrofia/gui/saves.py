@@ -11,18 +11,18 @@ else:
 
 SAVES_PATH = pathlib.Path(ROOT_DIR, "saves.yaml")
 controls = {}
-loaded_data = dict()
+loaded_data = {}
 
 
 def _load():
     if not SAVES_PATH.exists():
         return {}
-    with open(SAVES_PATH) as fid:
+    with SAVES_PATH.open() as fid:
         return yaml.safe_load(fid)
 
 
 def _save(data):
-    with open(SAVES_PATH, "w") as fid:
+    with SAVES_PATH.open("w") as fid:
         yaml.safe_dump(data, fid)
 
 
@@ -44,7 +44,7 @@ def save():
 
 def load(obj):
     data = _load()
-    for name, cont in controls.items():
+    for name in controls:
         value = data.get(name)
         if value is None:
             continue

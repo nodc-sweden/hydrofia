@@ -1,14 +1,15 @@
-import datetime
 import json
 import pathlib
+from dataclasses import dataclass
 
 import pandas as pd
-import PyCO2SYS as pyco2
+import PyCO2SYS
 import yaml
+
+from hydrofia.errors import InvalidBatchError
 
 NAME_MAPPING = {
     "Batch Number": "batch_nr",
-    "Bottling Date": "bottling_date",
     "Salinity": "salinity",
     "Total CO2 micromol/kg": "dic",
     "Total Alkalinity micromol/kg": "alk",
@@ -20,54 +21,29 @@ NOAA_BATCH_URL = "https://www.ncei.noaa.gov/access/ocean-carbon-acidification-da
 NOAA_BATCH_FILE = r"\\winfs-proj\data\proj\havgem\MOL\pH\HydroFIA-pH\CRM_Batches.xlsx"
 
 
+BATCH_FIELDS = ("alk", "dic", "salinity", "phosphate", "silicate")
+
+
+@dataclass(frozen=True, kw_only=True)
 class ReferenceBatch:
-    def __init__(
-        self,
-        alk: float | str = None,
-        dic: float | str = None,
-        salinity: float | str = None,
-        phosphate: float | str = None,
-        silicate: float | str = None,
-        bottling_date: str | datetime.date | datetime.datetime = None,
-        **kwargs,
-    ) -> None:
-        self._alk = float(alk)
-        self._dic = float(dic)
-        self._salinity = float(salinity)
-        self._phosphate = float(phosphate)
-        self._silicate = float(silicate)
-        self._bottling_date = bottling_date
+    alk: float
+    dic: float
+    salinity: float
+    phosphate: float
+    silicate: float
 
-    @property
-    def alk(self) -> float:
-        return self._alk
+    @classmethod
+    def from_dict(cls, data: dict) -> "ReferenceBatch":
+        """Create from a row in the NOAA batch table. Other keys are ignored."""
+        try:
+            return cls(**{name: float(data[name]) for name in BATCH_FIELDS})
+        except (KeyError, TypeError, ValueError) as e:
+            raise InvalidBatchError(
+                f"Missing or invalid value in batch {data.get('batch_nr')}: {e}"
+            ) from e
 
-    @property
-    def dic(self) -> float:
-        return self._dic
-
-    @property
-    def salinity(self) -> float:
-        return self._salinity
-
-    @property
-    def phosphate(self) -> float:
-        return self._phosphate
-
-    @property
-    def silicate(self) -> float:
-        return self._silicate
-
-    @property
-    def bottling_date(self) -> datetime.date:
-        if type(self._bottling_date) == datetime.date:
-            return self._bottling_date
-        if type(self._bottling_date) == datetime.datetime:
-            return self._bottling_date.date()
-        return datetime.datetime.strptime(self._bottling_date, "%B %d, %Y").date()
-
-    def get_all(self, temperature: float = None) -> dict:
-        return pyco2.sys(
+    def get_all(self, temperature: float | None = None) -> dict:
+        return PyCO2SYS.sys(
             self.alk,
             self.dic,
             1,
@@ -81,9 +57,11 @@ class ReferenceBatch:
             opt_k_carbonic=10,
             opt_total_borate=1,
         )
-        # return seacarb.carb(self.salinity, float(temperature), self.alk*1e-06, self.dic*1e-06, 15)
+        # return seacarb.carb(
+        #   self.salinity, float(temperature), self.alk*1e-06, self.dic*1e-06, 15
+        # )
 
-    def get_ph(self, temperature: float = None) -> float:
+    def get_ph(self, temperature: float | None = None) -> float:
         return self.get_all(temperature=temperature)["pH"]
 
 
@@ -107,25 +85,25 @@ class ReferenceBatches:
     def get_batch(self, batch_nr: str | int) -> ReferenceBatch:
         batch_info = self._data.get(str(batch_nr))
         if not batch_info:
-            raise Exception(f"Invalid batch number: {batch_nr}")
-        return ReferenceBatch(**batch_info)
+            raise InvalidBatchError(f"Unknown batch number: {batch_nr}")
+        return ReferenceBatch.from_dict(batch_info)
 
-    def save_as_yaml(self, path: pathlib.Path | str = None) -> None:
-        path = path or DEFAULT_BATCH_YAML
-        if not path.suffix == ".yaml":
+    def save_as_yaml(self, path: pathlib.Path | str | None = None) -> None:
+        path = pathlib.Path(path or DEFAULT_BATCH_YAML)
+        if path.suffix != ".yaml":
             raise Exception(f"Invalid yaml file to save batches: {path}")
-        with open(path, "w") as fid:
+        with path.open("w") as fid:
             yaml.safe_dump(self._data, fid)
 
-    def save_as_json(self, path: pathlib.Path | str = None) -> None:
-        path = path or DEFAULT_BATCH_JSON
-        if not path.suffix == ".json":
+    def save_as_json(self, path: pathlib.Path | str | None = None) -> None:
+        path = pathlib.Path(path or DEFAULT_BATCH_JSON)
+        if path.suffix != ".json":
             raise Exception(f"Invalid json file to save batches: {path}")
-        with open(path, "w") as fid:
+        with path.open("w") as fid:
             json.dump(self._data, fid)
 
     @classmethod
-    def from_noaa_url(cls, url: str = None) -> "ReferenceBatches":
+    def from_noaa_url(cls, url: str | None = None) -> "ReferenceBatches":
         url = url or NOAA_BATCH_URL
         table = pd.read_html(url)[0]
         table.columns = [NAME_MAPPING.get(col, col) for col in table.columns]
@@ -137,32 +115,31 @@ class ReferenceBatches:
             nutrients[["batch", "phosphate", "silicate"]], on="batch", how="left"
         )
         table = table.drop(columns=["batch"])
-        data = dict()
-        for i, row_dict in table.to_dict(orient="index").items():
+        data = {}
+        for row_dict in table.to_dict(orient="index").values():
             data[row_dict["batch_nr"].split()[-1].lstrip("0")] = row_dict
         return cls(data)
 
     @classmethod
-    def from_yaml(cls, path: pathlib.Path | str = None) -> "ReferenceBatches":
-        path = path or DEFAULT_BATCH_YAML
+    def from_yaml(cls, path: pathlib.Path | str | None = None) -> "ReferenceBatches":
+        path = pathlib.Path(path or DEFAULT_BATCH_YAML)
         if not path.exists():
             raise FileNotFoundError(f"No yaml batch file found at: {path}")
-        with open(path) as fid:
+        with path.open() as fid:
             return cls(yaml.safe_load(fid))
 
     @classmethod
-    def from_json(cls, path: pathlib.Path | str = None) -> "ReferenceBatches":
-        path = path or DEFAULT_BATCH_JSON
+    def from_json(cls, path: pathlib.Path | str | None = None) -> "ReferenceBatches":
+        path = pathlib.Path(path or DEFAULT_BATCH_JSON)
         if not path.exists():
             raise FileNotFoundError(f"No json batch file found at: {path}")
-        with open(path) as fid:
+        with path.open() as fid:
             return cls(json.load(fid))
 
 
 def get_latest_batches():
     try:
-        batches = ReferenceBatches.from_noaa_url()
-        return batches
+        return ReferenceBatches.from_noaa_url()
     except Exception:
         yaml_batches = None
         json_batches = None

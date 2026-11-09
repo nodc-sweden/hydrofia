@@ -7,16 +7,18 @@ from hydrofia.exporter import ExporterTxt, ExporterXlsxResultFile
 from hydrofia.hydrofia import HydrofiaExportFileDiscrete, HyrdofiaExcelTemplate
 
 
-def get_default_template_path(directory: pathlib.Path | str = None) -> pathlib.Path:
+def get_default_template_path(
+    directory: pathlib.Path | str | None = None,
+) -> pathlib.Path:
     return HyrdofiaExcelTemplate.get_default_template_path(directory)
 
 
 def create_template(
-    template_path: pathlib.Path | str = None,
-    hydrofia_export_path: pathlib.Path | str = None,
+    template_path: pathlib.Path | str | None = None,
+    hydrofia_export_path: pathlib.Path | str | None = None,
     overwrite: bool = False,
-    year: int = None,
-    month: int = None,
+    year: int | None = None,
+    month: int | None = None,
 ):
     start_date, end_date = utils.get_date_limits_from_year_and_month(
         year=year, month=month
@@ -35,7 +37,9 @@ def get_periods_in_hydrofia_export_file(
 
 
 def get_id_string_for_hydrofia_export_file(
-    path: pathlib.Path | str = None, year: int = None, month: int = None
+    path: pathlib.Path | str | None = None,
+    year: int | None = None,
+    month: int | None = None,
 ):
     start_date, end_date = utils.get_date_limits_from_year_and_month(
         year=year, month=month
@@ -44,14 +48,13 @@ def get_id_string_for_hydrofia_export_file(
     hf.filter_data_by_date(start_date=start_date, end_date=end_date)
     info = hf.get_info()
     if not info:
-        return
-    stem = f"{info['year_string']}_{info['from_serno']}_{info['to_serno']}"
-    return stem
+        return None
+    return f"{info['year_string']}_{info['from_serno']}_{info['to_serno']}"
 
 
 def get_calculated_object(
-    template_path: pathlib.Path | str = None,
-    ctd_directory: pathlib.Path | str = None,
+    template_path: pathlib.Path | str | None = None,
+    ctd_directory: pathlib.Path | str | None = None,
     **kwargs,
 ):
     """Returns a Calculate object calculated with info from template and ctd_directory"""
@@ -72,7 +75,7 @@ def get_calculated_object(
 
 def create_xlsx_result_file_from_calc_object(
     calc_object: Calculate = None,
-    path: pathlib.Path | str = None,
+    path: pathlib.Path | str | None = None,
     overwrite: bool = False,
     **kwargs,
 ):
@@ -83,7 +86,7 @@ def create_xlsx_result_file_from_calc_object(
 
 def create_txt_archive_file_from_calc_object(
     calc_object: Calculate = None,
-    path: pathlib.Path | str = None,
+    path: pathlib.Path | str | None = None,
     overwrite: bool = False,
     **kwargs,
 ):
@@ -92,9 +95,9 @@ def create_txt_archive_file_from_calc_object(
 
 
 def create_xlsx_result_file(
-    template_path: pathlib.Path | str = None,
-    ctd_directory: pathlib.Path | str = None,
-    result_file_path: pathlib.Path | str = None,
+    template_path: pathlib.Path | str | None = None,
+    ctd_directory: pathlib.Path | str | None = None,
+    result_file_path: pathlib.Path | str | None = None,
     overwrite: bool = False,
     **kwargs,
 ):

@@ -4,6 +4,8 @@ import os
 import platform
 import subprocess
 
+from hydrofia.errors import InvalidDateError
+
 SHIP_MAPPER = {
     # '7710': '77SE'
 }
@@ -22,17 +24,14 @@ def open_file_in_default_program(path):
         subprocess.call(("xdg-open", str(path)))
 
 
-def get_date_limits_from_year_and_month(year: int = None, month: int = None):
-    today = datetime.datetime.now()
-    year = year or today.year
+def get_date_limits_from_year_and_month(
+    year: int | None = None, month: int | None = None
+) -> tuple[datetime.date, datetime.date]:
+    year = year or datetime.date.today().year
     if not month:
-        return datetime.datetime(year, 1, 1).date(), datetime.datetime(
-            year, 12, 31
-        ).date()
-    if month < 1 or month > 12:
-        raise ValueError("Month must be between 1 and 12")
-    start_date = datetime.datetime(year, month, 1).date()
-    end_date = datetime.datetime(
-        year, month, calendar.monthrange(year, month)[1]
-    ).date()
-    return start_date, end_date
+        return datetime.date(year, 1, 1), datetime.date(year, 12, 31)
+    try:
+        last_day = calendar.monthrange(year, month)[1]
+    except ValueError as e:
+        raise InvalidDateError(f"Invalid month: {month}") from e
+    return datetime.date(year, month, 1), datetime.date(year, month, last_day)

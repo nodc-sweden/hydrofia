@@ -10,6 +10,6 @@ class Colors:
     def banner(status="bad"):
         if status == "good":
             return "#3db847"
-        elif status == "working":
+        if status == "working":
             return "#e9f562"
         return "#f73131"

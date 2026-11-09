@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import inspect
 import pathlib
@@ -15,9 +16,7 @@ else:
 
 CRM_COLOR = PatternFill(start_color="8fb7f7", end_color="8fb7f7", fill_type="solid")
 
-PH_VALUE_COLOR = PatternFill(
-    start_color="c0d6fa", end_color="c0d6fa", fill_type="solid"
-)
+PH_VALUE_COLOR = PatternFill(start_color="c0d6fa", end_color="c0d6fa", fill_type="solid")
 
 BORDER_USER_ACTION = Border(
     left=Side(style="thin"),
@@ -32,12 +31,12 @@ class ExporterXlsxResultFile:
     template_sheet_name = "Rapport för utskrift"
     raw_data_sheet_name = "Rådata"
 
-    date_cell = [1, 8]
-    signature_cell = [2, 8]
-    project_cell = [6, 1]
-    country_code_cell = [6, 3]
-    ship_code_cell = [6, 5]
-    serno_span_cell = [6, 7]
+    date_cell = (1, 8)
+    signature_cell = (2, 8)
+    project_cell = (6, 1)
+    country_code_cell = (6, 3)
+    ship_code_cell = (6, 5)
+    serno_span_cell = (6, 7)
 
     data_start_row = 12
 
@@ -65,9 +64,7 @@ class ExporterXlsxResultFile:
         self._raw_data_ws = self._wb[self.raw_data_sheet_name]
         self._data = pd.DataFrame()
 
-    def save(
-        self, data: pd.DataFrame, signature: str = "", project: str = "", **kwargs
-    ):
+    def save(self, data: pd.DataFrame, signature: str = "", project: str = "", **kwargs):
         self._data = data.fillna("")
         self._write_header()
         self._write_data()
@@ -80,10 +77,8 @@ class ExporterXlsxResultFile:
 
     @staticmethod
     def _get_float_value(value):
-        try:
+        with contextlib.suppress(ValueError):
             value = str(round(float(value), 3)).replace(",", ".")
-        except ValueError:
-            pass
         if value == "nan":
             value = ""
         return value
@@ -116,13 +111,11 @@ class ExporterXlsxResultFile:
         # TODO: Use sorted set and see if its faster
         int_serno = [int(serno) for serno in self.data["serno"] if "CRM" not in serno]
         # int_serno = self.data['serno'].apply(int)
-        self.serno_span = (
-            f"{str(min(int_serno)).zfill(4)}-{str(max(int_serno)).zfill(4)}"
-        )
+        self.serno_span = f"{str(min(int_serno)).zfill(4)}-{str(max(int_serno)).zfill(4)}"
 
     def _write_data(self):
         r = self.data_start_row
-        for index, df in self.data.groupby(["date", "serno", "depth"]):
+        for _index, df in self.data.groupby(["date", "serno", "depth"]):
             s = df.iloc[-1]  # Use last replicate
             crm_color = None
             ph_color = None
@@ -154,7 +147,7 @@ class ExporterXlsxResultFile:
             self._set_report_value(r, self.serial_indicator_col, s["serialIndicator"])
             # self._set_report_value(r, self.ph_col, self._get_float_value(s['pH']))
             comment = ""
-            if type(s["depth"]) == str and "/" in s["depth"]:
+            if type(s["depth"]) is str and "/" in s["depth"]:
                 nr = s["depth"].split("/")[-1]
                 comment = f"Replikat nr {nr}"
             self._set_report_value(r, self.comment_col, comment, fill_color=crm_color)
@@ -270,18 +263,20 @@ class ExporterTxt:
 
 
 class Exporters:
-    exporters = [ExporterTxt, ExporterXlsxResultFile]
+    exporters = (ExporterTxt, ExporterXlsxResultFile)
 
     @staticmethod
-    def get_arguments_from_class(cls):
-        return list(inspect.signature(cls).parameters)
+    def get_arguments_from_class(exporter_class):
+        return list(inspect.signature(exporter_class).parameters)
 
     def __init__(self):
         self._exporters = {}
         for cls in Exporters.exporters:
-            info = dict(
-                cls=cls, name=cls.name, args=Exporters.get_arguments_from_class(cls)
-            )
+            info = {
+                "cls": cls,
+                "name": cls.name,
+                "args": Exporters.get_arguments_from_class(cls),
+            }
             self._exporters[info["name"]] = info
 
     def get_exporters(self):

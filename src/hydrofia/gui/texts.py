@@ -56,7 +56,6 @@ class Texts:
     title_metadata = "Metadata"
 
     title_merge_ctd_with_hydrofia = "Skapa resultatfil"
-    # title_merge_ctd_with_hydrofia = 'Steg 3: Sammanfoga HydroFIA- och CTD data för att beräkna rätt salthalt och temperatur'
     title_create_excel = "Skapa rättningsfil"
     period_filter_label = "Filtrera på period:"
 
@@ -82,8 +81,14 @@ class Texts:
             "Välj txt-filen som HydroFIA har exporterat."
         )
 
+    def invalid_batch(self, batch_nr: str) -> str:
+        return f"Batch {batch_nr} saknar värden som behövs. Välj en annan batch."
+
     def select_overwrite(self, path):
-        return f"Filen finns redan. Du måste välja att skriva över filen om du vill fortsätta: {path}"
+        return (
+            f"Filen finns redan. "
+            f"Du måste välja att skriva över filen om du vill fortsätta: {path}"
+        )
 
     def get_file_exists(self, status):
         if status:
