@@ -55,3 +55,8 @@ class TooltipTexts:
         "Ligger det djupet längre bort än Max avstånd får provet inga CTD-värden. "
         "Gränsen gäller inte för prov inom de angivna avstånden från ytan och botten."
     )
+    underway = (
+        "Välj en eller flera filer med underway-data och mappen där resultatet ska "
+        "sparas. Filerna konverteras en i taget. pH beräknas för varje rad och "
+        "sparas i en ny fil per indatafil i exportmappen."
+    )

@@ -3,7 +3,7 @@ from typing import Protocol, runtime_checkable
 import numpy as np
 import pandas as pd
 
-from hydrofia.ext_src import seacarb
+from hydrofia.ph import calculate_ph_t_spec
 
 
 class HydrofiaTemplateData(Protocol):
@@ -93,14 +93,11 @@ class Calculate:
         self._data["station"] = station_data
 
     def _calculate(self):
-        def calc_ph_t_spec(row):
-            if not all([row["salt"], row["temperatureSample"], row["R0"]]):
-                return np.nan
-            return seacarb.pHTspec(
-                row["salt"], row["temperatureSample"] + 273.15, row["R0"], "mueller"
-            )
-
-        self._data["pH-tot-labT-P0"] = self._data.apply(calc_ph_t_spec, axis=1)
+        # Values that are not numbers, e.g. "" when CTD data is missing, become nan
+        salinity = pd.to_numeric(self._data["salt"], errors="coerce")
+        temperature = pd.to_numeric(self._data["temperatureSample"], errors="coerce")
+        r0 = pd.to_numeric(self._data["R0"], errors="coerce")
+        self._data["pH-tot-labT-P0"] = calculate_ph_t_spec(salinity, temperature, r0)
 
         def calc_ph_t_spec_at_25(row):
             if not all([row["temperatureSample"], row["pH-tot-labT-P0"]]):

@@ -4,6 +4,7 @@ version = "1.0.0"
 description = "Calculation of pH from HydroFIA measurements"
 authors = [
     {name = "a001985", email = "magnus.wenzer@smhi.se"},
+    {name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se"},
 ]
 dependencies = [
     "pandas>=3.0",
@@ -20,7 +21,8 @@ readme = "README.md"
 license = {text = "MIT"}
 
 [project.scripts]
-hydrofia = "hydrofia.gui.flet_app:run"
+hydrofia = "hydrofia.gui.hydrofia_app:run"
+hydrofia-underway = "hydrofia.gui.underway_app:run"
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14"]
@@ -36,6 +38,7 @@ dev = [
 
 [tool.ruff]
 line-length = 90
+src = ["src"]
 target-version = "py312"
 extend-exclude = ["src/hydrofia/ext_src"]
 
