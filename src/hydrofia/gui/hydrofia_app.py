@@ -46,7 +46,7 @@ def get_config():
         return json.load(fid)
 
 
-class FletApp:
+class HydrofiaApp:
     def __init__(self, log_in_console=False):
         self._log_in_console = log_in_console
         self.page = None
@@ -1200,7 +1200,7 @@ class FletApp:
 
 
 def main(log_in_console):
-    return FletApp(log_in_console=log_in_console)
+    return HydrofiaApp(log_in_console=log_in_console)
 
 
 def run() -> None:
