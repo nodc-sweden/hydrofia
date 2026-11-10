@@ -103,3 +103,54 @@ class Texts:
 
     def missing_metadata(self, meta: str) -> str:
         return f"Metadata saknas: {meta}"
+
+
+class UnderwayTexts:
+    title = f"HydroFIA Underway ({VERSION})"
+    card_title = "Beräkna pH för underway-data"
+
+    get_input_files_button = "Välj indatafiler"
+    get_output_directory_button = "Välj exportmapp"
+    convert = "Konvertera"
+    create_files_label = "Filer som kommer att skapas:"
+
+    missing_input_files = "Inga indatafiler valda..."
+    missing_output_directory = "Ingen exportmapp vald..."
+    missing_result_path = "Välj indatafiler och exportmapp..."
+    non_existing_output_directory = "Den valda exportmappen existerar inte..."
+    duplicate_result_paths = (
+        "Flera indatafiler har samma namn och skulle ge samma resultatfil. "
+        "Välj filer med olika namn."
+    )
+    select_overwrite_files = (
+        "Några av filerna finns redan. "
+        "Du måste välja att skriva över dem om du vill fortsätta."
+    )
+
+    dialog_title_input_files = "Välj filerna med underway-data"
+    dialog_title_output_directory = "Välj mapp där resultatet ska sparas"
+
+    def invalid_underway_file(self, file_name: str) -> str:
+        return (
+            f"{file_name} ser inte ut som en Underway-fil. Välj en annan fil."
+        )
+
+    def non_existing_input_file(self, path) -> str:
+        return f"Indatafilen existerar inte: {path}"
+
+    def files_exist(self, nr: int) -> str:
+        if nr == 1:
+            return "1 av filerna finns redan. Vill du skriva över den?"
+        return f"{nr} av filerna finns redan. Vill du skriva över dem?"
+
+    def converting(self, nr: int, total: int, name: str) -> str:
+        return f"Konverterar fil {nr} av {total}: {name}. Vänta..."
+
+    def convert_failed(self, name: str, nr_done: int, error: Exception) -> str:
+        return (
+            f"Något gick fel med {name}:\n{error}\n"
+            f"{nr_done} fil(er) hann konverteras. Resten har inte konverterats."
+        )
+
+    def converted(self, nr: int, directory) -> str:
+        return f"{nr} fil(er) har skapats i {directory}"

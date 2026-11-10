@@ -10,20 +10,31 @@ else:
 
 
 SAVES_PATH = pathlib.Path(ROOT_DIR, "saves.yaml")
+# A file of its own, since each save replaces the whole file
+UNDERWAY_SAVES_PATH = pathlib.Path(ROOT_DIR, "underway_saves.yaml")
 controls = {}
 loaded_data = {}
 
 
-def _load():
-    if not SAVES_PATH.exists():
+def load_values(path: pathlib.Path) -> dict:
+    """The values saved in the file, or an empty dict if there are none."""
+    if not path.exists():
         return {}
-    with SAVES_PATH.open() as fid:
-        return yaml.safe_load(fid)
+    with path.open() as fid:
+        return yaml.safe_load(fid) or {}
+
+
+def save_values(path: pathlib.Path, data: dict) -> None:
+    with path.open("w") as fid:
+        yaml.safe_dump(data, fid)
+
+
+def _load():
+    return load_values(SAVES_PATH)
 
 
 def _save(data):
-    with SAVES_PATH.open("w") as fid:
-        yaml.safe_dump(data, fid)
+    save_values(SAVES_PATH, data)
 
 
 def add_control(name, cont):
