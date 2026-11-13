@@ -1,66 +1,62 @@
-import math
 import flet as ft
 
+from hydrofia.gui import style
+from hydrofia.gui.texts import Texts
 
-def get_tooltip_icon(text: str) -> ft.Icon:
-    return ft.Icon(name=ft.icons.INFO, color=ft.colors.PINK, tooltip=text)
+
+def get_info_button(
+    heading: str, text: str, dialog_alignment: ft.Alignment
+) -> ft.IconButton:
+    """Info icon that opens a dialog with the text when clicked.
+
+    Any click closes the dialog, also inside it.
+    """
+    dialog = ft.AlertDialog(
+        content_padding=0,
+        # The empty action row otherwise adds a strip that does not react to clicks.
+        actions_padding=0,
+        alignment=dialog_alignment,
+        content=ft.Container(
+            content=ft.Column(
+                [ft.Text(heading, size=style.CARD_TITLE_SIZE), ft.Text(text)],
+                tight=True,
+            ),
+            width=style.INFO_DIALOG_WIDTH,
+            padding=style.INFO_DIALOG_PADDING,
+            on_click=lambda e: e.control.page.pop_dialog(),
+        ),
+    )
+    return ft.IconButton(
+        icon=ft.Icons.INFO,
+        icon_color=ft.Colors.PINK,
+        tooltip=Texts.show_help,
+        on_click=lambda e: e.control.page.show_dialog(dialog),
+    )
 
 
 class TooltipTexts:
-
-    @property
-    def hydrofia_file(self):
-        return '\n'.join([
-            'Här väljer du vilken txt-fil från HydroFIA som du vill skapa en rättningsmall i excel av.\n '
-            'Excelfilen skapar du för att enkelt kunna granska och rätta din HydroFIA rapport.\n '
-            'Välj vilken mapp du vill att filen ska sparas i. filtrera på rätt månad och år vid behov'
-        ])
-
-    @property
-    def template_file(self):
-        return '\n'.join([
-            'Här sammanfogar du HydroFIA- med CTD-data för att beräkna pH vid Insitu S och T. Fyll i din signatur,\n '
-            'namnge projekt (BAS). Ändra vid behov tjocklek på ytlagret, bottenlagret och maximal diff mellan djup,\n '
-            'detta för att rätt värde ska hämtas från CTD profil'
-        ])
-
-    @property
-    def metadata(self):
-        return 'Dessa fält behövs för beräkning samt för att fylla i metadata i resultatifilen'
-
-    # @property
-    # def create_template(self):
-    #     return 'Ange det namn du vill att excelfilen ska ha (HydroFIA-BAS ÅÅ-första serienr'
-
-    @property
-    def create_result(self):
-        return 'Ange det namn du vill att exportfilen ska ha'
-
-    @property
-    def ctd(self):
-        return 'No info'
-
-
-def get_tooltip_widget(msg):
-    return ft.Tooltip(
-        message=msg,
-        padding=20,
-        border_radius=10,
-        text_style=ft.TextStyle(size=14, color=ft.colors.WHITE),
-        gradient=ft.LinearGradient(
-            begin=ft.alignment.top_left,
-            end=ft.alignment.Alignment(0.8, 1),
-            colors=[
-                "0xff1f005c",
-                "0xff5b0060",
-                "0xff870160",
-                "0xffac255e",
-                "0xffca485c",
-                "0xffe16b5c",
-                "0xfff39060",
-                "0xffffb56b",
-            ],
-            tile_mode=ft.GradientTileMode.MIRROR,
-            rotation=math.pi / 3,
-        ),
+    hydrofia_file = (
+        "Här väljer du vilken txt-fil från HydroFIA som du vill skapa en rättningsmall "
+        "i Excel av. Excelfilen skapar du för att enkelt kunna granska och rätta din "
+        "HydroFIA-rapport. Välj vilken mapp du vill att filen ska sparas i. Filtrera på "
+        "rätt månad och år vid behov."
+    )
+    template_file = (
+        "Slår ihop HydroFIA-data med CTD-data och beräknar pH vid in situ-salthalt "
+        "och -temperatur. Välj rättningsfilen och mappen med CTD-filer. "
+        "Hur proverna matchas ställer du in under CTD-matchning."
+    )
+    metadata = (
+        "Dessa fält behövs för beräkning samt för att fylla i metadata i resultatifilen"
+    )
+    create_result = "Ange det namn du vill att exportfilen ska ha"
+    ctd = (
+        "Varje prov får salthalt och temperatur från närmaste djup i CTD-profilen. "
+        "Ligger det djupet längre bort än Max avstånd får provet inga CTD-värden. "
+        "Gränsen gäller inte för prov inom de angivna avstånden från ytan och botten."
+    )
+    underway = (
+        "Välj en eller flera filer med underway-data och mappen där resultatet ska "
+        "sparas. Filerna konverteras en i taget. pH beräknas för varje rad och "
+        "sparas i en ny fil per indatafil i exportmappen."
     )

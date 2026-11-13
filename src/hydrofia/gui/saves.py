@@ -1,28 +1,40 @@
-import yaml
 import pathlib
 import sys
 
-if getattr(sys, 'frozen', False):
+import yaml
+
+if getattr(sys, "frozen", False):
     ROOT_DIR = pathlib.Path(sys.executable).parent
 else:
     ROOT_DIR = pathlib.Path(__file__).parent
 
 
-SAVES_PATH = pathlib.Path(ROOT_DIR, 'saves.yaml')
+SAVES_PATH = pathlib.Path(ROOT_DIR, "saves.yaml")
+# A file of its own, since each save replaces the whole file
+UNDERWAY_SAVES_PATH = pathlib.Path(ROOT_DIR, "underway_saves.yaml")
 controls = {}
-loaded_data = dict()
+loaded_data = {}
+
+
+def load_values(path: pathlib.Path) -> dict:
+    """The values saved in the file, or an empty dict if there are none."""
+    if not path.exists():
+        return {}
+    with path.open() as fid:
+        return yaml.safe_load(fid) or {}
+
+
+def save_values(path: pathlib.Path, data: dict) -> None:
+    with path.open("w") as fid:
+        yaml.safe_dump(data, fid)
 
 
 def _load():
-    if not SAVES_PATH.exists():
-        return {}
-    with open(SAVES_PATH) as fid:
-        return yaml.safe_load(fid)
+    return load_values(SAVES_PATH)
 
 
 def _save(data):
-    with open(SAVES_PATH, 'w') as fid:
-        yaml.safe_dump(data, fid)
+    save_values(SAVES_PATH, data)
 
 
 def add_control(name, cont):
@@ -30,7 +42,7 @@ def add_control(name, cont):
 
 
 def _get_name_from_control(cont):
-    return str(cont).split('=')[0].split('.')[1]
+    return str(cont).split("=")[0].split(".")[1]
 
 
 def save():
@@ -43,11 +55,10 @@ def save():
 
 def load(obj):
     data = _load()
-    for name, cont in controls.items():
+    for name in controls:
         value = data.get(name)
         if value is None:
             continue
         attr = getattr(obj, name)
         attr.value = value
         attr.update()
-
