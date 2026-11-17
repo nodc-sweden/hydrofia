@@ -15,7 +15,7 @@ from hydrofia.gui import layout, saves, style
 from hydrofia.gui.colors import Colors
 from hydrofia.gui.texts import Texts
 from hydrofia.gui.tooltip import TooltipTexts
-from hydrofia.tris_calculations import TRIS_BUFFERS
+from hydrofia.tris import TRIS_BUFFERS
 
 logger = logging.getLogger(__name__)
 

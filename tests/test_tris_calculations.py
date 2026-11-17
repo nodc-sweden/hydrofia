@@ -1,6 +1,8 @@
+import numpy as np
+import pandas as pd
 import pytest
 
-from hydrofia.tris_calculations import (
+from hydrofia.tris import (
     calculate_ph_tris_dickson,
     calculate_ph_tris_lne_7_612,
     calculate_ph_tris_lne_8_091,
@@ -23,6 +25,16 @@ def test_calculate_ph_tris_dickson(given_temperature, expected_ph):
     calculated_ph = calculate_ph_tris_dickson(given_salinity, given_temperature_k)
 
     assert f"{calculated_ph:.3f}" == f"{expected_ph:.3f}"
+
+
+def test_calculate_ph_tris_dickson_on_array():
+    given_salinity = 35
+    given_temperature = pd.Series((24.5, 24.75, 25, 25.25, 25.5))
+
+    given_temperature += 273.15
+    calculated_ph = calculate_ph_tris_dickson(given_salinity, given_temperature)
+    expected_ph = pd.Series((8.10917852, 8.10135896, 8.09354909, 8.08574887, 8.07795823))
+    np.testing.assert_allclose(calculated_ph, expected_ph, atol=1e-8)
 
 
 @pytest.mark.parametrize(
