@@ -4,12 +4,17 @@ import numpy as np
 
 
 def calculate_ph_tris_dickson(salinity: int, termperature_k: float) -> Any:
-    return (
+    salinity, termperature_k = (
+        np.asarray(value, dtype=float) for value in (salinity, termperature_k)
+    )
+
+    tris = (
         (11911.08 - 18.2499 * salinity - 0.039336 * salinity**2) / termperature_k
         + (-366.27059 + 0.53993607 * salinity + 0.00016329 * salinity**2)
         + (64.52243 - 0.084041 * salinity) * np.log(termperature_k)
         - 0.11149858 * termperature_k
     )
+    return float(tris) if tris.ndim == 0 else tris
 
 
 def calculate_ph_tris_lne_7_612(temperature_c: float):

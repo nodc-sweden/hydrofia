@@ -3,9 +3,9 @@ import pytest
 
 from hydrofia.errors import InvalidHydrofiaFileError
 from hydrofia.underway import (
-    read_underway_file,
-    calculate_ph_tot_labt_p0,
     UNDERWAY_COLUMNS,
+    calculate_ph_tot_labt_p0,
+    read_underway_file,
 )
 
 
@@ -44,7 +44,11 @@ def test_read_underway_file_keeps_continuous_and_discrete_rows(write_export_file
 
     # Then both rows are kept, in file order
     assert list(data["sampleName"]) == ["B", "A", "C"]
-    assert list(data["action"]) == ["Measure continuous", "Measure discrete", "Measure continuous"]
+    assert list(data["action"]) == [
+        "Measure continuous",
+        "Measure discrete",
+        "Measure continuous",
+    ]
 
 
 @pytest.mark.parametrize(

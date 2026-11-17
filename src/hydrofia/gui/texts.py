@@ -134,9 +134,7 @@ class UnderwayTexts:
     dialog_title_output_directory = "Välj mapp där resultatet ska sparas"
 
     def invalid_underway_file(self, file_name: str) -> str:
-        return (
-            f"{file_name} ser inte ut som en Underway-fil. Välj en annan fil."
-        )
+        return f"{file_name} ser inte ut som en Underway-fil. Välj en annan fil."
 
     def non_existing_input_file(self, path) -> str:
         return f"Indatafilen existerar inte: {path}"
