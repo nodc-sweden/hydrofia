@@ -59,5 +59,5 @@ class TooltipTexts:
         "Välj en eller flera filer med underway-data och mappen där resultatet ska "
         "sparas. Filerna konverteras en i taget. pH beräknas för varje rad och "
         "sparas i en ny fil per indatafil i exportmappen. "
-        "Valet för renad indikator kommer skrivas ut som \"Yes\" eller \"No\"."
+        'Valet för renad indikator kommer skrivas ut som "Yes" eller "No".'
     )
