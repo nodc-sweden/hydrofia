@@ -5,14 +5,20 @@ import logging
 from pathlib import Path
 
 import flet as ft
+import pandas as pd
 
 from hydrofia.errors import InvalidHydrofiaFileError
-from hydrofia.export_file import write_export_file
+from hydrofia.export_underway_file import export_file, export_reference_file
 from hydrofia.gui import layout, saves, style
 from hydrofia.gui.colors import Colors
 from hydrofia.gui.texts import UnderwayTexts
 from hydrofia.gui.tooltip import TooltipTexts
-from hydrofia.underway import read_underway_file, calculate_ph_tot_labt_p0
+from hydrofia.underway import (
+    calculate_crm,
+    calculate_ph_tot_labt_p0,
+    calculate_tris,
+    read_underway_file,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +37,13 @@ FILE_ROW_HEIGHT = 20
 FILE_LIST_SPACING = 2
 # Parts of the card with a fixed height. Their measured heights decide how much
 # room is left for the file lists.
-FIXED_PARTS = ("top", "output_directory", "purified_indicator", "result_heading", "convert")
+FIXED_PARTS = (
+    "top",
+    "output_directory",
+    "purified_indicator",
+    "result_heading",
+    "convert",
+)
 
 # Keys in the saves file
 INPUT_FILES = "input_files"
@@ -46,15 +58,27 @@ def get_result_path(input_path: Path, output_directory: Path) -> Path:
     return output_directory / f"{input_path.stem}{RESULT_STEM_ENDING}{RESULT_SUFFIX}"
 
 
-def convert_underway_file(input_path: Path, result_path: Path, purified_indicator: bool = False) -> None:
+def convert_underway_file(
+    input_path: Path, result_path: Path, purified_indicator: bool = False
+) -> None:
     """Read the input file, calculate pH and write the result to result_path.
 
     For now a HydroFIA file is read and written back unchanged.
     """
     underway_data = read_underway_file(input_path)
-    underway_data_with_ph = calculate_ph_tot_labt_p0(underway_data)
-    underway_data_with_ph["purified_indicator"] = ("No", "Yes")[purified_indicator]
-    write_export_file(underway_data_with_ph, result_path)
+    underway_data = calculate_ph_tot_labt_p0(underway_data)
+    underway_data["purified_indicator"] = ("No", "Yes")[purified_indicator]
+    export_file(underway_data, result_path)
+
+    tris_data = calculate_tris(underway_data)
+    crm_data = calculate_crm(underway_data)
+    reference_data = pd.concat([tris_data, crm_data]).sort_index()
+    reference_result_path = result_path.parent / (
+        result_path.stem + "_referensmätning" + result_path.suffix
+    )
+
+    if not reference_data.empty:
+        export_reference_file(reference_data, reference_result_path)
 
 
 class UnderwayApp:
@@ -91,7 +115,9 @@ class UnderwayApp:
         self._output_directory = layout.PathText(value=TEXTS.missing_output_directory)
 
         self._result_file_list = _file_list()
-        self._purified_indicator = ft.Checkbox(value=False, active_color="red", label=TEXTS.purificed_indicator)
+        self._purified_indicator = ft.Checkbox(
+            value=False, active_color="red", label=TEXTS.purificed_indicator
+        )
         self._overwrite = ft.Checkbox(value=False, active_color="red")
         self._convert_btn = ft.FilledButton(TEXTS.convert, on_click=self._convert)
 
@@ -121,7 +147,9 @@ class UnderwayApp:
         )
         convert = ft.Row([self._convert_btn, self._overwrite])
         for name, part in zip(
-            FIXED_PARTS, (top, output_directory, self._purified_indicator, result_heading, convert), strict=True
+            FIXED_PARTS,
+            (top, output_directory, self._purified_indicator, result_heading, convert),
+            strict=True,
         ):
             part.on_size_change = functools.partial(self._on_size_change, name)
 
@@ -196,7 +224,7 @@ class UnderwayApp:
 
     def _save_choices(self):
         data = {
-            #INPUT_FILES: [str(path) for path in self._input_files],
+            # INPUT_FILES: [str(path) for path in self._input_files],
             OUTPUT_DIRECTORY: str(self.output_directory),
         }
         try:
@@ -267,7 +295,9 @@ class UnderwayApp:
                     TEXTS.converting(nr, len(pairs), input_path.name), status="working"
                 )
                 try:
-                    convert_underway_file(input_path, result_path, self._purified_indicator.value)
+                    convert_underway_file(
+                        input_path, result_path, self._purified_indicator.value
+                    )
                 except Exception as exc:
                     logger.exception("Conversion of %s failed", input_path)
                     self._show_info(TEXTS.convert_failed(input_path.name, nr - 1, exc))
