@@ -69,7 +69,7 @@ def get_calculated_object(
         hydrofia_data=template,
         salinity_and_temp_data=ctd_obj,
     )
-    calc.calculate()
+    calc.calculate(calculate_reference_values=kwargs.get("calculate_reference_values"))
     return calc
 
 
@@ -91,7 +91,11 @@ def create_txt_archive_file_from_calc_object(
     **kwargs,
 ):
     txt_exporter = ExporterTxt(path, overwrite=overwrite)
-    calc_object.save_data(txt_exporter, overwrite=overwrite, **kwargs)
+
+    reference_data_exporter = exporter.ReferenceDataExporterTxt(path, overwrite=overwrite)
+    calc_object.save_data(
+        [txt_exporter, reference_data_exporter], overwrite=overwrite, **kwargs
+    )
 
 
 def create_xlsx_result_file(

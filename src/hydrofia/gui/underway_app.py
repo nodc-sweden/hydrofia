@@ -7,16 +7,16 @@ from pathlib import Path
 import flet as ft
 import pandas as pd
 
+from hydrofia.crm import calculate_crm
 from hydrofia.errors import InvalidHydrofiaFileError
 from hydrofia.export_underway_file import export_file, export_reference_file
 from hydrofia.gui import layout, saves, style
 from hydrofia.gui.colors import Colors
 from hydrofia.gui.texts import UnderwayTexts
 from hydrofia.gui.tooltip import TooltipTexts
+from hydrofia.ph import calculate_ph_tot_labt_p0
+from hydrofia.tris import calculate_tris
 from hydrofia.underway import (
-    calculate_crm,
-    calculate_ph_tot_labt_p0,
-    calculate_tris,
     read_underway_file,
 )
 
@@ -97,7 +97,6 @@ class UnderwayApp:
         page.window.min_width = WINDOW_MIN_WIDTH
         page.window.min_height = WINDOW_MIN_HEIGHT
         page.padding = style.PAGE_PADDING
-        # FilePicker is a service in flet 1.0 and registers itself with the page.
         self._file_picker = ft.FilePicker()
         self._create_controls()
         page.add(self._build_layout())

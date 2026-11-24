@@ -1,13 +1,26 @@
 import numpy as np
-import numpy.typing as npt
+import pandas as pd
 
+from hydrofia.constants import KELVIN_OFFSET, TRIS_SALINITY
 from hydrofia.ext_src import seacarb
 
-KELVIN_OFFSET = 273.15
+
+def calculate_ph_tot_labt_p0(data: pd.DataFrame) -> pd.DataFrame:
+    salinity = data["salinity"]
+    salinity[data["sampleName"].str.contains("TRIS", case=False, na=False)] = (
+        TRIS_SALINITY
+    )
+
+    data["pH-tot-labT-P0"] = calculate_ph_t_spec(
+        salinity,
+        data["temperatureSample"],
+        data["R0"],
+    )
+    return data
 
 
 def calculate_ph_t_spec(
-    salinity: npt.ArrayLike, temperature: npt.ArrayLike, r0: npt.ArrayLike
+    salinity: float | pd.Series, temperature: float | pd.Series, r0: float | pd.Series
 ) -> float | np.ndarray:
     salinity, temperature, r0 = (
         np.asarray(value, dtype=float) for value in (salinity, temperature, r0)

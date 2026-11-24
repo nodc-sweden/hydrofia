@@ -2,9 +2,9 @@ import pandas as pd
 import pytest
 
 from hydrofia.errors import InvalidHydrofiaFileError
+from hydrofia.ph import calculate_ph_tot_labt_p0
 from hydrofia.underway import (
     UNDERWAY_COLUMNS,
-    calculate_ph_tot_labt_p0,
     read_underway_file,
 )
 

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from hydrofia.constants import KELVIN_OFFSET, TRIS_SALINITY
 from hydrofia.tris import (
     calculate_ph_tris_dickson,
     calculate_ph_tris_lne_7_612,
@@ -20,18 +21,18 @@ from hydrofia.tris import (
     ),
 )
 def test_calculate_ph_tris_dickson(given_temperature, expected_ph):
-    given_salinity = 35
-    given_temperature_k = given_temperature + 273.15
+    given_salinity = TRIS_SALINITY
+    given_temperature_k = given_temperature + KELVIN_OFFSET
     calculated_ph = calculate_ph_tris_dickson(given_salinity, given_temperature_k)
 
     assert f"{calculated_ph:.3f}" == f"{expected_ph:.3f}"
 
 
 def test_calculate_ph_tris_dickson_on_array():
-    given_salinity = 35
+    given_salinity = TRIS_SALINITY
     given_temperature = pd.Series((24.5, 24.75, 25, 25.25, 25.5))
 
-    given_temperature += 273.15
+    given_temperature += KELVIN_OFFSET
     calculated_ph = calculate_ph_tris_dickson(given_salinity, given_temperature)
     expected_ph = pd.Series((8.10917852, 8.10135896, 8.09354909, 8.08574887, 8.07795823))
     np.testing.assert_allclose(calculated_ph, expected_ph, atol=1e-8)

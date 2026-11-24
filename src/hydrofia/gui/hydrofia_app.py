@@ -459,6 +459,9 @@ class HydrofiaApp:
         self._create_result_btn = ft.FilledButton(
             TEXTS.create_result, on_click=self._create_result
         )
+        self._create_reference_values_checkbox = ft.Checkbox(
+            TEXTS.create_reference_values, value=True, active_color="red"
+        )
 
     # ------------------------------------------------------------------
     # Layout: the whole page in one place. Move controls around here.
@@ -606,6 +609,7 @@ class HydrofiaApp:
                         self._overwrite_result,
                         self._open_result_file_btn,
                     ),
+                    self._create_reference_values_checkbox,
                 ]
             ),
         )
@@ -895,8 +899,8 @@ class HydrofiaApp:
                 max_depth_diff_allowed=self.metadata_max_depth_diff_allowed,
                 surface_layer_depth=self.metadata_surface_layer,
                 bottom_layer_depth=self.metadata_bottom_layer,
+                calculate_reference_values=self._create_reference_values_checkbox.value,
             )
-
             hydrofia.create_xlsx_result_file_from_calc_object(
                 calc_object=calc_object,
                 path=self.create_result_path,

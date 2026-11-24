@@ -35,6 +35,7 @@ class Texts:
 
     create_template = "Skapa rättningsfil"
     create_result = "Skapa resultatfil"
+    create_reference_values = "Beräkna referensvärden"
 
     # overwrite = 'Vill du skriva över filen?'
 

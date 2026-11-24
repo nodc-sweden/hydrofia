@@ -28,6 +28,7 @@ def test_calculate_uses_ctd_salinity_and_gives_nan_when_ctd_is_missing():
     given_hydrofia_data = FakeHydrofiaData(
         pd.DataFrame(
             {
+                "sampleName": ["ABC-123", "ABC-123"],
                 "serno": ["0001", "0002"],
                 "depth": ["5", "5"],
                 "year": ["2025", "2025"],

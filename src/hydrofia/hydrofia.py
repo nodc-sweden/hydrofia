@@ -74,7 +74,6 @@ class HydrofiaExportFileDiscrete:
                 r"(?P<depth>[xX])",
             )
         ),
-        re.compile("^.*CRM.*$"),
         re.compile(
             "^{}{}{}-{}{}{}$".format(
                 r"(?P<year>\d{2})",
@@ -85,6 +84,9 @@ class HydrofiaExportFileDiscrete:
                 r"(?P<depth>DIB)",
             )
         ),
+        re.compile("^.*CRM.*$"),
+        re.compile("^.*CMR.*$"),
+        re.compile("^.*TRIS.*$"),
     )
     SERNO_PATTERN = re.compile(r"-(?P<serno>\d{4})[-_]")
 
@@ -191,26 +193,36 @@ class HydrofiaExportFileDiscrete:
     def _add_columns(self):
 
         def extract_country(sample_name: str):
-            if "CRM" in sample_name:
+            uppercase_sample_name = sample_name.upper()
+            if any(
+                substring in uppercase_sample_name for substring in ("CRM", "CMR", "TRIS")
+            ):
                 return ""
             parts = sample_name.split("-")
             return utils.map_ship(parts[0][-4:-2])
 
         def extract_ship(sample_name: str):
-            if "CRM" in sample_name:
+            uppercase_sample_name = sample_name.upper()
+            if any(
+                substring in uppercase_sample_name for substring in ("CRM", "CMR", "TRIS")
+            ):
                 return ""
             parts = sample_name.split("-")
             return utils.map_ship(parts[0][-2:])
 
         def extract_serno(sample_name: str) -> str:
-            if "CRM" in sample_name:
+            uppercase_sample_name = sample_name.upper()
+            if any(
+                substring in uppercase_sample_name for substring in ("CRM", "CMR", "TRIS")
+            ):
                 return sample_name
             return self.SERNO_PATTERN.search(sample_name)["serno"]
 
         def extract_depth(sample_name):
-            if "CRM" in sample_name:
-                return ""
-            if not sample_name:
+            uppercase_sample_name = sample_name.upper()
+            if any(
+                substring in uppercase_sample_name for substring in ("CRM", "CMR", "TRIS")
+            ):
                 return ""
             if "_" in sample_name:
                 return sample_name.split("_")[-1]
