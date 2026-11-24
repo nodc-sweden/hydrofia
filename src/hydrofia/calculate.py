@@ -3,7 +3,9 @@ from typing import Protocol, runtime_checkable
 import numpy as np
 import pandas as pd
 
+from hydrofia.crm import calculate_crm
 from hydrofia.ph import calculate_ph_t_spec
+from hydrofia.tris import calculate_tris
 
 
 class HydrofiaTemplateData(Protocol):
@@ -34,16 +36,26 @@ class Calculate:
         self.data_hydrofia = hydrofia_data
         self.data_salt_temp = salinity_and_temp_data
         self._data: pd.DataFrame = pd.DataFrame()
+        self._reference_data: pd.DataFrame = pd.DataFrame()
 
     @property
     def data(self):
         return self._data
 
-    def calculate(self):
+    def calculate(self, calculate_reference_values: bool = False):
         self._extract_data()
         self._make_float()
         self._add_salt_and_temp()
         self._calculate()
+
+        if calculate_reference_values:
+            tris_data = calculate_tris(self._data)
+            crm_data = calculate_crm(self._data)
+            reference_data = [
+                reference for reference in (tris_data, crm_data) if not reference.empty
+            ]
+            if reference_data:
+                self._reference_data = pd.concat(reference_data).sort_index()
 
     def _extract_data(self):
         self._data = self.data_hydrofia.get_data().copy(deep=True)
@@ -65,9 +77,15 @@ class Calculate:
         ref_depth_data = []
         station_data = []
         for _index, row in self.data.iterrows():
-            if "CRM" in row["serno"].upper():
+            uppercase_serno = row["serno"].upper()
+            if any(substring in uppercase_serno for substring in ("CRM", "CMR")):
                 data = {
                     "salt": float(row["salinity"]),
+                    "temp": float(row["temperatureSample"]),
+                }
+            elif "TRIS" in uppercase_serno:
+                data = {
+                    "salt": 35,
                     "temp": float(row["temperatureSample"]),
                 }
             else:
@@ -114,4 +132,4 @@ class Calculate:
         for exporter in exporters:
             if not isinstance(exporter, Exporter):
                 raise NotImplementedError
-            exporter.save(self.data, **kwargs)
+            exporter.save(self.data, reference_data=self._reference_data, **kwargs)

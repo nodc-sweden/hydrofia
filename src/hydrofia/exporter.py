@@ -109,7 +109,11 @@ class ExporterXlsxResultFile:
 
     def _write_serno_span(self):
         # TODO: Use sorted set and see if its faster
-        int_serno = [int(serno) for serno in self.data["serno"] if "CRM" not in serno]
+        int_serno = [
+            int(serno)
+            for serno in self.data["serno"]
+            if not any(substring in serno for substring in ("CRM", "CMR", "TRIS"))
+        ]
         # int_serno = self.data['serno'].apply(int)
         self.serno_span = f"{str(min(int_serno)).zfill(4)}-{str(max(int_serno)).zfill(4)}"
 
@@ -260,6 +264,44 @@ class ExporterTxt:
         if "index" in new_data.columns:
             new_data.pop("index")
         new_data.to_csv(self.path, sep="\t", index=False)
+
+
+class ReferenceDataExporterTxt:
+    name = "reference-data-txt-export"
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __init__(self, path: pathlib.Path | str, overwrite: bool = False):
+        path = pathlib.Path(path)
+        self.path = path.parent / (path.stem + "_referensmätning" + path.suffix)
+
+        self._overwrite = overwrite
+
+    def save(self, data: pd.DataFrame, reference_data: pd.DataFrame, **kwargs):
+        if self.path.exists() and not self._overwrite:
+            raise FileExistsError(self.path)
+
+        if reference_data.empty:
+            return
+
+        columns = [
+            "timestamp",
+            "sampleName",
+            "salt",
+            "temperatureSample",
+            "reference-pH",
+            "pH-tot-labT-P0",
+            "pH-difference",
+            "serialIndicator",
+            "absorbance434",
+            "absorbance487",
+            "absorbance578",
+            "R0",
+        ]
+
+        selected_data = reference_data[columns]
+        selected_data.to_csv(self.path, sep="\t", index=False)
 
 
 class Exporters:

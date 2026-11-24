@@ -19,7 +19,7 @@
 '100':
   NB: G
   alk: '2232.36'
-  batch_nr: Batch  100
+  batch_nr: Batch 100
   bottling_date: November 13, 2009
   dic: '2021.65'
   phosphate: '0.54'
@@ -28,7 +28,7 @@
 '101':
   NB: G
   alk: '2241.44'
-  batch_nr: Batch  101
+  batch_nr: Batch 101
   bottling_date: January 15, 2010
   dic: '2027.80'
   phosphate: '0.55'
@@ -37,7 +37,7 @@
 '102':
   NB: G
   alk: '2227.46'
-  batch_nr: Batch  102
+  batch_nr: Batch 102
   bottling_date: February 19, 2010
   dic: '2012.24'
   phosphate: '0.44'
@@ -46,7 +46,7 @@
 '103':
   NB: G
   alk: '2232.94'
-  batch_nr: Batch  103
+  batch_nr: Batch 103
   bottling_date: April 9, 2010
   dic: '2023.23'
   phosphate: '0.42'
@@ -55,7 +55,7 @@
 '104':
   NB: G
   alk: '2222.61'
-  batch_nr: Batch  104
+  batch_nr: Batch 104
   bottling_date: June 11, 2010
   dic: '2020.10'
   phosphate: '0.77'
@@ -64,7 +64,7 @@
 '105':
   NB: G
   alk: '2235.16'
-  batch_nr: Batch  105
+  batch_nr: Batch 105
   bottling_date: July 23, 2010
   dic: '2036.72'
   phosphate: '0.62'
@@ -73,7 +73,7 @@
 '106':
   NB: G
   alk: '2219.68'
-  batch_nr: Batch  106
+  batch_nr: Batch 106
   bottling_date: September 10, 2010
   dic: '2004.90'
   phosphate: '0.39'
@@ -82,7 +82,7 @@
 '107':
   NB: G
   alk: '2205.17'
-  batch_nr: Batch  107
+  batch_nr: Batch 107
   bottling_date: October 8, 2010
   dic: '1995.12'
   phosphate: '0.37'
@@ -91,7 +91,7 @@
 '108':
   NB: G
   alk: '2218.00'
-  batch_nr: Batch  108
+  batch_nr: Batch 108
   bottling_date: November 10, 2010
   dic: '2022.70'
   phosphate: '0.41'
@@ -100,7 +100,7 @@
 '109':
   NB: G
   alk: '2224.26'
-  batch_nr: Batch  109
+  batch_nr: Batch 109
   bottling_date: December 9, 2010
   dic: '2026.33'
   phosphate: '0.40'
@@ -118,7 +118,7 @@
 '110':
   NB: G
   alk: '2229.04'
-  batch_nr: Batch  110
+  batch_nr: Batch 110
   bottling_date: January 14, 2011
   dic: '2018.28'
   phosphate: '0.36'
@@ -127,7 +127,7 @@
 '111':
   NB: G
   alk: '2222.80'
-  batch_nr: Batch  111
+  batch_nr: Batch 111
   bottling_date: February 18, 2011
   dic: '2045.66'
   phosphate: '0.87'
@@ -136,7 +136,7 @@
 '112':
   NB: G
   alk: '2223.26'
-  batch_nr: Batch  112
+  batch_nr: Batch 112
   bottling_date: June 3, 2011
   dic: '2011.09'
   phosphate: '0.33'
@@ -145,7 +145,7 @@
 '113':
   NB: G
   alk: '2224.65'
-  batch_nr: Batch  113
+  batch_nr: Batch 113
   bottling_date: July 8, 2011
   dic: '2016.68'
   phosphate: '0.46'
@@ -154,7 +154,7 @@
 '114':
   NB: G
   alk: '2217.91'
-  batch_nr: Batch  114
+  batch_nr: Batch 114
   bottling_date: August 19, 2011
   dic: '2000.93'
   phosphate: '0.36'
@@ -163,7 +163,7 @@
 '115':
   NB: G
   alk: '2242.84'
-  batch_nr: Batch  115
+  batch_nr: Batch 115
   bottling_date: September 16, 2011
   dic: '2007.45'
   phosphate: '0.38'
@@ -172,7 +172,7 @@
 '116':
   NB: G
   alk: '2232.76'
-  batch_nr: Batch  116
+  batch_nr: Batch 116
   bottling_date: October 14, 2011
   dic: '2014.18'
   phosphate: '0.38'
@@ -181,7 +181,7 @@
 '117':
   NB: G
   alk: '2239.18'
-  batch_nr: Batch  117
+  batch_nr: Batch 117
   bottling_date: November 10, 2011
   dic: '2009.99'
   phosphate: '0.37'
@@ -190,7 +190,7 @@
 '118':
   NB: G
   alk: '2229.75'
-  batch_nr: Batch  118
+  batch_nr: Batch 118
   bottling_date: December 16, 2011
   dic: '2013.33'
   phosphate: '0.39'
@@ -199,7 +199,7 @@
 '119':
   NB: G
   alk: '2221.24'
-  batch_nr: Batch  119
+  batch_nr: Batch 119
   bottling_date: January 20, 2012
   dic: '2014.78'
   phosphate: '0.34'
@@ -217,7 +217,7 @@
 '120':
   NB: G
   alk: '2208.43'
-  batch_nr: Batch  120
+  batch_nr: Batch 120
   bottling_date: February 24, 2012
   dic: '2002.61'
   phosphate: '0.31'
@@ -226,7 +226,7 @@
 '122':
   NB: G
   alk: '2233.32'
-  batch_nr: Batch  122
+  batch_nr: Batch 122
   bottling_date: May 11, 2012
   dic: '2042.29'
   phosphate: '0.80'
@@ -235,7 +235,7 @@
 '123':
   NB: G
   alk: '2225.21'
-  batch_nr: Batch  123
+  batch_nr: Batch 123
   bottling_date: August 16, 2012
   dic: '2022.04'
   phosphate: '0.48'
@@ -262,7 +262,7 @@
 '126':
   NB: G
   alk: '2232.55'
-  batch_nr: Batch  126
+  batch_nr: Batch 126
   bottling_date: December 7, 2012
   dic: '2007.64'
   phosphate: '0.39'
@@ -271,7 +271,7 @@
 '127':
   NB: G
   alk: '2228.64'
-  batch_nr: Batch  127
+  batch_nr: Batch 127
   bottling_date: January 18, 2013
   dic: '2023.30'
   phosphate: '0.49'
@@ -280,7 +280,7 @@
 '128':
   NB: G
   alk: '2240.28'
-  batch_nr: Batch  128
+  batch_nr: Batch 128
   bottling_date: February 15, 2013
   dic: '2013.54'
   phosphate: '0.30'
@@ -289,7 +289,7 @@
 '129':
   NB: G
   alk: '2237.32'
-  batch_nr: Batch  129
+  batch_nr: Batch 129
   bottling_date: April 26, 2013
   dic: '2016.65'
   phosphate: '0.34'
@@ -307,7 +307,7 @@
 '130':
   NB: G
   alk: '2238.04'
-  batch_nr: Batch  130
+  batch_nr: Batch 130
   bottling_date: May 24, 2013
   dic: '2072.58'
   phosphate: '1.02'
@@ -316,7 +316,7 @@
 '131':
   NB: G
   alk: '2241.35'
-  batch_nr: Batch  131
+  batch_nr: Batch 131
   bottling_date: June 28, 2013
   dic: '2028.99'
   phosphate: '0.47'
@@ -325,7 +325,7 @@
 '132':
   NB: G
   alk: '2229.24'
-  batch_nr: Batch  132
+  batch_nr: Batch 132
   bottling_date: July 26, 2013
   dic: '2032.65'
   phosphate: '0.58'
@@ -1675,7 +1675,7 @@
 '68':
   NB: G
   alk: '2233.71'
-  batch_nr: Batch  68
+  batch_nr: Batch 68
   bottling_date: Dec 10, 2004
   dic: '2003.78'
   phosphate: '0.36'
@@ -1684,7 +1684,7 @@
 '69':
   NB: G
   alk: '2114.42'
-  batch_nr: Batch  69
+  batch_nr: Batch 69
   bottling_date: Jan 4, 2005
   dic: '1907.63'
   phosphate: '0.33'
@@ -1702,7 +1702,7 @@
 '70':
   NB: G
   alk: '2160.46'
-  batch_nr: Batch  70
+  batch_nr: Batch 70
   bottling_date: Apr 27, 2005
   dic: '1989.53'
   phosphate: '0.36'
@@ -1711,7 +1711,7 @@
 '71':
   NB: G
   alk: '2254.50'
-  batch_nr: Batch  71
+  batch_nr: Batch 71
   bottling_date: May 19, 2005
   dic: '2032.84'
   phosphate: '0.30'
@@ -1720,7 +1720,7 @@
 '72':
   NB: G
   alk: '2312.79'
-  batch_nr: Batch  72
+  batch_nr: Batch 72
   bottling_date: Jul 27, 2005
   dic: '2091.61'
   phosphate: '0.27'
@@ -1729,7 +1729,7 @@
 '73':
   NB: G
   alk: '2253.50'
-  batch_nr: Batch  73
+  batch_nr: Batch 73
   bottling_date: Nov 17, 2005
   dic: '2057.30'
   phosphate: '0.35'
@@ -1738,7 +1738,7 @@
 '74':
   NB: G
   alk: '2305.34'
-  batch_nr: Batch  74
+  batch_nr: Batch 74
   bottling_date: Dec 15, 2005
   dic: '2085.53'
   phosphate: '0.22'
@@ -1747,7 +1747,7 @@
 '75':
   NB: G
   alk: '2210.09'
-  batch_nr: Batch  75
+  batch_nr: Batch 75
   bottling_date: Mar 2, 2006
   dic: '2005.98'
   phosphate: '0.93'
@@ -1756,7 +1756,7 @@
 '76':
   NB: G
   alk: '2314.49'
-  batch_nr: Batch  76
+  batch_nr: Batch 76
   bottling_date: May 18, 2006
   dic: '2101.69'
   phosphate: '0.38'
@@ -1765,7 +1765,7 @@
 '77':
   NB: G
   alk: '2199.33'
-  batch_nr: Batch  77
+  batch_nr: Batch 77
   bottling_date: July 13, 2006
   dic: '1998.44'
   phosphate: '0.63'
@@ -1774,7 +1774,7 @@
 '78':
   NB: G
   alk: '2185.57'
-  batch_nr: Batch  78
+  batch_nr: Batch 78
   bottling_date: September 21, 2006
   dic: '1991.93'
   phosphate: '0.37'
@@ -1783,7 +1783,7 @@
 '79':
   NB: G
   alk: '2262.31'
-  batch_nr: Batch  79
+  batch_nr: Batch 79
   bottling_date: November 21, 2006
   dic: '2038.63'
   phosphate: '0.31'
@@ -1801,7 +1801,7 @@
 '80':
   NB: G
   alk: '2214.49'
-  batch_nr: Batch  80
+  batch_nr: Batch 80
   bottling_date: January 9, 2007
   dic: '2006.50'
   phosphate: '0.32'
@@ -1810,7 +1810,7 @@
 '81':
   NB: G
   alk: '2201.20'
-  batch_nr: Batch  81
+  batch_nr: Batch 81
   bottling_date: April 26, 2007
   dic: '2011.49'
   phosphate: '0.33'
@@ -1819,7 +1819,7 @@
 '82':
   NB: G
   alk: '2335.02'
-  batch_nr: Batch  82
+  batch_nr: Batch 82
   bottling_date: June 28, 2007
   dic: '2118.25'
   phosphate: '0.30'
@@ -1828,7 +1828,7 @@
 '83':
   NB: G
   alk: '2286.34'
-  batch_nr: Batch  83
+  batch_nr: Batch 83
   bottling_date: July 26, 2007
   dic: '2055.57'
   phosphate: '0.33'
@@ -1837,7 +1837,7 @@
 '84':
   NB: G
   alk: '2201.01'
-  batch_nr: Batch  84
+  batch_nr: Batch 84
   bottling_date: September 6, 2007
   dic: '2001.23'
   phosphate: '0.31'
@@ -1846,7 +1846,7 @@
 '85':
   NB: G
   alk: '2184.03'
-  batch_nr: Batch  85
+  batch_nr: Batch 85
   bottling_date: October 12, 2007
   dic: '2000.44'
   phosphate: '0.31'
@@ -1855,7 +1855,7 @@
 '86':
   NB: G
   alk: '2175.56'
-  batch_nr: Batch  86
+  batch_nr: Batch 86
   bottling_date: December 20, 2007
   dic: '1998.37'
   phosphate: '0.32'
@@ -1864,7 +1864,7 @@
 '87':
   NB: G
   alk: '2201.16'
-  batch_nr: Batch  87
+  batch_nr: Batch 87
   bottling_date: April 15, 2008
   dic: '2012.01'
   phosphate: '0.50'
@@ -1873,7 +1873,7 @@
 '88':
   NB: G
   alk: '2205.41'
-  batch_nr: Batch  88
+  batch_nr: Batch 88
   bottling_date: June 5, 2008
   dic: '2013.42'
   phosphate: '0.52'
@@ -1882,7 +1882,7 @@
 '89':
   NB: G
   alk: '2214.06'
-  batch_nr: Batch  89
+  batch_nr: Batch 89
   bottling_date: July 17, 2008
   dic: '2025.71'
   phosphate: '0.34'
@@ -1900,7 +1900,7 @@
 '90':
   NB: G
   alk: '2216.00'
-  batch_nr: Batch  90
+  batch_nr: Batch 90
   bottling_date: September 5, 2008
   dic: '1985.61'
   phosphate: '0.36'
@@ -1909,7 +1909,7 @@
 '91':
   NB: G
   alk: '2182.90'
-  batch_nr: Batch  91
+  batch_nr: Batch 91
   bottling_date: October 10, 2008
   dic: '2011.61'
   phosphate: '0.38'
@@ -1918,7 +1918,7 @@
 '92':
   NB: G
   alk: '2201.91'
-  batch_nr: Batch  92
+  batch_nr: Batch 92
   bottling_date: November 7, 2008
   dic: '1996.35'
   phosphate: '0.33'
@@ -1927,7 +1927,7 @@
 '93':
   NB: G
   alk: '2230.06'
-  batch_nr: Batch  93
+  batch_nr: Batch 93
   bottling_date: December 18, 2008
   dic: '2020.34'
   phosphate: '0.33'
@@ -1936,7 +1936,7 @@
 '94':
   NB: G
   alk: '2222.39'
-  batch_nr: Batch  94
+  batch_nr: Batch 94
   bottling_date: January 30, 2009
   dic: '2015.92'
   phosphate: '0.42'
@@ -1945,7 +1945,7 @@
 '95':
   NB: G
   alk: '2217.51'
-  batch_nr: Batch  95
+  batch_nr: Batch 95
   bottling_date: March 2, 2009
   dic: '2016.38'
   phosphate: '0.39'
@@ -1954,7 +1954,7 @@
 '96':
   NB: G
   alk: '2212.40'
-  batch_nr: Batch  96
+  batch_nr: Batch 96
   bottling_date: May 8, 2009
   dic: '2005.36'
   phosphate: '0.32'
@@ -1963,7 +1963,7 @@
 '97':
   NB: G
   alk: '2211.21'
-  batch_nr: Batch  97
+  batch_nr: Batch 97
   bottling_date: June 26, 2009
   dic: '2003.03'
   phosphate: '0.37'
@@ -1972,7 +1972,7 @@
 '98':
   NB: G
   alk: '2231.11'
-  batch_nr: Batch  98
+  batch_nr: Batch 98
   bottling_date: August 31, 2009
   dic: '2013.85'
   phosphate: '0.46'
@@ -1981,7 +1981,7 @@
 '99':
   NB: G
   alk: '2356.78'
-  batch_nr: Batch  99
+  batch_nr: Batch 99
   bottling_date: October 9, 2009
   dic: '2115.04'
   phosphate: '0.35'
